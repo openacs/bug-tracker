@@ -334,14 +334,8 @@ if { ![form is_valid bug] } {
     }
 
     # Set values for description field
-    if { ![empty_string_p $action_id] } {
-        set current_action_html "<p><b>$bug(now_pretty) [workflow::action::get_element -action_id $action_id -element pretty_past_tense] by [bug_tracker::conn user_first_names] [bug_tracker::conn user_last_name]</b></p>"
-    } else {
-        set current_action_html {}
-    }
-
     element set_properties bug description \
-            -before_html "[workflow::case::get_activity_html -case_id $case_id]$current_action_html"
+            -before_html [workflow::case::get_activity_html -case_id $case_id -action_id $action_id]
 
     # Set page title
     set page_title "[bug_tracker::conn Bug] #$bug_number: $bug(summary)"
