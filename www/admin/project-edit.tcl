@@ -30,7 +30,7 @@ ad_form -name project -cancel_url $return_url -form {
         {result_datatype integer}
         {label {Project Maintainer}}
         {options [bug_tracker::users_get_options]}
-        {search_query {[db_map user_search]}}
+        {search_query {[db_map dbqd.acs-tcl.tcl.community-core-procs.user_search]}}
     }
 } -select_query_name project_select -edit_data {
     db_transaction {
