@@ -5,13 +5,14 @@ ad_page_contract {
     @date 2002-03-20
     @cvs-id $Id$
 } {
-    {status:optional "open"}
+    status:optional
     bug_type:optional
     fix_for_version:integer,optional
     severity:integer,optional
     priority:integer,optional
     assignee:integer,optional
     component_id:integer,optional
+    actionby:integer,optional
     {orderby ""}
 }
 
@@ -47,12 +48,16 @@ set where_clauses [list]
 
 set filter_vars { status fix_for_version assignee component_id }
 
-if { [info exists status] } {
-    lappend where_clauses "b.status = :status"
-    set human_readable_filter "All $status bugs"
-} else {
-    set human_readable_filter "All bugs"
+if { ![info exists status] } {
+    if { [info exists actionby] } {
+        set status ""
+    } else {
+        set status "open"
+    }
 }
+
+lappend where_clauses "b.status = :status"
+set human_readable_filter "All $status bugs"
 
 if { [info exists bug_type] } {
     lappend where_clauses "b.bug_type = :bug_type"
@@ -65,11 +70,20 @@ if { [info exists assignee] } {
         append human_readable_filter " that are unassigned"
     } else {
         lappend where_clauses "b.assignee = :assignee"
-        if { $assignee ==  [ad_conn user_id] } {
+        if { $assignee == [ad_conn user_id] } {
             append human_readable_filter " assigned to me"
         } else {
             append human_readable_filter " assigned to [db_string assignee_name { select first_names || ' ' || last_name from cc_users where user_id = :assignee }]"
         }
+    }
+}
+
+if { [info exists actionby] } {
+    lappend where_clauses "((b.status = 'open' and b.assignee = :actionby) or (b.status = 'resolved' and o.creation_user = :actionby))"
+    if { $actionby ==  [ad_conn user_id] } {
+        append human_readable_filter " awaiting action by me"
+    } else {
+        append human_readable_filter " awaiting action by [db_string actionby_name { select first_names || ' ' || last_name from cc_users where user_id = :actionby }]"
     }
 }
 
@@ -288,6 +302,22 @@ db_multirow -extend { name_url stat_name } -append stats stats_by_assignee {
         set name "<i>Unassigned</i>"
     }
     set name_url "[ad_conn package_url]?[export_vars -url { { assignee $unique_id } }]"
+}
+
+db_multirow -extend { name_url stat_name } -append stats stats_by_actionby {
+    select o.creation_user as unique_id,
+           submitter.first_names || ' ' || submitter.last_name as name,
+           count(b.bug_id) as num_bugs
+    from   bt_bugs b join
+           acs_objects o on (object_id = bug_id) join
+           cc_users submitter on (submitter.user_id = o.creation_user)
+    where  b.project_id = :package_id
+    and    b.status = 'resolved'
+    group  by unique_id, name
+    order  by name
+} {
+    set stat_name "To Be Verified By"
+    set name_url "?[export_vars -url { { status resolved } { actionby $unique_id } }]"
 }
 
 db_multirow -extend { name_url stat_name } -append stats stats_by_component {

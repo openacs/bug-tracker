@@ -22,7 +22,7 @@ if { [ad_permission_p [ad_conn package_id] create] } {
 }
 
 if { [ad_conn user_id] != 0 } {
-    multirow append links "My Bugs" "[ad_conn package_url]?[export_vars -url { { assignee {[ad_conn user_id]} } }]"
+    multirow append links "My Bugs" "[ad_conn package_url]?[export_vars -url { { actionby {[ad_conn user_id]} } }]"
 }
 multirow append links "Prefs" "[ad_conn package_url]prefs"
 if { $admin_p } {
