@@ -166,9 +166,7 @@
 -->
 <fullquery name="bug_tracker::bug::get_query.bugs_pagination">
   <querytext>
-select q.*,
-       km.keyword_id,
-       assign_info.*
+select q.*
 from (
   select b.bug_id,
          b.bug_number,
