@@ -46,11 +46,3 @@ db_multirow -extend { edit_url delete_url maintainer_url view_bugs_url } compone
 }
 
 set component_add_url "component-ae"
-
-db_multirow versions versions {}
-
-
-ad_return_template
-
-
-
