@@ -12,7 +12,7 @@ ad_page_contract {
 # If the user hit cancel, ignore everything else
 if { [exists_and_not_null cancel] } {
     ad_returnredirect $return_url
-    return
+    ad_script_abort
 }
 
 ad_require_permission [ad_conn package_id] create
@@ -153,7 +153,7 @@ if { [form is_valid bug] } {
     bt_bug_notify $bug_id "open" $description $desc_format
 
     ad_returnredirect $return_url
-    return
+    ad_script_abort
 }
 
 ad_return_template

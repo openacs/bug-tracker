@@ -12,7 +12,7 @@ ad_page_contract {
 
 if { [exists_and_not_null cancel] } {
     ad_returnredirect $return_url
-    return
+    ad_script_abort
 }
 
 set project_name [bt_conn project_name]
@@ -23,27 +23,23 @@ set page_title "Edit Project Maintainer"
 
 set context_bar [ad_context_bar $page_title]
 
-template::form create project_maintainer
+form create project_maintainer
 
-template::element create project_maintainer return_url -datatype text -widget hidden -value $return_url
+element create project_maintainer return_url -datatype text -widget hidden -value $return_url
 
-template::element create project_maintainer maintainer \
+element create project_maintainer maintainer \
         -datatype integer \
         -widget select \
         -label "Project Maintainer" \
+        -options [concat {{ "--None--" "" }} [db_list_of_lists users { select first_names || ' ' || last_name, user_id from cc_users }]] \
         -optional
 
-if { ![template::form is_valid project_maintainer] } {
-    template::element set_properties project_maintainer maintainer \
-            -options [concat {{ "--None--" "" }} [db_list_of_lists users { select first_names || ' ' || last_name, user_id from cc_users }]] 
-}
-
-if { [template::form is_request project_maintainer] } {
-    template::element set_properties project_maintainer maintainer \
+if { [form is_request project_maintainer] } {
+    element set_properties project_maintainer maintainer \
             -value [db_string maintainer { select maintainer from bt_projects where project_id = :package_id }]
 }
 
-if { [template::form is_valid project_maintainer] } {
+if { [form is_valid project_maintainer] } {
     db_dml project_maintainer_update {
         update bt_projects
         set    maintainer = :maintainer
@@ -51,7 +47,7 @@ if { [template::form is_valid project_maintainer] } {
     }
 
     ad_returnredirect $return_url
-    return
+    ad_script_abort
 }
 
 ad_return_template

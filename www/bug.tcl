@@ -19,7 +19,7 @@ set return_url "bug?[export_vars -url { bug_number }]"
 # If the user hit cancel, ignore everything else
 if { [exists_and_not_null cancel] } {
     ad_returnredirect $return_url
-    return
+    ad_script_abort
 }
 
 ad_require_permission [ad_conn package_id] read
@@ -433,7 +433,7 @@ if { [form is_valid bug] } {
     bt_bug_notify $bug_id $mode $description $desc_format
 
     ad_returnredirect $return_url
-    return
+    ad_script_abort
 }
 
 ad_return_template

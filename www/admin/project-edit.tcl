@@ -13,7 +13,7 @@ ad_page_contract {
 
 if { [exists_and_not_null cancel] } {
     ad_returnredirect $return_url
-    return
+    ad_script_abort
 }
 
 set project_name [bt_conn project_name]
@@ -59,7 +59,7 @@ if { [template::form is_valid project_info] } {
     }
     
     ad_returnredirect $return_url
-    return
+    ad_script_abort
 }
 
 ad_return_template

@@ -13,7 +13,7 @@ ad_page_contract {
 # If the user hit cancel, ignore everything else
 if { [exists_and_not_null cancel] } {
     ad_returnredirect $return_url
-    return
+    ad_script_abort
 }
 
 # User needs to be logged in here
