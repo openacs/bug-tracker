@@ -15,7 +15,7 @@ ad_page_contract {
     cancel:optional
     close:optional
     {user_agent_p:boolean 0}
-    {show_patch_status "open"}
+    {show_patch_status "all"}
     filter:array,optional
 }
 
@@ -209,7 +209,7 @@ element create bug found_in_version \
 element create bug patches \
         -datatype text \
         -widget   inform \
-        -label    [ad_decode $show_patch_status "open" "Open Patches (<a href=\"$return_url&show_patch_status=all\">show all</a>)" "all" "All Patches (<a href=\"$return_url&show_patch_status=open\">show only open)" "Patches"]
+    -label    [ad_decode $show_patch_status "open" "Open Patches (<a href=\"$return_url&show_patch_status=all\">show&nbsp;all</a>)" "all" "All Patches (<a href=\"$return_url&show_patch_status=open\">show&nbsp;only&nbsp;open</a>)" "Patches"]
 
 if { $user_agent_p } {
     element create bug user_agent \
