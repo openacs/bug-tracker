@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<message_catalog package_key="bug-tracker" package_version="1.3d3" locale="en_US" charset="ISO-8859-1">
+
+  <msg key="bug">bug</msg>
+  <msg key="bugs">bugs</msg>
+  <msg key="component">component</msg>
+  <msg key="components">components</msg>
+  <msg key="Notifications">Notifications</msg>
+</message_catalog>
