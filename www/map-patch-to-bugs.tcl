@@ -58,7 +58,7 @@ if { ![exists_and_not_null component_id] } {
 }
 set component_where_clause ""
 set component_filter ""
-if { ![empty_string_p component_id] } {
+if { ![empty_string_p $component_id] } {
     set component_name [db_string component_name "select component_name from bt_components where component_id = :component_id"]
     set component_filter_url "map-patch-to-bugs?[export_vars -url {patch_number component_id return_url offset show_only_open_p interval_size}]"
     if { $show_all_components_p } {
