@@ -45,7 +45,10 @@ set patches_p [bug_tracker::patches_p]
 #####
 
 # Get the bug_id
-db_1row permission_info {} -column_array bug
+if { ![db_0or1row permission_info {} -column_array bug] } {
+    ad_return_complaint 1 "Could not find bug \#$bug_number"
+    return
+}
 
 set case_id [workflow::case::get_id \
         -object_id $bug(bug_id) \
@@ -381,17 +384,17 @@ if { ![form is_valid bug] } {
         if { $filter_bug_index != -1 } {
             
             if { $filter_bug_index > 0 } {
-                multirow append navlinks "bug?[export_vars { { bug_number {[lindex $filter_bug_numbers [expr $filter_bug_index -1]]} } filter:array }]" "&lt;"
+                multirow append navlinks "bug?[export_vars { { bug_number {[lindex $filter_bug_numbers [expr $filter_bug_index -1]]} } filter:array }]" "<"
             } else {
-                multirow append navlinks "" "&lt;"
+                multirow append navlinks "" "<"
             }
             
             multirow append navlinks "" "[expr $filter_bug_index+1] of [llength $filter_bug_numbers]"
             
             if { $filter_bug_index < [expr [llength $filter_bug_numbers]-1] } {
-                multirow append navlinks "bug?[export_vars { { bug_number {[lindex $filter_bug_numbers [expr $filter_bug_index +1]]} } filter:array }]" "&gt;"
+                multirow append navlinks "bug?[export_vars { { bug_number {[lindex $filter_bug_numbers [expr $filter_bug_index +1]]} } filter:array }]" ">"
             } else {
-                multirow append navlinks "" "&gt;"
+                multirow append navlinks "" ">"
             }
         }
     }  

@@ -1,5 +1,5 @@
 <form action="map-patch-to-bugs" method="POST"> 
-@pagination_form_export_vars@
+@pagination_form_export_vars;noquote@
 <table>
 <tr>
 <td>

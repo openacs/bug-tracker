@@ -1,6 +1,6 @@
 <master src="../lib/master">
-<property name="title">@project_name@</property>
-<property name="context_bar">@context_bar@</property>
+<property name="title">@project_name;noquote@</property>
+<property name="context_bar">@context_bar;noquote@</property>
 
 Before you can get started using the bug-tracker, you need to create at least one component.
 

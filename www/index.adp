@@ -1,6 +1,6 @@
 <master src="../lib/master">
-<property name="title">@project_name@</property>
-<property name="context_bar">@context_bar@</property>
+<property name="title">@project_name;noquote@</property>
+<property name="context_bar">@context_bar;noquote@</property>
 
 <table border="0" cellpadding="0" cellspacing="0" width="100%">
   <tr>
@@ -26,7 +26,7 @@
                   <tr>
                 </else>
                   <td width="75%" class="bt_summary">
-                    <a href="@stats.name_url@">@stats.name@</a>
+                    <a href="@stats.name_url@">@stats.name;noquote@</a>
                   </td>
                   <td align="right" class="bt_summary">
                     @stats.num_bugs@
@@ -49,7 +49,7 @@
       </div>
 
       <form action="." method="get" name="displaymode_form">
-        @displaymode_form_export_vars@
+        @displaymode_form_export_vars;noquote@
 
         <div style="background-color: #eeeeff; padding: 4px; margin-top: 8px; margin-bottom: 16px; border: solid 1px #cccccc;">
 

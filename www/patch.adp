@@ -1,6 +1,6 @@
 <master src="../lib/master">
-<property name="title">@page_title@</property>
-<property name="context">@context@</property>
+<property name="title">@page_title;noquote@</property>
+<property name="context">@context;noquote@</property>
 
 <formtemplate id="patch"></formtemplate>
 
@@ -8,7 +8,7 @@
 <if @button_form_export_vars@ not nil>
   <blockquote>
     <form method="GET" action="patch">
-      @button_form_export_vars@
+      @button_form_export_vars;noquote@
       <multiple name="button">
         <input type="submit" name="@button.name@" value="     @button.label@     ">
       </multiple>

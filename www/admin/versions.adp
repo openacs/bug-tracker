@@ -1,6 +1,6 @@
 <master src="../../lib/master">
-<property name="title">@project_name@ Versions</property>
-<property name="context_bar">@context_bar@</property>
+<property name="title">@project_name;noquote@ Versions</property>
+<property name="context_bar">@context_bar;noquote@</property>
 
 <h3>In Development</h3>
 

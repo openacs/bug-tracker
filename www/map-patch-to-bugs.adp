@@ -1,21 +1,21 @@
 <master src="../lib/master">
-<property name="title">@page_title@</property>
-<property name="context">@context@</property>
+<property name="title">@page_title;noquote@</property>
+<property name="context">@context;noquote@</property>
 
 <if @open_bugs:rowcount@ not eq 0>
 Select one or more of the following @pretty_names.bugs@ for patch "@patch_summary@" (you may select more @pretty_names.bugs@ later):
 </if>
 
 <p>
-Components: @component_filter@
+Components: @component_filter;noquote@
 </p>
 
 <p>
-Bug status: [ @open_filter@ ]
+Bug status: [ @open_filter;noquote@ ]
 </p>
 
 <p>
-<include src="../lib/pagination" row_count="@bug_count@" offset="@offset@" interval_size="@interval_size@" variable_set_to_export="@pagination_export_var_set@" pretty_plural="@pretty_names.bugs@">
+<include src="../lib/pagination" row_count="@bug_count;noquote@" offset="@offset;noquote@" interval_size="@interval_size;noquote@" variable_set_to_export="@pagination_export_var_set;noquote@" pretty_plural="@pretty_names.bugs;noquote@">
 </p>
 
 <blockquote>
