@@ -7,7 +7,7 @@
     <initial-install-p>f</initial-install-p>
     <singleton-p>f</singleton-p>
 
-    <version name="0.7d3" url="http://openacs.org/repository/download/apm/bug-tracker-0.7d3.apm">
+    <version name="0.7d4" url="http://openacs.org/repository/download/apm/bug-tracker-0.7d4.apm">
     <database-support>
         <database>oracle</database>
         <database>postgresql</database>
@@ -35,6 +35,7 @@
             <file type="data_model_upgrade" db_type="postgresql" path="sql/postgresql/upgrade-0.5d1-0.7d1.sql"/>
             <file type="data_model_upgrade" db_type="postgresql" path="sql/postgresql/upgrade-0.7d1-0.7d2.sql"/>
             <file type="data_model_upgrade" db_type="postgresql" path="sql/postgresql/upgrade-0.7d2-0.7d3.sql"/>
+            <file type="data_model_upgrade" db_type="postgresql" path="sql/postgresql/upgrade-0.7d3-0.7d4.sql"/>
             <file type="tcl_procs" path="tcl/bug-tracker-procs.tcl"/>
             <file path="todo.txt"/>
             <file type="content_page" path="www/admin/component-ae.adp"/>
