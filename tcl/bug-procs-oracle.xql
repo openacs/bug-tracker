@@ -216,15 +216,15 @@ from (
           aa.action_id,
           aa.case_id,
           wa.pretty_name as action_pretty_name,
-          assignee.first_names as assignee_first_names,
-          assignee.last_name as assignee_last_name
+          p.first_names as assignee_first_names,
+          p.last_name as assignee_last_name
      from workflow_case_assigned_actions aa,
           workflow_case_role_user_map cru,
           workflow_actions wa,
-          acs_users_all assignee
+          persons p
     where aa.case_id = cru.case_id
       and aa.role_id = cru.role_id
-      and cru.user_id = assignee.user_id
+      and cru.user_id = p.person_id
       and wa.action_id = aa.action_id
   ) assign_info
 where q.bug_id = km.item_id (+)

@@ -479,11 +479,15 @@ if { [form is_valid patch] } {
                 set resolve_description "[_ bug-tracker.Fixed_2]"                
                 set workflow_id [bug_tracker::bug::get_instance_workflow_id]
                 set bug_id [bug_tracker::get_bug_id -bug_number $bug_number -project_id $package_id]
-                set action_id [workflow::action::get_id -workflow_id $workflow_id -short_name resolve]
-                
+                set case_id [workflow::case::get_id \
+                                 -workflow_short_name "[bug_tracker::bug::workflow_short_name]" \
+                                 -object_id $bug_id]
+                set action_id [workflow::action::get_id -workflow_id $workflow_id -short_name "resolve"]
+                set enabled_action_id [db_string get_enabled_action_id ""]
+                         
                 bug_tracker::bug::edit \
                     -bug_id $bug_id \
-                    -action_id $action_id \
+                    -enabled_action_id $enabled_action_id \
                     -description $resolve_description \
                     -desc_format "text/html" \
                     -array bug_row

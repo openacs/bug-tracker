@@ -56,4 +56,11 @@ select content from bt_patches where patch_number = :patch_number and project_id
       </querytext>
 </fullquery>
 
+ <fullquery name="get_enabled_action_id">
+      <querytext>
+          select enabled_action_id from workflow_case_enabled_actions
+          where action_id=:action_id and case_id=:case_id
+      </querytext>
+</fullquery>
+  
 </queryset>

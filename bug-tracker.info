@@ -30,7 +30,7 @@
             <callback type="after-instantiate"  proc="bug_tracker::install::package_instantiate"/>
             <callback type="before-uninstall"  proc="bug_tracker::install::package_uninstall"/>
             <callback type="before-uninstantiate"  proc="bug_tracker::install::package_uninstantiate"/>
-            <callback type="before-upgrade"  proc="bug_tracker::install::package_upgrade"/>
+            <callback type="after-upgrade"  proc="bug_tracker::install::package_upgrade"/>
         </callbacks>
 
         <parameters>

@@ -152,19 +152,29 @@
     </querytext>
 </fullquery>
 
-<fullquery name="bug_tracker::project_delete.unset_project_revisions">
-    <querytext>
-        update cr_items
-        set live_revision = null, latest_revision = null
-        where parent_id = :folder_id
-    </querytext>
-</fullquery>
-
 <fullquery name="bug_tracker::project_delete.min_bug_id">
     <querytext>
         select min(bug_id)
         from   bt_bugs
         where  project_id = :project_id
+    </querytext>
+</fullquery>
+
+<fullquery name="bug_tracker::project_new.bt_projects_insert">
+    <querytext>
+      insert into bt_projects
+        (project_id, folder_id, root_keyword_id)
+       values
+         (:project_id, :folder_id, :keyword_id)
+    </querytext>
+</fullquery>
+
+<fullquery name="bug_tracker::project_new.bt_components_insert">
+    <querytext>
+      insert into bt_components
+        (component_id, project_id, component_name)
+      values
+        (:component_id, :project_id, 'General')
     </querytext>
 </fullquery>
 

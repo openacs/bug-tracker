@@ -735,6 +735,7 @@ ad_proc -public bug_tracker::install_keywords_setup {
 
             if { $default_p } {
                 bug_tracker::set_default_keyword \
+                    -package_id $package_id \
                     -parent_id $category_type_id \
                     -keyword_id $category_id
             }
@@ -1211,5 +1212,18 @@ ad_proc bug_tracker::project_new { project_id } {
 
     @author Peter Marklund
 } {
-    db_exec_plsql create_project {}
+
+    if {![db_0or1row already_there {select 1 from bt_projects where  project_id = :project_id} ] } {
+	if [db_0or1row instance_info {select p.instance_name, o.creation_user, o.creation_ip from apm_packages p join acs_objects o on (p.package_id = o.object_id) where  p.package_id = :project_id }] {
+	    set folder_id [content::folder::new -name "bug_tracker_$project_id" -package_id $project_id]
+	    content::folder::register_content_type -folder_id $folder_id -content_type {bt_bug_revision} -include_subtypes t
+	    
+	    set keyword_id [content::keyword::new -heading "$instance_name"]
+	    
+	    # Inserts into bt_projects
+	    set component_id [db_nextval acs_object_id_seq]
+	    db_dml bt_projects_insert {}
+	    db_dml bt_components_insert {}
+	}
+    }
 }

@@ -57,6 +57,14 @@ ad_proc -private bug_tracker::install::package_upgrade {
             1.4d2 1.4d3 { 
                 bug_tracker::search::register_implementations
             }
+            1.3a6 1.3a7 {
+                ns_log Notice "bug_tracker::install::package_upgrade - Upgrading Bug Tracker from 1.3a6 to 1.3a7"
+                # Previous upgrades added workflow and workflow cases but not enabled actions
+                # for each workflow case.  Bug.
+                db_foreach select_case_ids {} {
+                    workflow::case::state_changed_handler -case_id $case_id
+                }
+            }
         }
 }
 
