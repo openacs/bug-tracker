@@ -153,7 +153,7 @@ db_multirow -extend { description_short submitter_url status_pretty resolution_p
     and    [join $where_clauses " and "]
     order  by $order_by_clause
 " {
-    set description_short [string_truncate -len $truncate_len -format $desc_format $description]
+    set description_short [string_truncate -len $truncate_len -format $desc_format -- $description]
     set summary [ad_quotehtml $summary]
     set submitter_url [acs_community_member_url -user_id $submitter_user_id]
     set status_pretty [bug_tracker::status_pretty $status]

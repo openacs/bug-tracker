@@ -664,7 +664,7 @@ namespace eval bug_tracker {
             and    submitter.user_id = o.creation_user
         } -column_array bug
 
-        set subject "Bug #$bug(bug_number). [ad_html_to_text -- [string_truncate -len 30 $bug(summary)]]: [bug_action_pretty $action $resolution] by [conn user_first_names] [conn user_last_name]"
+        set subject "Bug #$bug(bug_number). [ad_html_to_text -- [string_truncate -len 30 -- $bug(summary)]]: [bug_action_pretty $action $resolution] by [conn user_first_names] [conn user_last_name]"
 
         set body "Bug no: #$bug(bug_number)
 Summary: $bug(summary)
