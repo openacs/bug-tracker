@@ -71,6 +71,8 @@ if { [template::form is_valid bt_user_prefs] } {
         and    project_id = :package_id
     }
 
+    bug_tracker::get_user_prefs_flush -package_id $package_id -user_id $user_id
+
     ad_returnredirect $return_url
     ad_script_abort
 }
