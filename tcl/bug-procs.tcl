@@ -240,7 +240,7 @@ ad_proc -public bug_tracker::bug::edit {
 
         # Update the keywords
         foreach {category_id category_name} [bug_tracker::category_types] {
-            if { [info exists row($category_id)] } {
+            if { [exists_and_not_null row($category_id)] } {
                 cr::keyword::item_assign -singular -item_id $bug_id -keyword_id $row($category_id)
             }
             # LARS:
