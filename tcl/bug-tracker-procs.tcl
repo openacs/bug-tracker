@@ -1143,7 +1143,7 @@ ad_proc bug_tracker::security_violation {
     -bug_id:required
     -action:required
 } {
-    ns_log Notice "$user_id doesn't have permission to '$action' on bug $bug_id"
+    ns_log notice "bug_tracker::security_violation: $user_id doesn't have permission to '$action' on bug $bug_id"
     ad_return_forbidden \
             "Permission Denied" \
             "<blockquote>
