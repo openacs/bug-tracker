@@ -4,8 +4,6 @@ ad_page_contract {
     component_id:integer
 }
 
-db_dml delete_component {
-    delete from bt_components where component_id = :component_id
-}
+db_dml delete_component {}
 
 ad_returnredirect .

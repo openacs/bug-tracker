@@ -14,72 +14,173 @@ create table bt_projects (
   email_subject_name            text,
   maintainer                    integer 
                                 constraint bt_projects_maintainer_fk
-                                references users(user_id)
+                                references users(user_id),
+  folder_id                     integer
+                                constraint bt_projects_folder_fk
+                                references cr_folders(folder_id),
+  root_keyword_id               integer
+                                constraint bt_projects_keyword_fk
+                                references cr_keywords(keyword_id)
 );
 
-create function bt_project__new(
+create or replace function bt_project__new(
     integer                      -- package_id
 ) returns integer 
 as '
 declare
-    new__package_id              alias for $1;
-    rec                          record;
-    v_count                      integer;
+    p_package_id                alias for $1;
+    v_count                     integer;
+    v_instance_name             varchar;
+    v_creation_user             integer;
+    v_creation_ip               varchar;
+    v_folder_id                 integer;
+    v_keyword_id                integer;
 begin
     select count(*)
     into   v_count
     from   bt_projects
-    where  project_id = new__package_id;
+    where  project_id = p_package_id;
 
     if v_count > 0 then
         return 0;
     end if;
 
+    -- get instance name for the content folder
+    select p.instance_name, o.creation_user, o.creation_ip
+    into   v_instance_name, v_creation_user, v_creation_ip
+    from   apm_packages p join acs_objects o on (p.package_id = o.object_id)
+    where  p.package_id = p_package_id;
+
+    -- create a root CR folder
+    v_folder_id := content_folder__new(
+        ''bug_tracker_''||p_package_id,        -- name
+        v_instance_name,                       -- label
+        null,                                  -- description
+        content_item_globals.c_root_folder_id  -- parent_bi
+    );
+
+    -- register our content type
+    PERFORM content_folder__register_content_type (
+        v_folder_id,          -- folder_id
+        ''bt_bug_revision'',  -- content_type
+        ''t''                 -- include_subtypes
+    );
+
+    -- create the instance root keyword
+    v_keyword_id := content_keyword__new(
+        v_instance_name,                -- heading
+        null,                           -- description
+        null,                           -- parent_id
+        null,                           -- keyword_id
+        current_timestamp,              -- creation_date
+        v_creation_user,                -- creation_user
+        v_creation_ip,                  -- creation_ip
+        ''content_keyword''             -- object_type
+    );
+
     -- insert the row into bt_projects
-    insert into bt_projects (project_id) values (new__package_id);
-
-    -- copy over the default severity/priority codes
-    for rec in select * from bt_severity_codes where project_id is null loop
-        insert into bt_severity_codes 
-               (severity_id, project_id, severity_name, sort_order, default_p) 
-        select acs_object_id_seq.nextval, new__package_id, rec.severity_name, rec.sort_order, rec.default_p;
-    end loop;
-
-    for rec in select * from bt_priority_codes where project_id is null loop
-        insert into bt_priority_codes 
-               (priority_id, project_id, priority_name, sort_order, default_p) 
-        select acs_object_id_seq.nextval, new__package_id, rec.priority_name, rec.sort_order, rec.default_p;
-    end loop;
+    insert into bt_projects 
+        (project_id, folder_id, root_keyword_id) 
+    values 
+        (p_package_id, v_folder_id, v_keyword_id);
 
     -- Create a General component to start with
     insert into bt_components (component_id, project_id, component_name)
-    select acs_object_id_seq.nextval, new__package_id, ''General'';
+    select acs_object_id_seq.nextval, p_package_id, ''General'';
 
     return 0;
 end;
 ' language 'plpgsql';
 
-create function bt_project__delete(
-    integer                      -- package_id
-) returns integer 
+
+create or replace function bt_project__delete(
+    integer                 -- project_id
+) returns integer
 as '
 declare
-    delete__package_id           alias for $1;
+    p_project_id          alias for $1;
+    v_folder_id           integer;
+    v_root_keyword_id     integer;
+    rec                   record;
 begin
-    -- delete severity/priority codes
-    delete from bt_severity_codes where project_id = delete__package_id;
-    delete from bt_priority_codes where project_id = delete__package_id;
+    -- get the content folder for this instance
+    select folder_id, root_keyword_id
+    into   v_folder_id, v_root_keyword_id
+    from   bt_projects
+    where  project_id = p_project_id;
 
-    -- delete the  row from bt_projects
-    delete from bt_projects where project_id = delete__package_id;
+    -- This gets done in tcl before we are called ... for now
+    --  Delete the bugs
+    -- for rec in select item_id from cr_items where parent_id = v_folder_id
+    -- loop
+    --     perform bt_bug__delete(rec.item_id);
+    -- end loop;
+
+    -- Delete the patches
+    for rec in select patch_id from bt_patches where project_id = p_project_id
+    loop
+         perform bt_patch__delete(rec.patch_id);
+    end loop;
+
+    -- delete the content folder
+    raise notice ''about to delete content_folder.'';
+    perform content_folder__delete(v_folder_id);
+
+    -- delete the projects keywords
+    perform bt_projects__keywords_delete(p_project_id, ''t'');
+
+    -- These tables should really be set up to cascade
+    delete from bt_versions where project_id = p_project_id;
+    delete from bt_components where project_id = p_project_id;
+    delete from bt_user_prefs where project_id = p_project_id;      
+
+    delete from bt_projects where project_id = p_project_id;   
 
     return 0;
 end;
 ' language 'plpgsql';
 
-       
+create or replace function bt_project__keywords_delete(
+    integer,                 -- project_id
+    bool                     -- delete_root_p
+) returns integer
+as '
+declare
+    p_project_id          alias for $1;
+    p_delete_root_p       alias for $1;
+    v_root_keyword_id     integer;
+    rec                   record;
+begin
+    -- get the content folder for this instance
+    select root_keyword_id
+    into   v_root_keyword_id
+    from   bt_projects
+    where  project_id = p_project_id;
 
-    
+    -- if we are deleting the root, remove it from the project as well
+    if p_delete_root_p = 1 then
+        update bt_projects 
+        set    root_keyword_id = null 
+        where  project_id = p_project_id;
+    end if;
+
+    -- delete the projects keywords
+    for rec in 
+        select k2.keyword_id
+        from   cr_keywords k1, cr_keywords k2
+        where  k1.keyword_id = v_root_keyword_id
+        and    k2.tree_sortkey between k1.tree_sortkey and tree_right(k1.tree_sortkey)
+        order  by length(k2.tree_sortkey) desc
+    loop
+        if (p_delete_root_p = 1) or (rec.keyword_id != v_root_keyword_id) then
+            perform content_keyword__delete(rec.keyword_id);
+        end if;
+    end loop;
+
+    return 0;
+end;
+' language 'plpgsql';
+
 
 create table bt_versions (
   version_id                    integer not null
@@ -114,7 +215,7 @@ create table bt_versions (
 
 -- but we just make a stored function that alters the active version
 
-create function bt_version__set_active (
+create or replace function bt_version__set_active (
    integer                       -- active_version_id
 ) returns integer 
 as '
@@ -152,385 +253,349 @@ create table bt_components (
                                 references users(user_id)
 );
 
+-- default keywords per keyword parent
+-- e.g. default priority, default severity, etc.
 
-create function bt_component__default_assignee(
-   integer                      -- component_id
-) returns integer
-as '
-declare
-    p_component_id              alias for $1;
-    v_assignee                  integer;
-begin
-    select maintainer
-    into   v_assignee
-    from   bt_components
-    where  component_id = p_component_id;
-
-    if v_assignee is null then
-        select p.maintainer
-        into   v_assignee
-        from   bt_projects p, bt_components c
-        where  p.project_id = c.project_id
-        and    c.component_id = p_component_id;
-    end if;
-
-    return v_assignee;
-end;
-' language 'plpgsql';
-
-
-create table bt_severity_codes (
-  severity_id                   integer not null
-                                constraint bt_severity_codes_pk
-                                primary key,
-  project_id                    integer 
-                                constraint bt_severity_codes_projects_fk
-                                references bt_projects(project_id),
-  severity_name                 varchar(500) not null,
-  sort_order                    integer not null,
-  default_p                     char(1) not null
-                                constraint bt_severity_codes_default_p_ck
-                                check (default_p in ('t','f'))
-                                default 'f',
-  constraint bt_severity_codes_name_un
-  unique(project_id, severity_name),
-  constraint bt_severity_codes_sort_order_un
-  unique(project_id, sort_order)
+create table bt_default_keywords (
+  project_id                    integer not null
+                                constraint bt_default_keywords_project_fk
+                                references bt_projects(project_id)
+                                on delete cascade,
+  parent_id                     integer not null
+                                constraint bt_default_keyw_parent_keyw_fk
+                                references cr_keywords(keyword_id)
+                                on delete cascade,
+  keyword_id                    integer not null
+                                constraint bt_default_keyw_keyword_fk
+                                references cr_keywords(keyword_id)
+                                on delete cascade,
+  constraint bt_default_keywords_prj_par_un
+  unique (project_id, parent_id)
 );
 
-insert into bt_severity_codes (severity_id, project_id, severity_name, sort_order, default_p)
-select acs_object_id_seq.nextval, null, 'Critical', 1, 'f';
+create index bt_default_keyw_parent_id_idx on bt_default_keywords(parent_id);
+create index bt_default_keyw_keyword_id_idx on bt_default_keywords(keyword_id);
 
-insert into bt_severity_codes (severity_id, project_id, severity_name, sort_order, default_p) 
-select acs_object_id_seq.nextval, null, 'Major', 2, 'f';
-
-insert into bt_severity_codes (severity_id, project_id, severity_name, sort_order, default_p) 
-select acs_object_id_seq.nextval, null, 'Normal', 3, 't';
-
-insert into bt_severity_codes (severity_id, project_id, severity_name, sort_order, default_p) 
-select acs_object_id_seq.nextval, null, 'Minor', 4, 'f';
-
-insert into bt_severity_codes (severity_id, project_id, severity_name, sort_order, default_p) 
-select acs_object_id_seq.nextval, null, 'Trivial', 5, 'f';
-
-insert into bt_severity_codes (severity_id, project_id, severity_name, sort_order, default_p) 
-select acs_object_id_seq.nextval, null, 'Enhancement', 6, 'f';
-
-
-create table bt_priority_codes (
-  priority_id                   integer not null
-                                constraint bt_priority_codes_pk
-                                primary key,
-  project_id                    integer 
-                                constraint bt_priority_codes_projects_fk
-                                references bt_projects(project_id),
-  priority_name                 varchar(500) not null,
-  sort_order                    integer not null,
-  default_p                     char(1) not null
-                                constraint bt_priority_codes_default_p_ck
-                                check (default_p in ('t','f'))
-                                default 'f',
-  constraint bt_priority_codes_name_un
-  unique(project_id, priority_name),
-  constraint bt_priority_codes_sort_order_un
-  unique(project_id, sort_order)
-);
-
-insert into bt_priority_codes (priority_id, project_id, priority_name, sort_order, default_p) 
-select acs_object_id_seq.nextval, null, 'High', 1, 'f';
-
-insert into bt_priority_codes (priority_id, project_id, priority_name, sort_order, default_p) 
-select acs_object_id_seq.nextval, null, 'Normal', 2, 't';
-
-insert into bt_priority_codes (priority_id, project_id, priority_name, sort_order, default_p) 
-select acs_object_id_seq.nextval, null, 'Low', 3, 'f';
-
-
-
--- We maintain a public bug number, different from the 
--- bug_id, because bug_id is drawn on the acs_objects sequence
--- which is used for tons of other things. This gives us cleaner
--- bug numbers.
-
-create sequence t_bt_bug_number_seq;
-create view bt_bug_number_seq as
-select nextval('t_bt_bug_number_seq') as nextval;
-
-create table bt_bugs (
-  bug_id                        integer 
-                                constraint bt_bugs_pk
+-- content_item subtype
+create table bt_bugs(
+  bug_id                        integer
+                                constraint bt_bug_pk
                                 primary key
-                                constraint bt_bugs_bug_id_fk
-                                references acs_objects(object_id),
-  project_id                    integer 
-                                constraint bt_bugs_projects_fk
-                                references bt_projects(project_id),
+                                constraint bt_bug_bt_bug_fk
+                                references cr_items(item_id)
+                                on delete cascade,
+  -- this is the only column we really add here
+  bug_number                    integer,
+  -- the comment from the initial action
+  -- denormalized from a far-fetched workflow join
+  comment_content               text,
+  comment_format                varchar(200),
+  -- denormalized from cr_items
+  parent_id                     integer,
+  live_revision_id              integer,
+  -- denormalized from cr_revisions.title
+  summary                       varchar(1000),
+  -- denormalized from bt_projects
+  project_id                    integer,
+  -- denormalized from bt_bug_revisions
+  component_id                  integer,
+  resolution                    varchar(50),
+  user_agent                    varchar(500),
+  found_in_version              integer,
+  fix_for_version               integer,
+  fixed_in_version              integer,
+  -- denormalized from acs_objects
+  creation_date                 timestamp,
+  creation_user                 integer,
+  -- constraint
+  constraint bt_bug_parent_id_bug_number_un
+  unique (parent_id, bug_number)
+);
 
+-- LARS:
+-- we need to figure out which ones of these will be used by the query optimizer
+
+create index bt_bugs_proj_id_bug_number_idx on bt_bugs(project_id, bug_number);
+create index bt_bugs_bug_number_idx on bt_bugs(bug_number);
+
+create index bt_bugs_proj_id_fix_for_idx on bt_bugs(project_id, fix_for_version);
+create index bt_bugs_fix_for_version_idx on bt_bugs(fix_for_version);
+
+create index bt_bugs_proj_id_crea_date_idx on bt_bugs(project_id, creation_date);
+create index bt_bugs_creation_date_idx on bt_bugs(creation_date);
+
+-- Create the bug content item object type
+
+select acs_object_type__create_type (
+    'bt_bug',
+    'Bug',
+    'Bugs',
+    'acs_object',
+    'bt_bugs',
+    'bug_id',
+    null,
+    'f',
+    null,
+    null
+);
+
+
+-- content_revision specialization
+create table bt_bug_revisions (
+  bug_revision_id               integer 
+                                constraint bt_bug_rev_pk
+                                primary key
+                                constraint bt_bug_rev_bug_id_fk
+                                references cr_revisions(revision_id)
+                                on delete cascade,
   component_id                  integer 
-                                constraint bt_bugs_components_fk
+                                constraint bt_bug_rev_components_fk
                                 references bt_components(component_id),
-  bug_number                    integer not null,
-  status                        varchar(50) not null
-                                constraint bt_bugs_status_ck
-                                check (status in ('open', 'resolved', 'closed'))
-                                default 'open',
   resolution                    varchar(50)
-                                constraint bt_bugs_resolution_ck
+                                constraint bt_bug_rev_resolution_ck
                                 check (resolution is null or 
                                        resolution in ('fixed','bydesign','wontfix','postponed','duplicate','norepro','needinfo')),
-  bug_type                      varchar(50) not null
-                                constraint bt_bugs_bug_type_ck
-                                check (bug_type in ('bug', 'suggestion','todo')),
-  severity                      integer not null
-                                constraint bt_bugs_severity_fk
-                                references bt_severity_codes(severity_id),
-  priority                      integer not null
-                                constraint bt_bugs_priority_fk
-                                references bt_priority_codes(priority_id),
   user_agent                    varchar(500),
-  original_estimate_minutes     integer,
-  latest_estimate_minutes       integer,
-  elapsed_time_minutes          integer,
   found_in_version              integer
-                                constraint bt_bugs_found_in_version_fk   
+                                constraint bt_bug_rev_found_in_version_fk   
                                 references bt_versions(version_id), 
   fix_for_version               integer
-                                constraint bt_bugs_fix_for_version_fk   
+                                constraint bt_bug_rev_fix_for_version_fk   
                                 references bt_versions(version_id), 
   fixed_in_version              integer
-                                constraint bt_bugs_fixed_in_version_fk   
-                                references bt_versions(version_id), 
-  summary                       varchar(500) not null,                                
-  assignee                      integer
-                                constraint bt_bug_assignee_fk
-                                references users(user_id),
-  constraint bt_bugs_bug_number_un
-  unique (project_id, bug_number)
+                                constraint bt_bug_rev_fixed_in_version_fk   
+                                references bt_versions(version_id)
 );
 
-create table bt_bug_actions (
-  action_id                     integer not null
-                                constraint bt_bug_actions_pk
-                                primary key,
-  bug_id                        integer not null
-                                constraint bt_bug_actions_bug_fk
-                                references bt_bugs(bug_id)
-                                on delete cascade,
-  action                        varchar(50)
-                                constraint bt_bug_actions_action_ck
-                                check (action in ('open','edit','comment','reassign','resolve','reopen','close')),
-  resolution                    varchar(50)
-                                constraint bt_bugs_actions_resolution_ck
-                                check (resolution is null or 
-                                       resolution in ('fixed','bydesign','wontfix','postponed','duplicate','norepro','needinfo')),
-  actor                         integer not null
-                                constraint bt_bug_actions_actor_fk
-                                references users(user_id),
-  action_date                   timestamp not null
-                                default now(),
-  comment                       text,
-  comment_format                varchar(30) default 'plain' not null
-                                constraint  bt_bug_actions_comment_format_ck
-                                check (comment_format in ('html', 'plain', 'pre'))
+-- Create the bug revision content type
+
+select content_type__create_type (
+    'bt_bug_revision',
+    'content_revision',
+    'Bug Revision',
+    'Bug Revisions',
+    'btbug_revisions',
+    'bug_revision_id',
+    'content_revision.revision_name'
 );
 
--- Create the bt_bug object type
+select define_function_args ('bt_bug__new','bug_id,bug_number,package_id,component_id,found_in_version,summary,user_agent,comment_content,comment_formt,creation_date,creation_user,creation_ip,item_subtype;bt_bug,content_type;bt_bug_revision');
 
-create function inline_0 ()
-returns integer as '
-begin
-    PERFORM acs_object_type__create_type (
-	''bt_bug'',
-	''Bug'',
-	''Bugs'',
-	''acs_object'',
-	''bt_bugs'',
-	''bug_id'',
-	null,
-	''f'',
-	null,
-	''bt_bug__name''
-	);
-
-    return 0;
-end;' language 'plpgsql';
-
-select inline_0 ();
-
-drop function inline_0 ();
-
-
-create function bt_bug__new(
+create or replace function bt_bug__new(
     integer,     -- bug_id
-    integer,     -- project_id
+    integer,     -- bug_number
+    integer,     -- package_id
     integer,     -- component_id
-    varchar,     -- bug_type 
-    integer,     -- severity
-    integer,     -- priority
     integer,     -- found_in_version
     varchar,     -- summary
-    text,        -- description
-    varchar,     -- desc_format
     varchar,     -- user_agent
+    text,        -- comment_content
+    varchar,     -- comment_format
+    timestamp,   -- creation_date
     integer,     -- creation_user
-    varchar      -- creation_ip
+    varchar,     -- creation_ip
+    varchar,     -- item_subtype
+    varchar      -- content_type
 ) returns int
 as '
 declare
     p_bug_id                    alias for $1;
-    p_project_id                alias for $2;
-    p_component_id              alias for $3;
-    p_bug_type                  alias for $4;
-    p_severity                  alias for $5;
-    p_priority                  alias for $6;
-    p_found_in_version          alias for $7;
-    p_summary                   alias for $8;
-    p_description               alias for $9;
-    p_desc_format               alias for $10;
-    p_user_agent                alias for $11;
-    p_creation_user             alias for $12;
-    p_creation_ip               alias for $13;
-    v_bug_id                    integer;
-    v_bug_number                integer;
-    v_assignee                  integer;
-    v_action_id                 integer;
-begin
-    v_assignee := bt_component__default_assignee(p_component_id);
+    p_bug_number                alias for $2;
+    p_package_id                alias for $3;
+    p_component_id              alias for $4;
+    p_found_in_version          alias for $5;
+    p_summary                   alias for $6;
+    p_user_agent                alias for $7;
+    p_comment_content           alias for $8;
+    p_comment_format            alias for $9;
+    p_creation_date             alias for $10;
+    p_creation_user             alias for $11;
+    p_creation_ip               alias for $12;
+    p_item_subtype              alias for $13;
+    p_content_type              alias for $14;
 
-    v_bug_id := acs_object__new(
-        p_bug_id,               -- object_id
-        ''bt_bug'',             -- object_type
-        now(),                  -- creation_date
-        p_creation_user,        -- creation_user
-        p_creation_ip,          -- creation_ip
-        p_project_id,           -- context_id
-        ''t''                   -- security_inherit_p
+    v_bug_id                    integer;
+    v_revision_id               integer;
+    v_bug_number                integer;
+    v_folder_id                 integer;
+begin
+    -- get the content folder for this instance
+    select folder_id
+    into   v_folder_id
+    from   bt_projects
+    where  project_id = p_package_id;
+
+    -- get bug_number
+    if p_bug_number is null then
+      select coalesce(max(bug_number),0) + 1
+      into   v_bug_number
+      from   bt_bugs
+      where  parent_id = v_folder_id;
+    else
+      v_bug_number := p_bug_number;
+    end if;
+
+    -- create the content item
+    v_bug_id := content_item__new(
+        v_bug_number,              -- name
+        v_folder_id,               -- parent_id
+        p_bug_id,                  -- item_id
+        null,                      -- locale        
+        p_creation_date,           -- creation_date
+        p_creation_user,           -- creation_user
+        v_folder_id,               -- context_id
+        p_creation_ip,             -- creation_ip
+        p_item_subtype,            -- item_subtype
+        p_content_type,            -- content_type
+        null,                      -- title
+        null,                      -- description
+        null,                      -- mime_type
+        null,                      -- nls_language
+        null                       -- data
     );
 
-    select coalesce(max(bug_number),0) + 1
-    into   v_bug_number
-    from   bt_bugs
-    where  project_id = p_project_id;
-
+    -- create the item type row
     insert into bt_bugs
-        (bug_id, project_id, component_id,  bug_number, bug_type, severity, assignee,
-         priority, found_in_version, summary, user_agent)
+        (bug_id, bug_number, comment_content, comment_format, parent_id, project_id, creation_date, creation_user)
     values
-        (v_bug_id, p_project_id, p_component_id, v_bug_number, p_bug_type, p_severity, v_assignee,
-        p_priority, p_found_in_version, p_summary, p_user_agent);
+        (v_bug_id, v_bug_number, p_comment_content, p_comment_format, v_folder_id, p_package_id, p_creation_date, p_creation_user);
 
-    select nextval(''t_acs_object_id_seq'') 
-    into   v_action_id;
+    -- create the initial revision
+    v_revision_id := bt_bug_revision__new(
+        null,                      -- bug_revision_id
+        v_bug_id,                  -- bug_id
+        p_component_id,            -- component_id
+        p_found_in_version,        -- found_in_version
+        null,                      -- fix_for_version
+        null,                      -- fixed_in_version
+        null,                      -- resolution
+        p_user_agent,              -- user_agent
+        p_summary,                 -- summary
+        p_creation_date,           -- creation_date
+        p_creation_user,           -- creation_user
+        p_creation_ip              -- creation_ip
+    );
 
-    insert into bt_bug_actions
-        (action_id, bug_id, action, actor, comment, comment_format)
-    values
-        (v_action_id, v_bug_id, ''open'', p_creation_user, p_description, p_desc_format);
-        
+    return v_bug_id;
+end;
+' language 'plpgsql';
+
+
+create or replace function bt_bug__delete(
+   integer                      -- bug_id
+) returns integer
+as '
+declare
+    p_bug_id                    alias for $1;
+    v_case_id                   integer;
+    rec                         record;
+begin
+    -- Every bug is associated with a workflow case
+    select case_id 
+    into   v_case_id 
+    from   workflow_cases 
+    where  object_id = p_bug_id;
+
+    perform workflow_case__delete(v_case_id);
+
+    -- Every bug may have notifications attached to it
+    -- and there is one column in the notificaitons datamodel that doesn''t
+    -- cascade
+    for rec in select notification_id from notifications 
+               where response_id = p_bug_id loop
+
+        perform notification__delete (rec.notification_id);
+    end loop;
+
+    -- unset live & latest revision
+--    update cr_items
+--    set    live_revision = null,
+--           latest_revision = null
+--    where  item_id = p_bug_id;
+
+    perform content_item__delete(p_bug_id);
+
     return 0;
 end;
 ' language 'plpgsql';
 
 
-create function bt_bug__name(
-   integer                      -- bug_id
-) returns varchar
+
+
+create or replace function bt_bug_revision__new(
+    integer,        -- bug_revision_id
+    integer,        -- bug_id
+    integer,        -- component_id
+    integer,        -- found_in_version
+    integer,        -- fix_for_version
+    integer,        -- fixed_in_version
+    varchar,        -- resolution
+    varchar,        -- user_agent
+    varchar,        -- summary
+    timestamp,      -- creation_date
+    integer,        -- creation_user
+    varchar         -- creation_ip
+) returns int
 as '
 declare
-   name__bug_id                 alias for $1;
-   v_name                       varchar;
-begin
-   select summary
-   into   v_name
-   from   bt_bugs
-   where  bug_id = name__bug_id;
+    p_bug_revision_id       alias for $1;
+    p_bug_id                alias for $2;
+    p_component_id          alias for $3;
+    p_found_in_version      alias for $4;
+    p_fix_for_version       alias for $5;
+    p_fixed_in_version      alias for $6;
+    p_resolution            alias for $7;
+    p_user_agent            alias for $8;
+    p_summary               alias for $9;
+    p_creation_date         alias for $10;
+    p_creation_user         alias for $11;
+    p_creation_ip           alias for $12;
 
-   return v_name;
+    v_revision_id               integer;
+begin
+    -- create the initial revision
+    v_revision_id := content_revision__new(
+        p_summary,              -- title
+        null,                   -- description
+        now(),                  -- publish_date
+        null,                   -- mime_type
+        null,                   -- nls_language        
+        null,                   -- new_data
+        p_bug_id,               -- item_id
+        p_bug_revision_id,      -- revision_id
+        p_creation_date,        -- creation_date
+        p_creation_user,        -- creation_user
+        p_creation_ip           -- creation_ip
+    );
+
+    -- insert into the bug-specific revision table
+    insert into bt_bug_revisions 
+        (bug_revision_id, component_id, resolution, user_agent, found_in_version, fix_for_version, fixed_in_version)
+    values
+        (v_revision_id, p_component_id, p_resolution, p_user_agent, p_found_in_version, p_fix_for_version, p_fixed_in_version);
+
+    -- make this revision live
+    PERFORM content_item__set_live_revision(v_revision_id);
+
+    -- update the cache
+    update bt_bugs
+    set    live_revision_id = v_revision_id,
+           summary = p_summary,
+           component_id = p_component_id,
+           resolution = p_resolution,
+           user_agent = p_user_agent,
+           found_in_version = p_found_in_version,
+           fix_for_version = p_fix_for_version,
+           fixed_in_version = p_fixed_in_version
+    where  bug_id = p_bug_id;
+
+    return v_revision_id;
 end;
 ' language 'plpgsql';
 
 
-create function bt_bug__delete(
-   integer                      -- bug_id
-) returns integer
-as '
-declare
-    delete__bug_id              alias for $1;
-begin
-    perform acs_object__delete(delete__bug_id);
-
-    return 0;
-end;
-' language 'plpgsql';
 
 
-create function bt_bug__status_sort_order(
-    varchar                     -- status
-) returns integer
-as '
-declare
-    p_status                    alias for $1;
-    v_sort_order                integer;
-begin
-    v_sort_order := case p_status
-        when ''open''     then 1
-        when ''resolved'' then 2
-        when ''closed''   then 3
-                          else 4
-    end;
-    
-    return v_sort_order;
-end;
-' language 'plpgsql';
-
-
-create function bt_bug__bug_type_sort_order(
-    varchar                     -- bug_type
-) returns integer
-as '
-declare
-    p_bug_type                  alias for $1;
-    v_sort_order                integer;
-begin
-    v_sort_order := case p_bug_type
-        when ''bug''        then 1
-        when ''suggestion'' then 2
-        when ''todo''       then 3
-                            else 4
-    end;
-
-    return v_sort_order;
-end;
-' language 'plpgsql';
-
-
--- In SDM: sdm_patches
--- In SDM, this is a relationship between a general comment and a ticket
---         supposedly the patch itself is stored as a special comment
--- In BT: Probably something similar, not sure.
-
--- In SDM: sdm_ticket_ratings
--- In BT: We'll leave that out for now, but supposedly we could use a modified 
---        version of my ratings package from pinds.com
-
--- All of the following should be doable with acs_rels of some sort
--- (I'm not too strong in that data model, but I suppose I'll learn over the next few days)
-
--- sdm_ticket_assignments
--- sdm_bug_release_maps
--- sdm_user_ticket_interest_map
--- sdm_user_module_interest_map
--- sdm_user_package_interest_map
--- sdm_related_tickets_map
-
-
--- In SDM: sdm_notifications
---         This seems to be a table to hold notifications until they're actually sent out in batch
---         depending on the user's preferences
--- In BT: We'd probably do something similar.
-
--- In SDM: sdm_notification_prefs
--- In BT: 
 create table bt_user_prefs (
   user_id                       integer not null
                                 constraint bt_user_prefs_user_id_fk
@@ -545,93 +610,79 @@ create table bt_user_prefs (
   primary key (user_id, project_id)
 );
 
--- For stability, URLs contain patch numbers rather than ACS Object ids.
--- This avoids dependence on the ACS kernel and makes upgrades easier.
-create sequence t_bt_patch_number_seq;
-create view bt_patch_number_seq as
-select nextval('t_bt_patch_number_seq') as nextval;
 
 create table bt_patches (
-       patch_id                 integer 
-                                constraint bt_patches_pk
-                                primary key
-                                constraint bt_patches_pid_fk
-                                references acs_objects(object_id),
-       patch_number             integer not null,
-       project_id               integer
-                                constraint bt_patches_projects_fk
-                                references bt_projects(project_id),
-       component_id             integer
-                                constraint bt_patches_components_fk
-                                references bt_components(component_id),
-       summary                  text,
-       content                  text,
-       generated_from_version   integer
-                                constraint bt_patches_vid_fk
-                                references bt_versions(version_id),
-       apply_to_version         integer
-                                constraint bt_patchs_apply_to_version_fk   
-                                references bt_versions(version_id), 
-       applied_to_version       integer
-                                constraint bt_patchs_applied_to_version_fk   
-                                references bt_versions(version_id), 
-       status                   varchar(50) not null
-                                constraint bt_patchs_status_ck
-                                check (status in ('open', 'accepted', 'refused', 'deleted'))
-                                default 'open',
-       constraint bt_patches_un
-       unique(patch_number, project_id)
+  patch_id                 integer 
+                           constraint bt_patches_pk
+                           primary key
+                           constraint bt_patches_pid_fk
+                           references acs_objects(object_id),
+  patch_number             integer not null,
+  project_id               integer
+                           constraint bt_patches_projects_fk
+                           references bt_projects(project_id),
+  component_id             integer
+                           constraint bt_patches_components_fk
+                           references bt_components(component_id),
+  summary                  text,
+  content                  text,
+  generated_from_version   integer
+                           constraint bt_patches_vid_fk
+                           references bt_versions(version_id),
+  apply_to_version         integer
+                           constraint bt_patchs_apply_to_version_fk   
+                           references bt_versions(version_id), 
+  applied_to_version       integer
+                           constraint bt_patchs_applied_to_version_fk   
+                           references bt_versions(version_id), 
+  status                   varchar(50) not null
+                           constraint bt_patchs_status_ck
+                           check (status in ('open', 'accepted', 'refused', 'deleted'))
+                           default 'open',
+  constraint bt_patches_un
+  unique(patch_number, project_id)
 );
 
 create table bt_patch_actions (
-       action_id                integer not null
-                                constraint bt_patch_actions_pk
-                                primary key,
-       patch_id                 integer not null
-                                constraint bt_patch_actions_patch_fk
-                                references bt_patches(patch_id)
-                                on delete cascade,
-       action                   varchar(50)
-                                constraint bt_patch_actions_action_ck
-                                check (action in ('open', 'edit', 'comment', 'accept', 
-                                                  'reopen', 'refuse', 'delete')) 
-                                default 'open',
-       actor                    integer not null
-                                constraint bt_patch_actions_actor_fk
-                                references users(user_id),
-       action_date              timestamp not null
-                                default now(),
-       comment                  text,
-       comment_format           varchar(30) default 'plain' not null
-                                constraint  bt_patch_actions_comment_format_ck
-                                check (comment_format in ('html', 'plain', 'pre'))
+  action_id                integer not null
+                           constraint bt_patch_actions_pk
+                           primary key,
+  patch_id                 integer not null
+                           constraint bt_patch_actions_patch_fk
+                           references bt_patches(patch_id)
+                           on delete cascade,
+  action                   varchar(50)
+                           constraint bt_patch_actions_action_ck
+                           check (action in ('open', 'edit', 'comment', 'accept', 
+                                             'reopen', 'refuse', 'delete')) 
+                           default 'open',
+  actor                    integer not null
+                           constraint bt_patch_actions_actor_fk
+                           references users(user_id),
+  action_date              timestamp not null
+                           default now(),
+  comment_text             text,
+  comment_format           varchar(30) default 'plain' not null
+                           constraint  bt_patch_actions_comment_format_ck
+                           check (comment_format in ('html', 'plain', 'pre'))
 );
 
 -- Create the bt_patch object type
-create function inline_0 ()
-returns integer as '
-begin
-    PERFORM acs_object_type__create_type (
-	''bt_patch'',
-	''Patch'',
-	''Patches'',
-	''acs_object'',
-	''bt_patches'',
-	''patch_id'',
-	null,
-	''f'',
-	null,
-	''bt_patch__name''
-	);
+select acs_object_type__create_type (
+    'bt_patch',
+    'Patch',
+    'Patches',
+    'acs_object',
+    'bt_patches',
+    'patch_id',
+    null,
+    'f',
+    null,
+    'bt_patch__name'
+);
 
-    return 0;
-end;' language 'plpgsql';
 
-select inline_0 ();
-
-drop function inline_0 ();
-
-create function bt_patch__new(
+create or replace function bt_patch__new(
     integer,     -- patch_id
     integer,     -- project_id
     integer,     -- component_id
@@ -662,8 +713,8 @@ declare
 begin
 
     v_patch_id := acs_object__new(
-        p_patch_id,               -- object_id
-        ''bt_patch'',             -- object_type
+        p_patch_id,             -- object_id
+        ''bt_patch'',           -- object_type
         now(),                  -- creation_date
         p_creation_user,        -- creation_user
         p_creation_ip,          -- creation_ip
@@ -697,15 +748,15 @@ begin
     into   v_action_id;
 
     insert into bt_patch_actions
-        (action_id, patch_id, action, actor, comment, comment_format)
+        (action_id, patch_id, action, actor, comment_text, comment_format)
      values
         (v_action_id, v_patch_id, ''open'', p_creation_user, p_description, p_description_format);
 
-    return 0;
+    return v_patch_id;
 end;
 ' language 'plpgsql';
 
-create function bt_patch__name(
+create or replace function bt_patch__name(
    integer                      -- patch_id
 ) returns varchar
 as '
@@ -722,7 +773,7 @@ begin
 end;
 ' language 'plpgsql';
 
-create function bt_patch__delete(
+create or replace function bt_patch__delete(
    integer                      -- patch_id
 ) returns integer
 as '
@@ -737,16 +788,17 @@ end;
 
 -- There is a many to many relationship between patches and bugs
 create table bt_patch_bug_map (
-       patch_id            integer not null
-                           constraint bt_patch_bug_map_pid_fk
-                           references bt_patches(patch_id)
-                           on delete cascade,
-       bug_id              integer not null
-                           constraint bt_patch_bug_map_bid_fk
-                           references bt_bugs(bug_id)
-                           on delete cascade,
-       constraint bt_patch_bug_map_un
-       unique (patch_id, bug_id)
+  patch_id            integer not null
+                      constraint bt_patch_bug_map_pid_fk
+                      references bt_patches(patch_id)
+                      on delete cascade,
+  bug_id              integer not null
+                      constraint bt_patch_bug_map_bid_fk
+                      references cr_items(item_id)
+                      on delete cascade,
+  constraint bt_patch_bug_map_un
+  unique (patch_id, bug_id)
 );
 
-\i bug-tracker-notifications-init.sql
+create index bt_patch_bug_map_patch_id_idx on bt_patch_bug_map(patch_id);
+create index bt_patch_bug_map_bug_id_idx on bt_patch_bug_map(bug_id);

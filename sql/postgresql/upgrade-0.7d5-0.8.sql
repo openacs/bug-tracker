@@ -201,5 +201,3 @@ create table bt_patch_bug_map (
        constraint bt_patch_bug_map_un
        unique (patch_id, bug_id)
 );
-
-\i bug-tracker-notifications-init.sql

@@ -1,6 +1,19 @@
 <master src="../../lib/master">
-<property name="title">@project_name@ Project Admin</property>
+<property name="title">@page_title@</property>
 <property name="context_bar">@context_bar@</property>
+
+<blockquote>
+
+<if @bugs_exist_p@ false>
+  <div style="background-color: #ccccff; padding: 12px; border: dashed 1px #6666ff;">
+    <p>
+      <b>This is a new project.</b>
+    </p>
+    <p>  
+      <b>&raquo;</b> <a href="initial-setup">Initial project configuration</a>
+    </p>
+  </div>
+</if>
 
 <table cellspacing="0" cellpadding="4" border="0">
   <tr>
@@ -26,7 +39,7 @@
   </tr>
   <tr bgcolor="#cccccc">
     <td colspan="2">
-      Maintainer: 
+      Maintainer:
       <if @project.maintainer@ not nil>
         <a href="@project.maintainer_url@" title="Email: @project.maintainer_email@">@project.maintainer_first_names@ @project.maintainer_last_name@</a>
       </if>
@@ -44,12 +57,27 @@
       &nbsp;
     </td>
   </tr>
+
+  <if @versions_p@ true>
+    <tr bgcolor="#cccccc">
+      <td colspan="3">
+        Versions
+      </td>
+      <td align="center">
+        <a href="@versions_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="Edit"></a>
+      </td>
+      <td align="center">
+        &nbsp;
+      </td>
+    </tr>
+  </if>
+
   <tr bgcolor="#cccccc">
     <td colspan="3">
-      Project versions
+      Categories
     </td>
     <td align="center">
-      <a href="@versions_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="Edit"></a>
+      <a href="@categories_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="Edit"></a>
     </td>
     <td align="center">
       &nbsp;
@@ -57,10 +85,21 @@
   </tr>
   <tr bgcolor="#cccccc">
     <td colspan="3">
-      Project permissions
+      Permissions
     </td>
     <td align="center">
       <a href="@permissions_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="Edit"></a>
+    </td>
+    <td align="center">
+      &nbsp;
+    </td>
+  </tr>
+  <tr bgcolor="#cccccc">
+    <td colspan="3">
+      Parameters
+    </td>
+    <td align="center">
+      <a href="@parameters_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="Edit"></a>
     </td>
     <td align="center">
       &nbsp;
@@ -95,7 +134,7 @@
 
   <tr bgcolor="#999999">
     <td colspan="5" align="center">
-      <font color=white><b>Components</b></font>
+      <font color=white><b>@pretty_names.Components@</b></font>
     </td>
   </tr>
 
@@ -114,7 +153,7 @@
         <else><i>No maintainer</i></else>
       </td>
       <td align="right">
-        <if @components.view_bugs_url@ not nil><a href="@components.view_bugs_url@" title="View the bugs for this component"></if>@components.num_bugs@ <if @components.num_bugs@ eq 1>bug</if><else>bugs</else><if @components.view_bugs_url@ not nil></a></if>
+        <if @components.view_bugs_url@ not nil><a href="@components.view_bugs_url@" title="View the @pretty_names.bugs@ for this component"></if>@components.num_bugs@ <if @components.num_bugs@ eq 1>@pretty_names.bug@</if><else>@pretty_names.bugs@</else><if @components.view_bugs_url@ not nil></a></if>
       </td>
       <td align="center">
         <a href="@components.edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="Edit"></a>
@@ -132,9 +171,8 @@
     </tr>
   </if>
   <tr bgcolor="#bbbbbb">
-    <td colspan="5"><a href="@component_add_url@">Create New Component</a></td>
+    <td colspan="5"><b>&raquo;</b> <a href="@component_add_url@">Create new @pretty_names.component@</a></td>
   </tr>
 </table>
+</blockquote>
 
-<p>
-    

@@ -3,7 +3,7 @@
 <property name="context_bar">@context_bar@</property>
 <if @notification_link@ not nil><property name="notification_link">@notification_link@</property></if>
 
-<if @action@ nil>
+<if @action_id@ nil>
   <table align="right">
     <tr>
       <td>
@@ -27,7 +27,7 @@
   </p>
 </if>
 
-<if @action@ nil>
+<if @action_id@ nil>
   <div style="font-size: 75%;" align="right">
     <if @user_agent_p@ false>
       (<a href="@show_user_agent_url@">show user agent</a>)
@@ -38,4 +38,3 @@
   </div>
 </if>
 
-<p>

@@ -17,8 +17,8 @@ for { set i 0 } { $i < [ns_set size $variable_set_to_export] } { incr i } {
     lappend export_var_list $var_name
 }
 
-set pagination_filter_base_url "[ad_conn url]?[export_vars -url -override { { offset 0 } } $export_var_list]"
-set pagination_form_export_vars "[export_vars -form -override { { offset 0 } } $export_var_list]"
+set pagination_filter_base_url "[ad_conn url]?[export_vars -url -exclude { offset } [concat $export_var_list interval_size]]"
+set pagination_form_export_vars "[export_vars -form [concat $export_var_list offset]]"
 
 while { $interval_low <= $row_count } {    
 

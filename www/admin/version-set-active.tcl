@@ -9,8 +9,6 @@ ad_page_contract {
     { return_url "" }
 }
 
-db_exec_plsql set_active_version {
-    select bt_version__set_active(:version_id)
-}
+db_exec_plsql set_active_version {}
 
 ad_returnredirect $return_url

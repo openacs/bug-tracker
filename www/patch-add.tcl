@@ -34,6 +34,9 @@ set page_title "New Patch"
 set context_bar [ad_context_bar $page_title]
 set user_id [ad_conn user_id]
 
+# Is this project using multiple versions?
+set versions_p [bug_tracker::versions_p]
+
 # Create the form
 form create patch -html { enctype multipart/form-data } -cancel_url $return_url
 
@@ -108,6 +111,10 @@ if { [form is_request patch] } {
     element set_properties patch version_id \
             -value [bug_tracker::conn user_version_id]
 
+    if { !$versions_p } {
+        element set_properties patch version_id -widget hidden
+    }
+
     if { [info exists component_id] } {
         element set_properties patch component_id -value $component_id
     }    
@@ -124,25 +131,10 @@ if { [form is_valid patch] } {
         set content [bug_tracker::get_uploaded_patch_file_content]
 
         set ip_address [ns_conn peeraddr]
+        
+        db_exec_plsql new_patch {}        
 
-        db_exec_plsql new_patch {
-            select bt_patch__new(
-                :patch_id,
-                :package_id,
-                :component_id,
-                :summary,
-                :description,
-                :description_format,
-                :content,
-                :version_id,
-                :user_id,
-                :ip_address
-            )
-        }        
-
-        set patch_number [db_string patch_number_for_id "select patch_number 
-        from bt_patches 
-        where patch_id = :patch_id"]
+        set patch_number [db_string patch_number_for_id {}]
 
         # Redirect to the view page for the created patch by default
         if { [empty_string_p $return_url] } {

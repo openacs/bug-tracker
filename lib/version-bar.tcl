@@ -17,7 +17,8 @@ set user_version_name [bug_tracker::conn user_version_name]
 set user_first_names [bug_tracker::conn user_first_names]
 set user_last_name [bug_tracker::conn user_last_name]
 
-
+# Is this project using multiple versions?
+set versions_p [bug_tracker::versions_p]
 
 set package_url [ad_conn package_url]
 
