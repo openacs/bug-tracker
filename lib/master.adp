@@ -5,6 +5,9 @@
   a.bt_navbar { 
     color: white; 
   }
+  a.bt_navbar:visited { 
+    color: white; 
+  }
   a.bt_navbar:hover { 
     color: white; 
     text-decoration: underline;
