@@ -620,7 +620,10 @@ Comment:
 
     foreach email [array names recipient] {
         if { $recipient($email) && ![empty_string_p $email] } {
-            ns_sendmail $email $sender_email $subject $body
+            if {[catch {ns_sendmail $email $sender_email $subject $body} errmsg]} {
+		# In case we can't send the email
+		ns_log Notice "\[bug-tracker\] Error sending email: $errmsg"
+	    }
         }
     }
 }
