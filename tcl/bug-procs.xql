@@ -22,22 +22,11 @@
     </querytext>
   </fullquery>
 
-  <fullquery name="bug_tracker::bug::capture_resolution_code::do_side_effect.insert_resolution_code">
+  <fullquery name="bug_tracker::bug::capture_resolution_code::do_side_effect.select_resolution_code">
     <querytext>
-        insert into workflow_case_log_data
-          (entry_id, key, value)
-        select :entry_id, 'resolution', resolution
+        select resolution
         from   bt_bugs
         where  bug_id = :object_id
-    </querytext>
-  </fullquery>
-
-  <fullquery name="bug_tracker::bug::format_log_title::format_log_title.select_resolution">
-    <querytext>
-        select value
-        from   workflow_case_log_data
-        where  entry_id = :entry_id
-        and    key = 'resolution'
     </querytext>
   </fullquery>
 

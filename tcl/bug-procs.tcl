@@ -498,7 +498,10 @@ ad_proc -private bug_tracker::bug::capture_resolution_code::do_side_effect {
     action_id
     entry_id
 } {
-    db_dml insert_resolution_code {}
+    workflow::case::add_log_data \
+        -entry_id $entry_id \
+        -key "resolution" \
+        -value [db_string select_resolution_code {}]
 }
 
 #####
