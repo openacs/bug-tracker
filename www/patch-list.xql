@@ -23,16 +23,16 @@
       <querytext>
 
                 select c.component_name,
-                       c.component_id,
-                       (select count(*) 
+                       c.component_id, 
+                       s.count
+                from   bt_components c,
+                       (select p.component_id, count(*) as count
                         from   bt_patches p 
-                        where  p.project_id = :package_id 
-                        and    p.component_id = c.component_id
-                       ) as count
-                from   bt_components c
-                where  exists (select 1 from bt_patches p2
-                               where p2.component_id = c.component_id)
-                order  by c.component_name
+                        where  p.project_id = :package_id
+			group by p.component_id
+                       ) s
+                where  s.component_id = c.component_id
+                order  by lower(c.component_name)
 
       </querytext>
 </fullquery>
