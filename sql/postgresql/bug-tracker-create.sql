@@ -62,7 +62,8 @@ begin
         now(),                                 -- creation_date
         v_creation_user,                       -- creation_user
         v_creation_ip,                         -- creation_ip,
-        ''t''                                  -- security_inherit_p
+        ''t'',                                 -- security_inherit_p
+        p_package_id                           -- package_id
     );
 
     -- Set package_id column. Oddly enoguh, there is no API to set it
