@@ -6,31 +6,32 @@
 <table border="0" cellpadding="0" cellspacing="0" width="100%">
   <tr>
     <td valign="top" width="200" style="border: solid 1px gray;" bgcolor="#ccccff" class="bt_summary_bold">
-      <div style="padding: 4px;">
-        <multiple name="by_status">
-          @by_status.num_bugs@ <a href="@by_status.name_url@">@by_status.name@</a><br>
-        </multiple>
-        <p>Open bugs summary:</p>
-      </div>
+
       <multiple name="stats">
-        <table border="0" width="100%">
-          <tr>
-            <td colspan="2" class="bt_summary_bold">
-              @stats.stat_name@
-            </td>
-          </tr>
-          <group column="stat_name">
-            <tr>
-              <td width="75%" class="bt_summary">
-                <a href="@stats.name_url@">@stats.name@</a>
-              </td>
-              <td align="right" class="bt_summary">
-                @stats.num_bugs@
-              </td>
-            </tr>
-          </group>
-        </table>
-        <p>
+        <if @stats.header@ not nil>
+          <p style="padding-left: 4px; background-color: #eeeeff; padding-top: 4px; padding-bottom: 4px; margin-top: 0px; margin-bottom: 8px; ">@stats.header@</p>
+        </if>
+        <group column="header">
+          <p style="margin-top: 0px; margin-bottom: 12px;">
+            <table border="0" width="100%">
+              <tr>
+                <td colspan="2" class="bt_summary_bold">
+                  @stats.stat_name@
+                </td>
+              </tr>
+              <group column="stat_name">
+                <tr>
+                  <td width="75%" class="bt_summary">
+                    <a href="@stats.name_url@">@stats.name@</a>
+                  </td>
+                  <td align="right" class="bt_summary">
+                    @stats.num_bugs@
+                  </td>
+                </tr>
+              </group>
+            </table>
+          </p>
+        </group>
       </multiple>
     </td>
     <td width="25">&nbsp;</td>
@@ -83,15 +84,15 @@
           <tr>
             <td valign=top>
               <font face="tahoma,verdana,arial,helvetica,sans-serif">
-              <a href="@bugs.bug_url@" title="View bug details">#@bugs.bug_number@. @bugs.summary@</a><br>
+              <font color="#6f6f6f">#</font>@bugs.bug_number@<font color="#6f6f6f">. </font><a href="@bugs.bug_url@" title="View bug details">@bugs.summary@</a><br>
               <font size="-1">
                 <if @bugs.description_short@ not nil><font size="-1">@bugs.description_short@<br></if>
                 <font color="#6f6f6f">Component:</font> @bugs.component_name@ 
-                - <font color="#6f6f6f">Opened</font> @bugs.creation_date_pretty@
+                <font color="#6f6f6f">- Opened</font> @bugs.creation_date_pretty@
                   <font color="#6f6f6f">By</font> <a href="@bugs.submitter_url@" title="Email: @bugs.submitter_email@">@bugs.submitter_first_names@ @bugs.submitter_last_name@</a><br>
                 <font color="#6f6f6f">Priority:</font> @bugs.priority_pretty@ 
-                - <font color="#6f6f6f">Severity:</font> @bugs.severity_pretty@
-                - <font color="#6f6f6f">Type:</font> @bugs.bug_type_pretty@
+                <font color="#6f6f6f">- Severity:</font> @bugs.severity_pretty@
+                <font color="#6f6f6f">- Type:</font> @bugs.bug_type_pretty@
                 <br>
                 <font color="#6f6f6f">Assigned to:</font>
                 <if @bugs.assignee_user_id@ not nil>
