@@ -6,7 +6,7 @@
 <table align="right">
 <tr>
 <td align="right">
-<a href="bug-submission-instructions.html" target="#" class="bt_link">#bug-tracker.Writing_a_good_bug_report#</a>
+<a href="bug-submission-instructions" target="#" class="bt_link">#bug-tracker.Writing_a_good_bug_report#</a>
 </td>
 </tr>
 </table>
