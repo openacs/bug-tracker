@@ -9,7 +9,6 @@
 
     <version name="0.8" url="http://openacs.org/repository/download/apm/bug-tracker-0.8.apm">
     <database-support>
-        <database>oracle</database>
         <database>postgresql</database>
     </database-support>
         <owner url="mailto:lars@collaboraid.biz">Lars Pind</owner>

@@ -17,8 +17,13 @@
 </if>
 </p>
 
-<if @mode@ eq "view">
 
+<if @mode@ eq "view">
+<center>
+<p>
+<a href="patch?patch_number=@patch_number@&download=1">Download patch content</a>
+</p>
+</center>
 <p>
 <table border=0" cellspacing="0" cellpadding="2" bgcolor="lightgrey" width="100%">
   <tr>
@@ -28,13 +33,11 @@
   </tr>
 </table>
 </p>
-
 <center>
 <p>
 <a href="patch?patch_number=@patch_number@&download=1">Download patch content</a>
 </p>
 </center>
-
 </if>
 
 

@@ -10,5 +10,5 @@ Before you can get started using the bug-tracker, you need to create at least on
   Please visit the <a href="admin/">project administration</a> pages to define software components.
 </if>
 <else>
-  Please contact a project adminsitrator to get the components set up.
+  Please contact a project administrator to get the components set up.
 </else>
