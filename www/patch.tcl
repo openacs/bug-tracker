@@ -242,8 +242,8 @@ if { [string equal $mode "accept"] } {
 
 if { [string equal $mode "edit"] } {
     # Edit mode - display the file upload widget for patch content
-    element create patch content \
-          -datatype filename \
+    element create patch patch_file \
+          -datatype file \
           -widget file \
           -label "Patch file (leave blank to keep current file):" \
           -optional
@@ -255,7 +255,7 @@ element create patch mode \
         -value $mode
 
 set page_title "Patch #$patch_number"
-set context [list $page_title]
+set context [list [list "patch-list" "Patches"] $page_title]
 
 if { [form is_request patch] } {
     # The form was requested
