@@ -4,17 +4,13 @@
 <if @notification_link;noquote@ not nil><property name="notification_link">@notification_link;noquote@</property></if>
 
 <if @action_id@ nil>
-  <table align="right">
-    <tr>
-      <td>
-        <multiple name="navlinks">
-          <if @navlinks.url@ not nil><a href="@navlinks.url@">@navlinks.label;noquote@</a></if>
-          <else>@navlinks.label;noquote@</else>
-          <if @navlinks.rownum@ lt @navlinks:rowcount@>&nbsp;&nbsp;&nbsp;</if>
-        </multiple>
-      </td>
-    </tr>
-  </table>
+  <div style="float: right;">
+    <multiple name="navlinks">
+      <if @navlinks.url@ not nil><a href="@navlinks.url@">@navlinks.label;noquote@</a></if>
+      <else>@navlinks.label;noquote@</else>
+      <if @navlinks.rownum@ lt @navlinks:rowcount@>&nbsp;&nbsp;&nbsp;</if>
+   </multiple>
+  </div>
 </if>
 
 <p>
