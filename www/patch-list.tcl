@@ -8,38 +8,34 @@ ad_page_contract {
 } {
     {component_id:integer ""}
     {version_id:integer ""}
-    {offset:integer "0"}
-    {interval_size "50"}
 }
 
 set package_id [ad_conn package_id]
 set user_id [ad_conn user_id]
 
-set page_title "Patch List"
+set page_title "Patches" 
 set context_bar [ad_context_bar $page_title]
 
 # Create the component filter
 set component_filter_list [list]
-if { [empty_string_p $component_id] } {
-    lappend component_filter_list "All Components"
-} else {
-    lappend component_filter_list "<a href=\"patch-list?[export_vars -url -override {{component_id {}}} {version_id}]\">All Components</a>"
-}
-db_foreach components_for_patches {
-    select bt_components.component_id as loop_component_id,
-           bt_components.component_name
-      from bt_components
-      where exists (select 1 from bt_patches
-                    where bt_patches.component_id = bt_components.component_id)
+
+multirow create components url label selected_p
+
+multirow append components "patch-list?[export_vars { version_id }]" "All Components" [empty_string_p $component_id]
+
+multirow extend components loop_component_id
+
+db_multirow -append -extend { url selected_p } components components {
+    select c.component_id as loop_component_id,
+           c.component_name as label
+      from bt_components c
+      where exists (select 1 from bt_patches p
+                    where p.component_id = c.component_id)
 } {
-    
-    if { $component_id == $loop_component_id } {
-        lappend component_filter_list "$component_name"
-    } else {
-        lappend component_filter_list "<a href=\"patch-list?[export_vars -url -override {{component_id $loop_component_id}} {version_id}]\">$component_name</a>"
-    }
+    set selected_p [string equal $component_id $loop_component_id]
+    set url "patch-list?[export_vars { version_id { component_id $loop_component_id} }]"
 }
-set component_filter [join $component_filter_list " | "]
+
 if { ![empty_string_p $component_id] } {
     set component_where_clause "and bt_patches.component_id = :component_id"
 } else {
@@ -50,7 +46,7 @@ if { ![empty_string_p $component_id] } {
 # Create the apply to version filter
 set version_filter_list [list]
 if { [empty_string_p $version_id] } {
-    lappend version_filter_list "All Versions"
+    lappend version_filter_list "<b>All Versions</b>"
 } else {
     lappend version_filter_list "<a href=\"patch-list?[export_vars -url -override {{version_id {}}} {component_id}]\">All Versions</a>"
 }
@@ -63,7 +59,7 @@ db_foreach versions_for_patches {
 } {
 
     if { $version_id == $loop_version_id } {
-        lappend version_filter_list "$version_name"
+        lappend version_filter_list "<b>$version_name</b>"
     } else {
         lappend version_filter_list "<a href=\"patch-list?[export_vars -url -override {{version_id $loop_version_id}} {component_id}]\">$version_name</a>"
     }

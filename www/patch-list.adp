@@ -3,15 +3,17 @@
 <property name="context_bar">@context_bar@</property>
 
 <p>
-Component: [ @component_filter@ ]
+Component: [
+<multiple name="components">
+  <if @components.rownum@ gt 1> | </if>
+  <if @components.selected_p@ true><b>@components.label@</b></if>
+  <else><a href="@components.url@">@components.label@</a></else>
+</multiple>
+]
 </p>
 
 <p>
 Apply to version: [ @version_filter@ ]
-</p>
-
-<p>
-<include src="../lib/pagination" row_count="@patch_count@" offset="@offset@" interval_size="@interval_size@" variable_set_to_export="@pagination_export_var_set@" pretty_plural="patches">
 </p>
 
 <blockquote>
