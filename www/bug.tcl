@@ -72,7 +72,7 @@ set enabled_action_id [form get_action bug]
 set action_id ""
 if { ![empty_string_p $enabled_action_id] } {
     ns_log Notice "enabled_action if statement"
-    ad_maybe_redirect_for_registration
+    auth::require_login
     workflow::case::enabled_action_get -enabled_action_id $enabled_action_id -array enabled_action    
     set action_id $enabled_action(action_id)
 }

@@ -24,7 +24,7 @@ if { [empty_string_p $return_url] } {
 }
 
 # User needs to be logged in here
-ad_maybe_redirect_for_registration
+auth::require_login
 
 # Set some common bug-tracker variables
 set project_name [bug_tracker::conn project_name]

@@ -128,7 +128,7 @@ foreach field $edit_fields {
 }
 
 if { ![string equal $mode "view"] } {
-    ad_maybe_redirect_for_registration
+    auth::require_login
 }    
 
 # XXX FIXME TODO editing a patch invokes filename::validate, which is too paranoid...

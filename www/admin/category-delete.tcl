@@ -4,7 +4,7 @@ ad_page_contract {
     keyword_id:integer
 }
 
-cr::keyword::delete \
+content::keyword::delete \
     -keyword_id $keyword_id
 
 bug_tracker::get_keywords_flush

@@ -10,7 +10,7 @@ ad_page_contract {
 }
 
 # User needs to be logged in here
-ad_maybe_redirect_for_registration
+auth::require_login
 
 ad_require_permission [ad_conn package_id] read
 
