@@ -117,7 +117,8 @@
            workflow_actions a,
            workflow_case_role_party_map crpm,
            parties p
-    where  cas.object_id = b.bug_id            
+    where  b.project_id = :package_id
+      and  cas.object_id = b.bug_id            
       and  (a.always_enabled_p = 't'
             or exists (select 1
                        from   workflow_fsm_action_en_in_st aeis
