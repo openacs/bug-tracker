@@ -9,19 +9,19 @@ ad_page_contract {
     @cvs-id $Id$
 } {
     bug_number:integer,optional
-    cancel:optional
     component_id:optional
-    {return_url ""}    
-}
-
-# If the user hit cancel, ignore everything else
-if { [exists_and_not_null cancel] } {
-    set bug_view_url "bug?[export_vars { bug_number }]"
-    ad_returnredirect $bug_view_url
-    ad_script_abort
+    {return_url ""}
 }
 
 ad_require_permission [ad_conn package_id] create
+
+if { [empty_string_p $return_url] } {
+    if { [exists_and_not_null bug_number] } {
+        set return_url "bug?[export_vars { bug_number }]"
+    } else {
+        set return_url "patch-list"
+    }
+}
 
 # User needs to be logged in here
 ad_maybe_redirect_for_registration
@@ -35,7 +35,7 @@ set context_bar [ad_context_bar $page_title]
 set user_id [ad_conn user_id]
 
 # Create the form
-form create patch -html { enctype multipart/form-data }
+form create patch -html { enctype multipart/form-data } -cancel_url $return_url
 
 element create patch patch_id \
         -datatype integer \
@@ -140,12 +140,12 @@ if { [form is_valid patch] } {
             )
         }        
 
+        set patch_number [db_string patch_number_for_id "select patch_number 
+        from bt_patches 
+        where patch_id = :patch_id"]
+
         # Redirect to the view page for the created patch by default
         if { [empty_string_p $return_url] } {
-            set patch_number [db_string patch_number_for_id "select patch_number 
-            from bt_patches 
-            where patch_id = :patch_id"]
-
             set redirect_url "patch?[export_vars { patch_number }]"
         } else {
             set redirect_url $return_url

@@ -170,7 +170,7 @@ db_multirow -extend { description_short submitter_url status_pretty resolution_p
 # Get stats
 #
 
-db_multirow -extend { name name_url stat_name header } stats by_status {
+db_multirow -extend { name name_url stat_name header selected_p } stats by_status {
     select b.status as unique_id,
            count(b.bug_id) as num_bugs
     from   bt_bugs b
@@ -182,9 +182,10 @@ db_multirow -extend { name name_url stat_name header } stats by_status {
     set stat_name "Status"
     set name "[bug_tracker::status_pretty $unique_id]"
     set name_url "?[export_vars { { filter.status $unique_id } }]"
+    set selected_p [expr { [info exists filter(status)] && [string equal $filter(status) $unique_id] }]
 }
 
-db_multirow -extend { name name_url stat_name header } -append stats stats_by_bug_type {
+db_multirow -extend { name name_url stat_name header selected_p } -append stats stats_by_bug_type {
     select b.bug_type as unique_id,
            count(b.bug_id) as num_bugs
     from   bt_bugs b
@@ -197,9 +198,10 @@ db_multirow -extend { name name_url stat_name header } -append stats stats_by_bu
     set stat_name "Type of bug"
     set name [bug_tracker::bug_type_pretty $unique_id]
     set name_url "?[export_vars { { filter.bug_type $unique_id } }]"
+    set selected_p [expr { [info exists filter(bug_type)] && [string equal $filter(bug_type) $unique_id] }]
 }
 
-db_multirow -extend { name_url stat_name header } -append stats stats_by_fix_for_version {
+db_multirow -extend { name_url stat_name header selected_p } -append stats stats_by_fix_for_version {
     select b.fix_for_version as unique_id,
            v.version_name as name,
            count(b.bug_id) as num_bugs
@@ -216,11 +218,12 @@ db_multirow -extend { name_url stat_name header } -append stats stats_by_fix_for
         set name "<i>Undecided</i>"
     }
     set name_url "?[export_vars { { filter.fix_for_version $unique_id } }]"
+    set selected_p [expr { [info exists filter(fix_for_version)] && [string equal $filter(fix_for_version) $unique_id] }]
 }
 
 set stat_name_val "Severity"
 
-db_multirow -extend { name_url stat_name header } -append stats stats_by_severity {
+db_multirow -extend { name_url stat_name header selected_p } -append stats stats_by_severity {
     select b.severity as unique_id,
            p.sort_order || ' - ' || p.severity_name as name,
            count(b.bug_id) as num_bugs
@@ -234,11 +237,12 @@ db_multirow -extend { name_url stat_name header } -append stats stats_by_severit
     set header "Open bugs summary:"
     set stat_name $stat_name_val
     set name_url "?[export_vars { { filter.severity $unique_id } }]"
+    set selected_p [expr { [info exists filter(severity)] && [string equal $filter(severity) $unique_id] }]
 }
 
 set stat_name_val "Priority"
 
-db_multirow -extend { name_url stat_name header } -append stats stats_by_priority {
+db_multirow -extend { name_url stat_name header selected_p } -append stats stats_by_priority {
     select b.priority as unique_id,
            p.sort_order || ' - ' || p.priority_name as name,
            count(b.bug_id) as num_bugs
@@ -252,9 +256,10 @@ db_multirow -extend { name_url stat_name header } -append stats stats_by_priorit
     set header "Open bugs summary:"
     set stat_name $stat_name_val
     set name_url "?[export_vars { { filter.priority $unique_id } }]"
+    set selected_p [expr { [info exists filter(priority)] && [string equal $filter(priority) $unique_id] }]
 }
 
-db_multirow -extend { name_url stat_name header } -append stats stats_by_assignee {
+db_multirow -extend { name_url stat_name header selected_p } -append stats stats_by_assignee {
     select b.assignee as unique_id,
            assignee.first_names || ' ' || assignee.last_name as name,
            count(b.bug_id) as num_bugs
@@ -271,9 +276,10 @@ db_multirow -extend { name_url stat_name header } -append stats stats_by_assigne
         set name "<i>Unassigned</i>"
     }
     set name_url "?[export_vars -url { { filter.assignee $unique_id } }]"
+    set selected_p [expr { [info exists filter(assignee)] && [string equal $filter(assignee) $unique_id] }]
 }
 
-db_multirow -extend { name_url stat_name header } -append stats stats_by_actionby {
+db_multirow -extend { name_url stat_name header selected_p } -append stats stats_by_actionby {
     select o.creation_user as unique_id,
            submitter.first_names || ' ' || submitter.last_name as name,
            count(b.bug_id) as num_bugs
@@ -288,9 +294,10 @@ db_multirow -extend { name_url stat_name header } -append stats stats_by_actionb
     set header "Open bugs summary:"
     set stat_name "To Be Verified By"
     set name_url "?[export_vars -url { { filter.status resolved } { filter.actionby $unique_id } }]"
+    set selected_p [expr { [info exists filter(status)] && [string equal $filter(status) resolved] && [info exists filter(actionby)] && [string equal $filter(actionby) $unique_id] }]
 }
 
-db_multirow -extend { name_url stat_name header } -append stats stats_by_component {
+db_multirow -extend { name_url stat_name header selected_p } -append stats stats_by_component {
     select coalesce('com/'||c.url_name||'/', trim(to_char(c.component_id,'99999999'))) as unique_id,
            c.component_name as name,
            count(b.bug_id) as num_bugs
@@ -308,6 +315,7 @@ db_multirow -extend { name_url stat_name header } -append stats stats_by_compone
     } else {
         set name_url "[ad_conn package_url]?[export_vars -url { { filter.component_id $unique_id } }]"
     }
+    set selected_p [expr { [info exists filter(component_id)] && [string equal $filter(component_id) $unique_id] }]
 }
 
 ad_return_template

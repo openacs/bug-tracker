@@ -9,18 +9,23 @@
 
       <multiple name="stats">
         <if @stats.header@ not nil>
-          <p style="padding-left: 4px; background-color: #eeeeff; padding-top: 4px; padding-bottom: 4px; margin-top: 0px; margin-bottom: 8px; ">@stats.header@</p>
+          <p style="padding-left: 4px; background-color: #bbbbff; border: 0px; border-style: solid none solid none; padding-top: 4px; padding-bottom: 4px; margin-top: 0px; margin-bottom: 8px; ">@stats.header@</p>
         </if>
         <group column="header">
           <p style="margin-top: 0px; margin-bottom: 12px;">
-            <table border="0" width="100%">
+            <table border="0" cellspacing="0" cellpadding="2" width="100%">
               <tr>
                 <td colspan="2" class="bt_summary_bold">
                   @stats.stat_name@
                 </td>
               </tr>
               <group column="stat_name">
-                <tr>
+                <if @stats.selected_p@ true>
+                  <tr bgcolor="#eeeeff">
+                </if>
+                <else>
+                  <tr>
+                </else>
                   <td width="75%" class="bt_summary">
                     <a href="@stats.name_url@">@stats.name@</a>
                   </td>

@@ -7,13 +7,14 @@
     <initial-install-p>f</initial-install-p>
     <singleton-p>f</singleton-p>
 
-    <version name="0.8" url="http://openacs.org/repository/download/apm/bug-tracker-0.8.apm">
+    <version name="0.9d1" url="http://openacs.org/repository/download/apm/bug-tracker-0.9d1.apm">
     <database-support>
+        <database>oracle</database>
         <database>postgresql</database>
     </database-support>
         <owner url="mailto:lars@collaboraid.biz">Lars Pind</owner>
         <summary>Tracks bugs and features, versions and maintainers, in software projects. Contains the best of SDM, Bugzilla, FogBUGZ, and bughost.com.</summary>
-        <release-date>2002-09-11</release-date>
+        <release-date>2003-01-10</release-date>
         <vendor url="http://www.museatech.net">Musea Technologies</vendor>
 
         <requires url="notifications" version="0.2d"/>
@@ -41,6 +42,8 @@
             <file type="data_model_upgrade" db_type="postgresql" path="sql/postgresql/upgrade-0.7d3-0.7d4.sql"/>
             <file type="data_model_upgrade" db_type="postgresql" path="sql/postgresql/upgrade-0.7d4-0.7d5.sql"/>
             <file type="data_model_upgrade" db_type="postgresql" path="sql/postgresql/upgrade-0.7d5-0.8.sql"/>
+            <file type="query_file" db_type="postgresql" path="tcl/bug-procs-postgresql.xql"/>
+            <file type="tcl_procs" path="tcl/bug-procs.tcl"/>
             <file type="tcl_procs" path="tcl/bug-tracker-notification-procs.tcl"/>
             <file type="tcl_procs" path="tcl/bug-tracker-procs.tcl"/>
             <file type="content_page" path="www/admin/component-ae.adp"/>
@@ -54,14 +57,21 @@
             <file type="content_page" path="www/admin/project-maintainer-edit.tcl"/>
             <file type="content_page" path="www/admin/version-ae.adp"/>
             <file type="content_page" path="www/admin/version-ae.tcl"/>
-            <file type="content_page" path="www/admin/versions.adp"/>
             <file type="content_page" path="www/admin/version-set-active.tcl"/>
+            <file type="content_page" path="www/admin/versions.adp"/>
             <file type="content_page" path="www/admin/versions.tcl"/>
             <file type="content_page" path="www/bug-add.adp"/>
             <file type="content_page" path="www/bug-add.tcl"/>
+            <file type="content_page" path="www/bug-submission-instructions.html"/>
             <file type="content_page" path="www/bug.adp"/>
             <file type="content_page" path="www/bug.tcl"/>
             <file type="content_page" path="www/com/index.vuh"/>
+            <file type="documentation" path="www/doc/bug-tracker-outline.sql.txt"/>
+            <file type="documentation" path="www/doc/bug-tracker-spec.html"/>
+            <file type="documentation" path="www/doc/flowchart.jpg"/>
+            <file type="documentation" path="www/doc/index.html"/>
+            <file type="documentation" path="www/doc/mockup-index.html"/>
+            <file type="documentation" path="www/doc/workflow.jpg"/>
             <file type="content_page" path="www/graphics/Delete16.gif"/>
             <file type="content_page" path="www/graphics/Delete24.gif"/>
             <file type="content_page" path="www/graphics/Edit16.gif"/>
@@ -74,21 +84,14 @@
             <file type="content_page" path="www/no-components.adp"/>
             <file type="content_page" path="www/patch-add.adp"/>
             <file type="content_page" path="www/patch-add.tcl"/>
-            <file type="content_page" path="www/patch.adp"/>
             <file type="content_page" path="www/patch-list.adp"/>
             <file type="content_page" path="www/patch-list.tcl"/>
+            <file type="content_page" path="www/patch-submission-instructions.html"/>
+            <file type="content_page" path="www/patch.adp"/>
             <file type="content_page" path="www/patch.tcl"/>
             <file type="content_page" path="www/prefs.adp"/>
             <file type="content_page" path="www/prefs.tcl"/>
             <file type="content_page" path="www/unmap-patch-from-bug.tcl"/>
-            <file type="content_page" path="www/bug-submission-instructions.html"/>
-            <file type="content_page" path="www/patch-submission-instructions.html"/>
-            <file type="documentation" path="www/doc/bug-tracker-outline.sql.txt"/>
-            <file type="documentation" path="www/doc/bug-tracker-spec.html"/>
-            <file type="documentation" path="www/doc/flowchart.jpg"/>
-            <file type="documentation" path="www/doc/index.html"/>
-            <file type="documentation" path="www/doc/mockup-index.html"/>
-            <file type="documentation" path="www/doc/workflow.jpg"/>
         </files>
         <parameters>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="TruncateDescriptionLength"  default="200" description="At what length should bug descriptions be truncated on the bug list pgae." section_name="bug-list"/>

@@ -5,18 +5,11 @@ ad_page_contract {
     @creation-date 2002-03-25
     @cvs-id $Id$
 } {
-    cancel:optional
     {return_url ""}
 }
 
 if { [empty_string_p $return_url] } {
     set return_url "."
-}
-
-# If the user hit cancel, ignore everything else
-if { [exists_and_not_null cancel] } {
-    ad_returnredirect $return_url
-    ad_script_abort
 }
 
 ad_require_permission [ad_conn package_id] create
@@ -38,7 +31,7 @@ set user_id [ad_conn user_id]
 
 # Create the form
 
-form create bug
+form create bug -cancel_url .
 
 element create bug bug_id \
         -datatype integer \
@@ -123,39 +116,20 @@ if { [form is_request bug] } {
 
 if { [form is_valid bug] } {
 
-    db_transaction {
-
-        form get_values bug bug_id component_id bug_type severity priority found_in_version summary description desc_format
-        
-        set ip_address [ns_conn peeraddr]
-        set user_agent [ns_set get [ns_conn headers] "User-Agent"]
-
-        db_exec_plsql new_bug {
-            select bt_bug__new(
-                :bug_id,
-                :package_id,
-                :component_id,
-                :bug_type,
-                :severity,
-                :priority,
-                :found_in_version,
-                :summary,
-                :description,
-                :desc_format,
-                :user_agent,
-                :user_id,
-                :ip_address
-            )
-        }
-
-    }
+    form get_values bug bug_id component_id bug_type severity priority found_in_version summary description desc_format
     
-    bug_tracker::bug_notify -bug_id $bug_id -action "open" -comment $description -comment_format $desc_format
-
-    # Sign up the submitter of the bug for instant alerts. We do this after calling
-    # the alert procedure so that the submitter isn't alerted about his own submittal of the bug
-    bug_tracker::add_instant_alert -bug_id $bug_id -user_id $user_id
-
+    bug_tracker::bug::new \
+            -bug_id $bug_id \
+            -package_id $package_id \
+            -component_id $component_id \
+            -bug_type $bug_type \
+            -severity $severity \
+            -priority $priority \
+            -found_in_version $found_in_version \
+            -summary $summary \
+            -description $description \
+            -desc_format $desc_format
+    
     ad_returnredirect $return_url
     ad_script_abort
 }
