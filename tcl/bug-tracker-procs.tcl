@@ -494,6 +494,7 @@ namespace eval bug_tracker {
             resolve "Resolved"
             reopen "Reopened"
             close "Closed"
+            patched "Patched"
         }
         if { [info exists action_codes($action)] } {
 
@@ -631,7 +632,7 @@ namespace eval bug_tracker {
                    assignee.first_names as assignee_first_names,
                    assignee.last_name as assignee_last_name,
                    assignee.email as assignee_email,
-                   to_char(now(), 'fmMM/DDfm/YYYY') as now_pretty
+                   to_char(now(), 'fmMon/DDfm/YYYY') as now_pretty
             from   bt_bugs b left outer join
                    cc_users assignee on (assignee.user_id = b.assignee),
                    acs_objects o,
@@ -648,36 +649,33 @@ namespace eval bug_tracker {
             and    submitter.user_id = o.creation_user
         } -column_array bug
 
-        set subject_start "Bug #$bug(bug_number). [ad_html_to_text -- [string_truncate -len 30 $bug(summary)]]"
-        set body_start "Bug #$bug(bug_number). $bug(summary)"
+        set subject "Bug #$bug(bug_number). [ad_html_to_text -- [string_truncate -len 30 $bug(summary)]]: [bug_action_pretty $action $resolution] by [conn user_first_names] [conn user_last_name]"
+
+        set body "Bug no: #$bug(bug_number)
+Summary: $bug(summary)
+
+Component: $bug(component_name)
+Status: [status_pretty $bug(status)]
+Severity: $bug(severity_pretty)
+Priority: $bug(priority_pretty)
+Found in version: $bug(found_in_version_name)
+
+Action: [bug_action_pretty $action $resolution]
+By user: [conn user_first_names] [conn user_last_name] <[conn user_email]>
+
+"
 
         if { ![string equal $action "patched"] } {
-            set subject "$subject_start: [bug_action_pretty $action $resolution] by [conn user_first_names] [conn user_last_name]"
-            
-            set body "$body_start
-            
-            Action: [bug_action_pretty $action $resolution] by [conn user_first_names] [conn user_last_name]
-            "
             if { ![empty_string_p $comment] } {
-                append body "
-                Comment:
-                
-                [bug_convert_comment_to_text -comment $comment -format $comment_format]
-                "
-            }            
+                append body "Comment:\n\n[bug_convert_comment_to_text -comment $comment -format $comment_format]\n\n"
+            }
 
         } else {
-            # The bug was patched - we use different text in this case
-            set subject "$subject_start was patched by [conn user_first_names] [conn user_last_name]"
-            
-            set body "$body_start
-
-            A patch with summary \"$patch_summary\" has been entered for this bug."
+            append body "\n\nSummary: $patch_summary\n\n"
         }
-            
-        append body "
-            [ad_url][ad_conn package_url]bug?[export_vars -url { { bug_number $bug(bug_number) } }]
-            "
+
+        
+        append body "--\nTo comment on, edit, resolve, close, or reopen this bug, go to:\n[ad_url][ad_conn package_url]bug?[export_vars -url { { bug_number $bug(bug_number) } }]\n"
 
         # Use the Notification service to alert (could be immediately, or daily, or weekly)
         # people who have signed up for notification on this bug
@@ -723,8 +721,12 @@ namespace eval bug_tracker {
 
         set notification_link [list]
         # Only present the link to logged in users.
-        if { $user_id != "0" } {
+        if { $user_id != 0 } {
             set type_id [notification::type::get_type_id -short_name $type]
+            if { [empty_string_p $type_id] } {
+                ns_log Error "Can't find notification of type '$type'"
+                return ""
+            }
 
             set request_id [notification::request::get_request_id -type_id $type_id -object_id $object_id -user_id $user_id]
 
