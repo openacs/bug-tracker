@@ -1,5 +1,12 @@
 # Version bar, to be included on all pages
 
+# Is this project using multiple versions?
+set versions_p [bug_tracker::versions_p]
+
+if { !$versions_p } {
+    return
+}
+
 # Project info
 
 set current_version_id [bug_tracker::conn current_version_id]
@@ -14,11 +21,6 @@ set login_url "/register/?[export_vars -url { return_url }]"
 
 set user_version_id [bug_tracker::conn user_version_id]
 set user_version_name [bug_tracker::conn user_version_name]
-set user_first_names [bug_tracker::conn user_first_names]
-set user_last_name [bug_tracker::conn user_last_name]
-
-# Is this project using multiple versions?
-set versions_p [bug_tracker::versions_p]
 
 set package_url [ad_conn package_url]
 

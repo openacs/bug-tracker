@@ -56,5 +56,9 @@ drop function bt_patch__name(integer);
 drop function bt_patch__new(integer,integer,integer,text,text,text,text,integer,integer,varchar);
 drop table bt_patch_actions;
 drop table bt_patches;
+drop sequence t_bt_patch_number_seq;
+drop view bt_patch_number_seq;
+
+delete from acs_objects where object_type = 'bt_patch';
 
 select acs_object_type__drop_type('bt_patch', 't');

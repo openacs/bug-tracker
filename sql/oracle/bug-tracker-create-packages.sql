@@ -56,6 +56,10 @@ as
         bug_id          in integer
     );
 
+    function name (
+        bug_id        in integer
+    ) return varchar2;
+
 end bt_bug;
 /
 show errors
@@ -148,8 +152,14 @@ as
             name => 'bug_tracker_' || bt_project.new.package_id,
             label => v_instance_name,
             description => null,
-            parent_id => v_root_folder_id
+            parent_id => v_root_folder_id,
+            context_id => bt_project.new.package_id,
+            creation_user => v_creation_user,
+            creation_ip => v_creation_ip
         );
+
+        -- Set package_id column. Oddly enoguh, there is no API to set it
+        update cr_folders set package_id = bt_project.new.package_id where folder_id = v_folder_id;
 
         -- register our content type
         content_folder.register_content_type (
@@ -212,6 +222,9 @@ as
              bt_patch.delete(rec.patch_id);
         end loop;
 
+        -- delete the content folder
+        content_folder.delete(v_folder_id);
+
         -- delete the projects keywords
         bt_project.keywords_delete(
             project_id => project_id,
@@ -224,10 +237,6 @@ as
         delete from bt_user_prefs where project_id = bt_project.delete.project_id;      
 
         delete from bt_projects where project_id = bt_project.delete.project_id;   
-
-        -- delete the content folder
-        content_folder.delete(v_folder_id);
-
     end delete;
 
     procedure keywords_delete (
@@ -415,7 +424,7 @@ as
         from workflow_cases
         where object_id = bt_bug.delete.bug_id;
 
-        foo := workflow_case.delete(v_case_id);
+        foo := workflow_case_pkg.delete(v_case_id);
         
         -- Every bug may have notifications attached to it
         -- and there is one column in the notificaitons datamodel that doesn't
@@ -429,6 +438,20 @@ as
         
         return;
     end delete;
+
+    function name (
+        bug_id         in integer
+    ) return varchar2
+    is
+        v_name          bt_bugs.summary%TYPE;
+    begin
+        select summary
+        into   v_name
+        from   bt_bugs
+        where  bug_id = name.bug_id;
+
+        return v_name;
+    end name;
 
 end bt_bug;
 /

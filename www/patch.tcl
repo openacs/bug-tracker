@@ -154,7 +154,7 @@ element create patch patch_number_i \
         -label    "Patch #"
 
 element create patch component_id \
-        -datatype integer \
+        -datatype text \
         -widget [ad_decode [info exists field_editable_p(component_id)] 1 select inform] \
         -label "Component" \
         -options [bug_tracker::components_get_options]
@@ -255,7 +255,7 @@ element create patch mode \
         -value $mode
 
 set page_title "Patch #$patch_number"
-set context_bar [ad_context_bar $page_title]
+set context [list $page_title]
 
 if { [form is_request patch] } {
     # The form was requested
@@ -310,6 +310,8 @@ if { [form is_request patch] } {
             -value [ad_decode [info exists field_editable_p(apply_to_version)] 1 $patch(apply_to_version) $patch(apply_to_version_name)]
     element set_properties patch applied_to_version \
             -value [ad_decode [info exists field_editable_p(applied_to_version)] 1 $patch(applied_to_version) $patch(applied_to_version_name)]
+
+    set deleted_p [string equal $patch(status) deleted]
 
     if { ( [string equal $patch(status) open] && ![string equal $mode "accept"]) || [string equal $patch(status) "refused"] } {
         element set_properties patch applied_to_version -widget hidden

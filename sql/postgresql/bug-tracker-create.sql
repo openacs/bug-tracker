@@ -56,8 +56,17 @@ begin
         ''bug_tracker_''||p_package_id,        -- name
         v_instance_name,                       -- label
         null,                                  -- description
-        content_item_globals.c_root_folder_id  -- parent_bi
+        content_item_globals.c_root_folder_id, -- parent_id
+        p_package_id,                          -- context_id
+        null,                                  -- folder_id
+        now(),                                 -- creation_date
+        v_creation_user,                       -- creation_user
+        v_creation_ip,                         -- creation_ip,
+        ''t''                                  -- security_inherit_p
     );
+
+    -- Set package_id column. Oddly enoguh, there is no API to set it
+    update cr_folders set package_id = p_package_id where folder_id = v_folder_id;
 
     -- register our content type
     PERFORM content_folder__register_content_type (
@@ -122,8 +131,12 @@ begin
          perform bt_patch__delete(rec.patch_id);
     end loop;
 
+    -- delete the content folder
+    raise notice ''about to delete content_folder.'';
+    perform content_folder__delete(v_folder_id);
+
     -- delete the projects keywords
-    perform bt_projects__keywords_delete(p_project_id, ''t'');
+    perform bt_project__keywords_delete(p_project_id, ''t'');
 
     -- These tables should really be set up to cascade
     delete from bt_versions where project_id = p_project_id;
@@ -131,10 +144,6 @@ begin
     delete from bt_user_prefs where project_id = p_project_id;      
 
     delete from bt_projects where project_id = p_project_id;   
-
-    -- delete the content folder
-    raise notice ''about to delete content_folder.'';
-    perform content_folder__delete(v_folder_id);
 
     return 0;
 end;
@@ -305,7 +314,7 @@ create table bt_bugs(
   fix_for_version               integer,
   fixed_in_version              integer,
   -- denormalized from acs_objects
-  creation_date                 timestamp,
+  creation_date                 timestamptz,
   creation_user                 integer,
   -- constraint
   constraint bt_bug_parent_id_bug_number_un
@@ -391,7 +400,7 @@ create or replace function bt_bug__new(
     varchar,     -- user_agent
     text,        -- comment_content
     varchar,     -- comment_format
-    timestamp,   -- creation_date
+    timestamptz, -- creation_date
     integer,     -- creation_user
     varchar,     -- creation_ip
     varchar,     -- item_subtype
@@ -437,7 +446,7 @@ begin
 
     -- create the content item
     v_bug_id := content_item__new(
-        v_bug_number,              -- name
+        v_bug_number::varchar,     -- name
         v_folder_id,               -- parent_id
         p_bug_id,                  -- item_id
         null,                      -- locale        
@@ -496,7 +505,7 @@ begin
     from   workflow_cases 
     where  object_id = p_bug_id;
 
-    perform workflow_case__delete(v_case_id);
+    perform workflow_case_pkg__delete(v_case_id);
 
     -- Every bug may have notifications attached to it
     -- and there is one column in the notificaitons datamodel that doesn''t
@@ -532,7 +541,7 @@ create or replace function bt_bug_revision__new(
     varchar,        -- resolution
     varchar,        -- user_agent
     varchar,        -- summary
-    timestamp,      -- creation_date
+    timestamptz,    -- creation_date
     integer,        -- creation_user
     varchar         -- creation_ip
 ) returns int
@@ -557,7 +566,7 @@ begin
     v_revision_id := content_revision__new(
         p_summary,              -- title
         null,                   -- description
-        now(),                  -- publish_date
+        current_timestamp,      -- publish_date
         null,                   -- mime_type
         null,                   -- nls_language        
         null,                   -- new_data
@@ -659,8 +668,8 @@ create table bt_patch_actions (
   actor                    integer not null
                            constraint bt_patch_actions_actor_fk
                            references users(user_id),
-  action_date              timestamp not null
-                           default now(),
+  action_date              timestamptz not null
+                           default current_timestamp,
   comment_text             text,
   comment_format           varchar(30) default 'plain' not null
                            constraint  bt_patch_actions_comment_format_ck
@@ -715,7 +724,7 @@ begin
     v_patch_id := acs_object__new(
         p_patch_id,             -- object_id
         ''bt_patch'',           -- object_type
-        now(),                  -- creation_date
+        current_timestamp,      -- creation_date
         p_creation_user,        -- creation_user
         p_creation_ip,          -- creation_ip
         p_project_id,           -- context_id
@@ -802,3 +811,4 @@ create table bt_patch_bug_map (
 
 create index bt_patch_bug_map_patch_id_idx on bt_patch_bug_map(patch_id);
 create index bt_patch_bug_map_bug_id_idx on bt_patch_bug_map(bug_id);
+

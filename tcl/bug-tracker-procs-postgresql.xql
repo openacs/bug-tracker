@@ -145,7 +145,7 @@
 
 <fullquery name="bug_tracker::bug_delete.delete_bug_case">
     <querytext> 
-        select workflow_case__delete(:case_id);
+        select workflow_case_pkg__delete(:case_id);
     </querytext>
 </fullquery>
  

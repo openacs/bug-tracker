@@ -23,23 +23,15 @@ ad_form -name component -cancel_url $return_url -form {
     {component_id:key(acs_object_id_seq)}
     {return_url:text(hidden) {value $return_url}}
     {name:text {html { size 50 }} {label "[bug_tracker::conn Component] Name"}}
-    {description:text(hidden) {label {Description}} optional {html { cols 50 rows 8 }}}
-    {url_name:text {html { size 50 }} {label {Name in shortcut URL}} optional
+    {description:text(hidden),optional {label {Description}} {html { cols 50 rows 8 }}}
+    {url_name:text,optional {html { size 50 }} {label {Name in shortcut URL}}
         {help_text "You can filter by this [bug_tracker::conn component] by viisting [ad_conn package_url]com/this-name/"}
     }
-    {maintainer:search
+    {maintainer:search,optional
         {result_datatype integer}
         {label "Maintainer"}
         {options [bug_tracker::users_get_options]}
-        optional
-        {search_query 
-            {
-                select distinct u.first_names || ' ' || u.last_name || ' (' || u.email || ')' as name, u.user_id
-                from   cc_users u
-                where  upper(coalesce(u.first_names || ' ', '')  || coalesce(u.last_name || ' ', '') || u.email || ' ' || coalesce(u.screen_name, '')) like upper('%'||:value||'%')
-                order  by name
-            } 
-        }
+        {search_query {[db_map user_search]}}
     }
 } -select_query {
     select component_id, 

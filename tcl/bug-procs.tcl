@@ -42,20 +42,20 @@ ad_proc -public bug_tracker::bug::get {
     upvar $array row
 
     db_1row select_bug_data {} -column_array row
-
+    
     # Get the case ID, so we can get state information
     set case_id [workflow::case::get_id \
-            -object_id $bug_id \
-            -workflow_short_name [bug_tracker::bug::workflow_short_name]]
-
+                     -object_id $bug_id \
+                     -workflow_short_name [bug_tracker::bug::workflow_short_name]]
+    
     # Derived fields
     set row(bug_number_display) "#$row(bug_number)"
     set row(component_name) [bug_tracker::component_get_name -component_id $row(component_id)]
     set row(found_in_version_name) [bug_tracker::version_get_name -version_id $row(found_in_version)]
     set row(fix_for_version_name) [bug_tracker::version_get_name -version_id $row(fix_for_version)]
     set row(fixed_in_version_name) [bug_tracker::version_get_name -version_id $row(fixed_in_version)]
-
-
+    
+    
     # Get state information
     workflow::case::fsm::get -case_id $case_id -array case -action_id $action_id
     set row(pretty_state) $case(pretty_state)
@@ -65,7 +65,6 @@ ad_proc -public bug_tracker::bug::get {
     set row(state_short_name) $case(state_short_name)
     set row(hide_fields) $case(state_hide_fields)
     set row(entry_id) $case(entry_id)
-
 }
 
 ad_proc -public bug_tracker::bug::insert {
@@ -129,6 +128,7 @@ ad_proc -public bug_tracker::bug::new {
     {-ip_address ""}
     {-item_subtype "bt_bug"}
     {-content_type "bt_bug_revision"}
+    {-keyword_ids {}}
 } {
     Create a new bug, then send out notifications, starts workflow, etc.
 
@@ -154,6 +154,10 @@ ad_proc -public bug_tracker::bug::new {
                 -item_subtype $item_subtype \
                 -content_type $content_type \
                 ]
+
+        foreach keyword_id $keyword_ids {
+            cr::keyword::item_assign -item_id $bug_id -keyword_id $keyword_id
+        }
 
         workflow::case::new \
                 -workflow_id [workflow::get_id -object_id $package_id -short_name [workflow_short_name]] \
@@ -240,7 +244,7 @@ ad_proc -public bug_tracker::bug::edit {
 
         # Update the keywords
         foreach {category_id category_name} [bug_tracker::category_types] {
-            if { [info exists row($category_id)] } {
+            if { [exists_and_not_null row($category_id)] } {
                 cr::keyword::item_assign -singular -item_id $bug_id -keyword_id $row($category_id)
             }
             # LARS:
@@ -278,7 +282,7 @@ ad_proc -public bug_tracker::bug::get_watch_link {
     @return 3-tuple of url, label and title.
 } {
     set user_id [ad_conn user_id]
-    set return_url [util_get_current_url]
+    set return_url [ad_return_url]
     
     # Get the type id
     set type "workflow_case"
@@ -299,12 +303,12 @@ ad_proc -public bug_tracker::bug::get_watch_link {
                      -url $return_url \
                      -user_id $user_id \
                      -pretty_name "this bug"]
-        set label "Watch this bug"
-        set title "Request notifications for all activity on this bug"
+        set label "Watch this [bug_tracker::conn bug]"
+        set title "Request notifications for all activity on this [bug_tracker::conn bug]"
     } else {
         set url [notification::display::unsubscribe_url -request_id $request_id -url $return_url]
-        set label "Stop watching this bug"
-        set title "Unsubscribe to notifications for activity on this bug"
+        set label "Stop watching this [bug_tracker::conn bug]"
+        set title "Unsubscribe to notifications for activity on this [bug_tracker::conn bug]"
     }
     return [list $url $label $title]
 }
@@ -420,115 +424,6 @@ ad_proc -private bug_tracker::bug::workflow_create {} {
         }
     }
 
-#     set spec {
-#         bug {
-#             pretty_name "Bug"
-#             package_key "bug-tracker"
-#             object_type "bt_bug"
-#             callbacks { 
-#                 bug-tracker.FormatLogTitle 
-#                 bug-tracker.BugNotificationInfo
-#             }
-#             roles {
-#                 submitter {
-#                     pretty_name "Submitter"
-#                     callbacks { 
-#                         workflow.Role_DefaultAssignees_CreationUser
-#                     }
-#                 }
-#                 assignee {
-#                     pretty_name Assignee
-#                     callbacks {
-#                         bug-tracker.ComponentMaintainer
-#                         bug-tracker.ProjectMaintainer
-#                         workflow.Role_PickList_CurrentAssignees
-#                         workflow.Role_AssigneeSubquery_RegisteredUsers
-#                     }
-#                 }
-#             }
-#             states {
-#                 open {
-#                     pretty_name "Open"
-#                     hide_fields { resolution fixed_in_version }
-#                 }
-#                 resolved {
-#                     pretty_name "Resolved"
-#                 }
-#                 closed {
-#                     pretty_name "Closed"
-#                 }
-#             }
-#             actions {
-#                 open {
-#                     pretty_name Open
-#                     pretty_past_tense Opened
-#                     new_state "open"
-#                     initial_action_p t
-#                 }
-#                 comment {
-#                     pretty_name Comment
-#                     pretty_past_tense Commented
-#                     allowed_roles { submitter assignee }
-#                     privileges { read write }
-#                     always_enabled_p t
-#                 }
-#                 edit {
-#                     pretty_name Edit
-#                     pretty_past_tense Edited
-#                     allowed_roles { submitter assignee }
-#                     privileges { write }
-#                     always_enabled_p t
-#                     edit_fields { 
-#                         component_id 
-#                         bug_type
-#                         summary 
-#                         severity
-#                         priority
-#                         found_in_version
-#                         role_assignee
-#                         fix_for_version
-#                         resolution 
-#                         fixed_in_version 
-#                     }
-#                 }
-#                 reassign {
-#                     pretty_name Reassign
-#                     pretty_past_tense Reassigned
-#                     allowed_role { submitter assignee }
-#                     privileges { write }
-#                     enabled_states { open resolved }
-#                     edit_fields { role_assignee }
-#                 }
-#                 resolve {
-#                     pretty_name Resolve
-#                     pretty_past_tense Resolved
-#                     assigned_role "assignee"
-#                     enabled_states { resolved }
-#                     assigned_states { open }
-#                     new_state "resolved"
-#                     privileges { write }
-#                     edit_fields { resolution fixed_in_version }
-#                     callbacks { bug-tracker.CaptureResolutionCode }
-#                 }
-#                 close {
-#                     pretty_name Close
-#                     pretty_past_tense Closed
-#                     assigned_role "submitter"
-#                     assigned_states { resolved }
-#                     new_state "closed"
-#                     privileges { write }
-#                 }
-#                 reopen {
-#                     pretty_name Reopen
-#                     pretty_past_tense Reopened
-#                     allowed_roles { submitter }
-#                     enabled_states { resolved closed }
-#                     new_state "open"
-#                     privileges { write }
-#                 }
-#             }
-#         }
-#     }
     set workflow_id [workflow::fsm::new_from_spec -spec $spec]
     
     return $workflow_id
@@ -607,7 +502,10 @@ ad_proc -private bug_tracker::bug::capture_resolution_code::do_side_effect {
     action_id
     entry_id
 } {
-    db_dml insert_resolution_code {}
+    workflow::case::add_log_data \
+        -entry_id $entry_id \
+        -key "resolution" \
+        -value [db_string select_resolution_code {}]
 }
 
 #####

@@ -22,7 +22,7 @@ set project_root_keyword_id [bug_tracker::conn project_root_keyword_id]
 set versions_p [bug_tracker::versions_p]
 
 if { [info exists filter] } {
-    if { [array names filter] == [list "actionby"] && $filter(actionby) == [ad_conn user_id] } {
+    if { [array names filter] == [list "assignee"] && $filter(assignee) == [ad_conn user_id] } {
         set context_bar [bug_tracker::context_bar "My [bug_tracker::conn bugs]"]
     } else {
         set context_bar [bug_tracker::context_bar "Filtered [bug_tracker::conn bug] list"]
@@ -223,8 +223,8 @@ db_multirow -extend { name_url header selected_p } -append stats stats_by_assign
 
     regexp {^([0-9]+)\.([0-9]+)\.([0-9]+)$} $unique_id match action_id state_id assignee_id
 
-    set name_url "?[bug_tracker::filter_url_vars -array filter -override [list assignee $assignee_id status $state_id]]"
-    set selected_p [expr { [exists_and_equal filter(assignee) $assignee_id] && \
+    set name_url "?[bug_tracker::filter_url_vars -array filter -override [list enabled_action_assignee $assignee_id status $state_id]]"
+    set selected_p [expr { [exists_and_equal filter(enabled_action_assignee) $assignee_id] && \
                            [exists_and_equal filter(status) $state_id] } ]
 }
 

@@ -1,8 +1,11 @@
 <master>
-<property name="title">@title;noquote@</property>
+<property name="title">@title@</property>
 <property name="header_stuff">
   <style>
   a.bt_navbar { 
+    color: white; 
+  }
+  a.bt_navbar:visited { 
     color: white; 
   }
   a.bt_navbar:hover { 
@@ -102,17 +105,17 @@
   }
   </style>
 </property>
-<if @signatory;noquote@ not nil><property name="signatory">@signatory;noquote@</property></if>
-<if @focus;noquote@ not nil><property name="focus">@focus;noquote@</property></if>
+<if @signatory@ not nil><property name="signatory">@signatory@</property></if>
+<if @focus@ not nil><property name="focus">@focus@</property></if>
 <property name="body_start_include">/packages/bug-tracker/lib/version-bar</property>
 <if @context_bar@ not nil>
-  <property name="context_bar">@context_bar;noquote@</property>
+  <property name="context_bar">@context_bar@</property>
 </if>
 <if @context@ not nil>
-  <property name="context">@context;noquote@</property>
+  <property name="context">@context@</property>
 </if>
 
-<include src="nav-bar" notification_link="@notification_link;noquote@">
+<include src="nav-bar" notification_link="@notification_link@">
 
 <p>
 
@@ -120,5 +123,5 @@
 
 <p>
 
-<include src="nav-bar" notification_link="@notification_link;noquote@">
+<include src="nav-bar" notification_link="@notification_link@">
 

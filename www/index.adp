@@ -1,6 +1,6 @@
 <master src="../lib/master">
-<property name="title">@project_name;noquote@</property>
-<property name="context_bar">@context_bar;noquote@</property>
+<property name="title">@project_name@</property>
+<property name="context_bar">@context_bar@</property>
 
 <table border="0" cellpadding="0" cellspacing="0" width="100%">
   <tr>
@@ -53,7 +53,7 @@
 
         <div style="background-color: #eeeeff; padding: 4px; margin-top: 8px; margin-bottom: 16px; border: solid 1px #cccccc;">
 
-         <div style="float: right; margin-left: 16px;">
+         <div style="float: right;">
 
               Order by:
               <select name="filter.orderby" onchange="document.displaymode_form.submit();">
@@ -77,7 +77,7 @@
                 <else><a href="@options_n_days.url@">@options_n_days.label@</a></else>
               </multiple>
               ] days
-         </span>
+          </span>
 
 
       </div>

@@ -1,8 +1,8 @@
 <master src="../../lib/master">
-<property name="title">@ Versions</property>
-<property name="context_bar">@context_bar;noquote@</property>
+<property name="title">@project_name@ Versions</property>
+<property name="context_bar">@context_bar@</property>
 
-<h3>Current Version</h3>
+<h3>In Development</h3>
 
 <if @current_version:rowcount@ eq 0>
   <i>None</i>
@@ -61,9 +61,6 @@
   </table>
 </else>
 
-<p>
-  The current version is the currently being developed on.
-</p>
 
 
 <h3>Future Versions</h3>
@@ -129,7 +126,7 @@
 
 <a href="@version_add_url@">Add new version</a>
 
-<h3>Past Versions</h3>
+<h3>Already Released Versions</h3>
 
 <if @past_version:rowcount@ eq 0>
   <i>None</i>

@@ -53,8 +53,6 @@ set case_id [workflow::case::get_id \
 
 set workflow_id [bug_tracker::bug::get_instance_workflow_id]
 
-set role_ids [workflow::get_roles -workflow_id $workflow_id]
-
 
 #####
 #
@@ -63,12 +61,6 @@ set role_ids [workflow::get_roles -workflow_id $workflow_id]
 #####
 
 set action_id [form get_action bug]
-
-if { ![empty_string_p $action_id] } {
-    set action_short_name [workflow::action::get_element -action_id $action_id -element short_name]
-} else {
-    set action_short_name {}
-}
 
 # Registration required for all actions
 if { ![empty_string_p $action_id] } {
@@ -104,15 +96,14 @@ if { [empty_string_p $action_id] } {
 set patch_label [ad_decode $show_patch_status "open" "Open Patches (<a href=\"$return_url&show_patch_status=all\">show all</a>)" "all" "All Patches (<a href=\"$return_url&show_patch_status=open\">show only open)" "Patches"]
 
 ad_form -name bug -cancel_url $return_url -mode display -has_edit 1 -actions $actions -form  {
-    {bug_number_display:integer(inform)
+    {bug_number_display:text(inform)
 	{label "[bug_tracker::conn Bug] \#"}
         {mode display}
     }
-    {component_id:integer(select)
+    {component_id:integer(select),optional
 	{label "[bug_tracker::conn Component]"}
 	{options {[bug_tracker::components_get_options]}}
 	{mode display}
-        optional
     }
     {summary:text(text)
 	{label "Summary"}
@@ -131,11 +122,10 @@ ad_form -extend -name bug -form {
 	{after_html  "</b>"}
 	{mode display}
     }
-    {resolution:text(select)
+    {resolution:text(select),optional
 	{label "Resolution"}
 	{options {[bug_tracker::resolution_get_options]}}
 	{mode display}
-	optional
     }
 }
 
@@ -151,11 +141,10 @@ foreach {category_id category_name} [bug_tracker::category_types] {
 
 
 ad_form -extend -name bug -form {
-    {found_in_version:text(select)
+    {found_in_version:text(select),optional
 	{label "Found in Version"}
 	{options {[bug_tracker::version_get_options -include_unknown]}}
 	{mode display}
-	optional
     }
 }
 
@@ -171,30 +160,25 @@ ad_form -extend -name bug -form {
 	{label "User Agent"}
 	{mode display}
     }
-    {fix_for_version:text(select)
+    {fix_for_version:text(select),optional
 	{label "Fix for Version"}
 	{options {[bug_tracker::version_get_options -include_undecided]}}
 	{mode display}
-	optional
     }
-    {fixed_in_version:text(select)
+    {fixed_in_version:text(select),optional
 	{label "Fixed in Version"}
 	{options {[bug_tracker::version_get_options -include_undecided]}}
 	{mode display}
-	optional
     }
-    {description:richtext(richtext) 
+    {description:richtext(richtext),optional
 	{label "Description"} 
 	{html {cols 60 rows 13}} 
-	optional
     }
     {return_url:text(hidden) 
 	{value $return_url}
     }
     {bug_number:key}
-    {entry_id:integer(hidden)
-	optional
-    }
+    {entry_id:integer(hidden),optional}
 }
 
 # Export filters
@@ -211,8 +195,10 @@ if { ![empty_string_p $action_id] } {
     foreach field [workflow::action::get_element -action_id $action_id -element edit_fields] { 
 	element set_properties bug $field -mode edit 
     }
-    if {[string compare $action_short_name "edit"] == 0} {
-        foreach {category_id category_name} [bug_tracker::category_types] {
+    
+    # LARS: Hack! How do we set editing of dynamic fields?
+    if { [string equal [workflow::action::get_element -action_id $action_id -element short_name] "edit"] } {
+        foreach { category_id category_name } [bug_tracker::category_types] {
             element set_properties bug $category_id -mode edit
         }
     }
@@ -253,7 +239,7 @@ ad_form -extend -name bug -on_submit {
     # whenever the form is displayed, whether initially or because of a validation error.
 }
 
-# Not-valid block (request, error)
+# Not-valid block (request or submit error)
 if { ![form is_valid bug] } {
 
     # Get the bug data
@@ -305,7 +291,6 @@ if { ![form is_valid bug] } {
         element set_properties bug user_agent -widget hidden
     }
 
-
     # Set regular element values
     foreach element $element_names { 
 
@@ -316,7 +301,7 @@ if { ![form is_valid bug] } {
             }
         }
     }
-
+    
     # Add empty option to resolution code
     if { ![empty_string_p $action_id] } {
         if { [lsearch [workflow::action::get_element -action_id $action_id -element edit_fields] "resolution"] == -1 } {
@@ -341,17 +326,17 @@ if { ![form is_valid bug] } {
 
     # Set values for description field
     element set_properties bug description \
-            -before_html "[workflow::case::get_activity_html -case_id $case_id][ad_decode $action_id "" "" "<p><b>$bug(now_pretty) [bug_tracker::bug_action_pretty $action_short_name] by [bug_tracker::conn user_first_names] [bug_tracker::conn user_last_name]</b></p>"]"
+            -before_html [workflow::case::get_activity_html -case_id $case_id -action_id $action_id]
 
     # Set page title
     set page_title "[bug_tracker::conn Bug] #$bug_number: $bug(summary)"
 
     # Context bar
     if { [info exists filter] } {
-        if { [array names filter] == [list "actionby"] && $filter(actionby) == $user_id } {
-            set context_bar [bug_tracker::context_bar [list ".?[export_vars { filter:array }]" "My bugs"] $page_title]
+        if { [array names filter] == [list "assignee"] && $filter(assignee) == $user_id } {
+            set context_bar [bug_tracker::context_bar [list ".?[export_vars { filter:array }]" "My [bug_tracker::conn bugs]"] $page_title]
         } else {
-            set context_bar [bug_tracker::context_bar [list ".?[export_vars { filter:array }]" "Filtered bug list"] $page_title]
+            set context_bar [bug_tracker::context_bar [list ".?[export_vars { filter:array }]" "Filtered [bug_tracker::conn bug] list"] $page_title]
         }
     } else {
         set context_bar [bug_tracker::context_bar $page_title]
@@ -413,4 +398,3 @@ if { ![form is_valid bug] } {
 }
 
 ad_return_template
-

@@ -44,11 +44,10 @@ ad_form -name bug -cancel_url $return_url -form {
 	{label "Summary"} 
 	{html {size 50}}
     }
-    {found_in_version:text(select)
+    {found_in_version:text(select),optional 
         {label "Version"}  
         {options {[bug_tracker::version_get_options -include_unknown]}} 
         {value {[bug_tracker::conn user_version_id]}}
-        optional 
     }
 
     {return_url:text(hidden) {value $return_url}}
@@ -64,15 +63,21 @@ foreach {category_id category_name} [bug_tracker::category_types] {
 }
 
 ad_form -extend -name bug -form {
-    {description:richtext(richtext)
+    {description:richtext(richtext),optional
         {label "Description"}
         {html {cols 60 rows 13}}
-        optional
     }
 
 }
 
 ad_form -extend -name bug -new_data {
+
+    set keyword_ids [list]
+    foreach {category_id category_name} [bug_tracker::category_types] {
+        # -singular not required here since it's a new bug
+        lappend keyword_ids [element get_value bug $category_id]
+    }
+
     bug_tracker::bug::new \
 	-bug_id $bug_id \
 	-package_id $package_id \
@@ -80,12 +85,8 @@ ad_form -extend -name bug -new_data {
 	-found_in_version $found_in_version \
 	-summary $summary \
 	-description [template::util::richtext::get_property contents $description] \
-	-desc_format [template::util::richtext::get_property format $description] 
-
-    foreach {category_id category_name} [bug_tracker::category_types] {
-        # -singular not required here since it's a new bug
-        cr::keyword::item_assign -item_id $bug_id -keyword_id [element get_value bug $category_id]
-    }
+	-desc_format [template::util::richtext::get_property format $description] \
+        -keyword_ids $keyword_ids
         
 } -after_submit {
     bug_tracker::bugs_exist_p_set_true

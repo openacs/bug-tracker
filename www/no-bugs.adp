@@ -1,6 +1,6 @@
 <master src="../lib/master">
-<property name="title">@project_name;noquote@</property>
-<property name="context_bar">@context_bar;noquote@</property>
+<property name="title">@project_name@</property>
+<property name="context_bar">@context_bar@</property>
 
 <p>
   <i>This project is empty.</i>

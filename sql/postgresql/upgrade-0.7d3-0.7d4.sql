@@ -101,8 +101,8 @@ create table bt_bug_actions (
   actor                         integer not null
                                 constraint bt_bug_actions_actor_fk
                                 references users(user_id),
-  action_date                   timestamp not null
-                                default now(),
+  action_date                   timestamptz not null
+                                default current_timestamp,
   comment                       text,
   comment_format                varchar(30) default 'plain' not null
                                 constraint  bt_bug_actions_comment_format_ck

@@ -31,7 +31,7 @@ set project_name [bug_tracker::conn project_name]
 set package_id [ad_conn package_id]
 set package_key [ad_conn package_key]
 set page_title "New Patch"
-set context_bar [ad_context_bar $page_title]
+set context [list $page_title]
 set user_id [ad_conn user_id]
 
 # Is this project using multiple versions?

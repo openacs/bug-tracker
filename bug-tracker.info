@@ -7,18 +7,22 @@
     <initial-install-p>f</initial-install-p>
     <singleton-p>f</singleton-p>
     
-    <version name="1.2d6" url="http://openacs.org/repository/download/apm/bug-tracker-1.2d6.apm">
+    <version name="1.2d11" url="http://openacs.org/repository/download/apm/bug-tracker-1.2d11.apm">
+    <database-support>
+        <database>postgresql</database>
+        <database>oracle</database>
+    </database-support>
         <owner url="mailto:lars@collaboraid.biz">Lars Pind</owner>
         <summary>Tracks bugs and features, versions and maintainers, in software projects. Contains the best of SDM, Bugzilla, FogBUGZ, and bughost.com.</summary>
         <release-date>2003-02-28</release-date>
         <vendor url="http://www.museatech.net">Musea Technologies</vendor>
 
-        <provides url="bug-tracker" version="1.2d6"/>
+        <provides url="bug-tracker" version="1.2d11"/>
         <requires url="acs-content-repository" version="4.6d1"/>
-        <requires url="acs-kernel" version="4.6.2d"/>
+        <requires url="acs-kernel" version="4.6.2"/>
         <requires url="acs-tcl" version="4.6.2d"/>
         <requires url="notifications" version="0.2d"/>
-        <requires url="workflow" version="0.2d2"/>
+        <requires url="workflow" version="1.0d4"/>
 
         <callbacks>
             <callback type="after-install"  proc="bug_tracker::install::package_install"/>
@@ -27,6 +31,7 @@
             <callback type="before-uninstantiate"  proc="bug_tracker::install::package_uninstantiate"/>
             <callback type="before-upgrade"  proc="bug_tracker::install::package_upgrade"/>
         </callbacks>
+
         <parameters>
             <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="ComponentPrettyName"  default="component" description="Pretty name of a component/area/module, e.g. 'area'. Use the capitalization that you would use in the middle of a sentence."/>
             <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="ComponentPrettyPlural"  default="components" description="Plural pretty name of a component/area/module, e.g. 'area'. Use the capitalization that you would use in the middle of a sentence."/>

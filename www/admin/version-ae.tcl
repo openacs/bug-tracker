@@ -20,14 +20,13 @@ set context [list [list $return_url "Versions"] $page_title]
 ad_form -name version -cancel_url $return_url -form {
     {version_id:key(acs_object_id_seq)}
     {version_name:text {label "Version name"} {html { size 50 }}}
-    {description:text(textarea) {label "Description"} optional {html { cols 50 rows 8 }}}
-    {supported_platforms:text {label "Supported platforms"} {html { size 50 }} optional}
-    {maintainer:search
+    {description:text(textarea),optional {label "Description"} {html { cols 50 rows 8 }}}
+    {supported_platforms:text,optional {label "Supported platforms"} {html { size 50 }}}
+    {maintainer:search,optional
         {result_datatype integer}
         {label "Maintainer"}
         {options {[bug_tracker::users_get_options]}}
-        optional
-        {search_query_name version_search}
+        {search_query {[db_map user_search]}}
     }
     {anticipated_freeze_date:date,to_sql(sql_date),to_html(sql_date),optional
         {label "Anticipated freeze"} optional
@@ -41,7 +40,7 @@ ad_form -name version -cancel_url $return_url -form {
     {actual_release_date:date,to_sql(sql_date),to_html(sql_date),optional
         {label "Actual release"} optional
     }
-    {assignable_p:text(radio) {label "Assignable?"} optional {options {{Yes t} {No f}}}}
+    {assignable_p:text(radio),optional {label "Assignable?"} {options {{Yes t} {No f}}}}
     {return_url:text(hidden) {value $return_url}}
 } -select_query_name version_select  -new_request {
     set assignable_p "t"

@@ -1,8 +1,8 @@
 <master src="../lib/master">
-<property name="title">@page_title;noquote@</property>
-<property name="context_bar">@context_bar;noquote@</property>
+<property name="title">@page_title@</property>
+<property name="context">@context@</property>
 
-<formtemplate id="patch" style="standard-lars"></formtemplate>
+<formtemplate id="patch"></formtemplate>
 
 <p>
 <if @button_form_export_vars@ not nil>
@@ -17,8 +17,7 @@
 </if>
 </p>
 
-
-<if @mode@ eq "view">
+<if @mode@ eq "view" and @deleted_p@ eq 0>
 <center>
 <p>
 <a href="patch?patch_number=@patch_number@&download=1">Download patch content</a>

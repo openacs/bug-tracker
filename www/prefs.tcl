@@ -21,24 +21,25 @@ set package_key [ad_conn package_key]
 
 set page_title "Your Preferences"
 
-set context_bar [ad_context_bar $page_title]
+set context [list $page_title]
 
 set user_id [ad_conn user_id]
 
 ad_form -name prefs -cancel_url $return_url -form {
-    {user_version:integer(select) 
+    {user_version:integer(select),optional
         {label "Your version"}
         {options {[bug_tracker::version_get_options -include_unknown]}}
-        optional
     }
     {return_url:text(hidden)
         {value $return_url}
     }
-} -select_query {
-    select user_version
-    from   prefs
-    where  user_id = :user_id
-    and    project_id = :package_id
+} -on_request {
+    db_0or1row select_data {
+        select user_version
+        from   bt_user_prefs
+        where  user_id = :user_id
+        and    project_id = :package_id
+    }
 } -after_submit {
     set user_version [element get_value prefs user_version]
     db_dml update_row {

@@ -52,7 +52,7 @@ if { [exists_and_not_null bug_number] } {
 
 set patch_summary [db_string get_patch_summary {}]
 set page_title "Mapping Patch #$patch_number \"$patch_summary\" to a Bug"
-set context_bar [ad_context_bar "$page_title"]
+set context [list "$page_title"]
 
 # Build the component filter
 if { ![exists_and_not_null component_id] } {

@@ -384,11 +384,12 @@ begin
     from   bt_projects
     where  project_id = p_project_id;
 
-    -- Delete the bugs
-    for rec in select item_id from cr_items where parent_id = v_folder_id
-    loop
-         perform bt_bug__delete(rec.item_id);
-    end loop;
+    -- This gets done in tcl before we are called ... for now
+    --  Delete the bugs
+    -- for rec in select item_id from cr_items where parent_id = v_folder_id
+    -- loop
+    --     perform bt_bug__delete(rec.item_id);
+    -- end loop;
 
     -- Delete the patches
     for rec in select patch_id from bt_patches where project_id = p_project_id
@@ -401,7 +402,7 @@ begin
     perform content_folder__delete(v_folder_id);
 
     -- delete the projects keywords
-    perform bt_projects__keywords_delete(p_project_id, ''t'');
+    perform bt_project__keywords_delete(p_project_id, ''t'');
 
     -- These tables should really be set up to cascade
     delete from bt_versions where project_id = p_project_id;
@@ -1476,6 +1477,7 @@ drop table bt_priority_codes;
 
 -- ******* Drop temporary upgrade tables
 drop table code_keyword_map_temp;
+drop table bug_type_keyword_map_temp;
 drop table bt_bugs_temp;
 drop table project_temp;
 
