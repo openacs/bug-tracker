@@ -6,14 +6,7 @@ ad_page_contract {
     @creation-date March 28, 2002
     @cvs-id $Id$
 } {
-    cancel:optional
-    {return_url ""}
-}
-
-# If the user hit cancel, ignore everything else
-if { [exists_and_not_null cancel] } {
-    ad_returnredirect $return_url
-    ad_script_abort
+    {return_url "."}
 }
 
 # User needs to be logged in here
@@ -34,9 +27,9 @@ set user_id [ad_conn user_id]
 
 
 
-template::form create bt_user_prefs
+form create bt_user_prefs -cancel_url $return_url
 
-template::element create bt_user_prefs user_version \
+element create bt_user_prefs user_version \
         -label "Your version" \
         -widget select \
         -datatype integer \
@@ -44,25 +37,25 @@ template::element create bt_user_prefs user_version \
         [db_list_of_lists versions { select version_name, version_id from bt_versions where project_id = :package_id order by anticipated_freeze_date, version_name }]] \
         -optional  
 
-template::element create bt_user_prefs return_url \
+element create bt_user_prefs return_url \
         -datatype text \
         -widget hidden \
         -value $return_url
 
-if { [template::form is_request bt_user_prefs] } {
+if { [form is_request bt_user_prefs] } {
     db_1row get_current_values {
         select user_version
         from   bt_user_prefs
         where  user_id = :user_id
         and    project_id = :package_id
     }
-    template::element set_properties bt_user_prefs user_version -value $user_version
+    element set_properties bt_user_prefs user_version -value $user_version
 }
 
-if { [template::form is_valid bt_user_prefs] } {
+if { [form is_valid bt_user_prefs] } {
     # valid form submission
 
-    set user_version [template::element::get_value bt_user_prefs user_version]
+    set user_version [element get_value bt_user_prefs user_version]
 
     db_dml update_row {
         update bt_user_prefs
