@@ -21,8 +21,11 @@ ad_maybe_redirect_for_registration
 set project_name [bug_tracker::conn project_name]
 set package_id [ad_conn package_id]
 set package_key [ad_conn package_key]
+
 set Bug_name [bug_tracker::conn Bug]
 set page_title [_ bug-tracker.New_1]
+
+set workflow_id [bug_tracker::bug::get_instance_workflow_id]
 
 set context [list $page_title]
 
@@ -49,6 +52,16 @@ ad_form -name bug -cancel_url $return_url -form {
         {options {[bug_tracker::version_get_options -include_unknown]}} 
         {value {[bug_tracker::conn user_version_id]}}
     }
+    {fix_for_version:text(select),optional 
+        {label "Fix For Version"}  
+        {options {[bug_tracker::version_get_options -include_unknown]}} 
+        {value {[bug_tracker::conn user_version_id]}}
+    }
+
+    {assign_to:text(select),optional 
+        {label "Assign to"}  
+        {options {[bug_tracker::assignee_get_options -workflow_id $workflow_id -include_unknown]}} 
+    }
 
     {return_url:text(hidden) {value $return_url}}
 }
@@ -61,6 +74,7 @@ foreach {category_id category_name} [bug_tracker::category_types] {
         ] \
     ]
 }
+
 
 ad_form -extend -name bug -form {
     {description:richtext(richtext),optional
@@ -86,8 +100,11 @@ ad_form -extend -name bug -new_data {
 	-summary $summary \
 	-description [template::util::richtext::get_property contents $description] \
 	-desc_format [template::util::richtext::get_property format $description] \
-        -keyword_ids $keyword_ids
-        
+        -keyword_ids $keyword_ids \
+	-fix_for_version $fix_for_version \
+	-assign_to $assign_to
+
+
 } -after_submit {
     bug_tracker::bugs_exist_p_set_true
 

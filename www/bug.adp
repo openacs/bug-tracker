@@ -5,15 +5,6 @@
 
 <if @notification_link@ not nil><property name="notification_link">@notification_link;noquote@</property></if>
 
-<if @enabled_action_id@ nil>
-  <div style="float: right;">
-    <multiple name="navlinks">
-      <if @navlinks.url@ not nil><a href="@navlinks.url@"><img src="@navlinks.img@" width="16" height="16" border="0" alt="@navlinks.alt@"></a></if>
-       @navlinks.label@
-   </multiple>
-  </div>
-</if>
-
 <p>
   <formtemplate id="bug"></formtemplate>
 </p>

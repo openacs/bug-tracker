@@ -389,7 +389,7 @@ select content_type__create_type (
     'content_revision.revision_name'
 );
 
-select define_function_args ('bt_bug__new','bug_id,bug_number,package_id,component_id,found_in_version,summary,user_agent,comment_content,comment_formt,creation_date,creation_user,creation_ip,item_subtype;bt_bug,content_type;bt_bug_revision');
+select define_function_args ('bt_bug__new','bug_id,bug_number,package_id,component_id,found_in_version,summary,user_agent,comment_content,comment_formt,creation_date,creation_user,creation_ip,fix_for_version,item_subtype;bt_bug,content_type;bt_bug_revision');
 
 create or replace function bt_bug__new(
     integer,     -- bug_id
@@ -404,6 +404,7 @@ create or replace function bt_bug__new(
     timestamptz, -- creation_date
     integer,     -- creation_user
     varchar,     -- creation_ip
+    integer,	-- fix_for_version	 
     varchar,     -- item_subtype
     varchar      -- content_type
 ) returns int
@@ -421,9 +422,10 @@ declare
     p_creation_date             alias for $10;
     p_creation_user             alias for $11;
     p_creation_ip               alias for $12;
-    p_item_subtype              alias for $13;
-    p_content_type              alias for $14;
-
+    p_fix_for_version		alias for $13;
+    p_item_subtype              alias for $14;	
+    p_content_type              alias for $15;
+    
     v_bug_id                    integer;
     v_revision_id               integer;
     v_bug_number                integer;
@@ -467,9 +469,9 @@ begin
 
     -- create the item type row
     insert into bt_bugs
-        (bug_id, bug_number, comment_content, comment_format, parent_id, project_id, creation_date, creation_user)
+        (bug_id, bug_number, comment_content, comment_format, parent_id, project_id, creation_date, creation_user, fix_for_version)
     values
-        (v_bug_id, v_bug_number, p_comment_content, p_comment_format, v_folder_id, p_package_id, p_creation_date, p_creation_user);
+        (v_bug_id, v_bug_number, p_comment_content, p_comment_format, v_folder_id, p_package_id, p_creation_date, p_creation_user, p_fix_for_version);
 
     -- create the initial revision
     v_revision_id := bt_bug_revision__new(
@@ -477,14 +479,14 @@ begin
         v_bug_id,                  -- bug_id
         p_component_id,            -- component_id
         p_found_in_version,        -- found_in_version
-        null,                      -- fix_for_version
+        p_fix_for_version,         -- fix_for_version
         null,                      -- fixed_in_version
         null,                      -- resolution
         p_user_agent,              -- user_agent
         p_summary,                 -- summary
         p_creation_date,           -- creation_date
         p_creation_user,           -- creation_user
-        p_creation_ip              -- creation_ip
+        p_creation_ip,             -- creation_ip
     );
 
     return v_bug_id;
@@ -545,7 +547,7 @@ create or replace function bt_bug_revision__new(
     varchar,        -- summary
     timestamptz,    -- creation_date
     integer,        -- creation_user
-    varchar         -- creation_ip
+    varchar        -- creation_ip
 ) returns int
 as '
 declare

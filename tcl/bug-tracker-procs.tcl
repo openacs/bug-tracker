@@ -120,6 +120,7 @@ ad_proc bug_tracker::get_page_variables {
     ad_page_contract { doc } [bug_tracker::get_page_variables { foo:integer { bar "" } }]
 } {
     set filter_vars {
+        page:optional
         f_state:optional
         f_fix_for_version:optional
         f_component:optional
@@ -488,6 +489,31 @@ ad_proc bug_tracker::category_types {
     return $result
 }
 
+ad_proc bug_tracker::category_get_filter_data_not_cached {
+    {-package_id:required}
+    {-parent_id:required}
+} {
+    @param package_id The package (project) to select from
+    @param parent_id The category type's keyword_id
+    @return list-of-lists with category data for filter
+} {
+    return [db_list_of_lists select {}]
+}
+
+ad_proc bug_tracker::category_get_filter_data {
+    {-package_id:required}
+    {-parent_id:required}
+} {
+    @param package_id The package (project) to select from
+    @param parent_id The category type's keyword_id
+    @return list-of-lists with category data for filter
+} {
+    return [util_memoize [list bug_tracker::category_get_filter_data_not_cached \
+                             -package_id $package_id \
+                             -parent_id $parent_id]]
+}
+
+
 ad_proc bug_tracker::category_get_options {
     {-package_id ""}
     {-parent_id:required}
@@ -607,8 +633,6 @@ ad_proc -private bug_tracker::get_default_keyword_not_cached {
 
 
 
-
-
 ad_proc -public bug_tracker::get_default_configurations {} {
     Get the package's default configurations for categories and parameters.
 } {
@@ -680,6 +704,10 @@ ad_proc -public bug_tracker::get_default_configurations {} {
         ] \
     ]
 }
+
+
+
+
 
 
 ad_proc -public bug_tracker::delete_all_project_keywords {
@@ -786,6 +814,30 @@ ad_proc bug_tracker::version_get_options {
 }
 
 
+ad_proc bug_tracker::assignee_get_options {
+    -workflow_id
+    -include_unknown:boolean
+    -include_undecided:boolean
+} {
+    Returns an option list containing all users that have submitted or assigned to a bug.
+    Used for the add bug form. Added because the workflow api requires a case_id.  
+    (an item to evaluate is refactoring workflow to provide an assignee widget without a case_id)
+} {
+   
+    set assignee_list [db_list_of_lists assignees {}]
+
+    if { $include_unknown_p } {
+        set assignee_list [concat { { "Unknown" "" } } $assignee_list]
+    } 
+    
+    if { $include_undecided_p } {
+        set assignee_list [concat { { "Undecided" "" } } $assignee_list]
+    } 
+    
+    return $assignee_list
+}
+
+
 ad_proc bug_tracker::versions_p {
     {-package_id ""}
 } { 
@@ -812,6 +864,8 @@ ad_proc bug_tracker::version_get_options_not_cached {
     return $versions_list
 }
 
+
+
 ad_proc bug_tracker::version_get_name {
     {-package_id ""}
     {-version_id:required}
@@ -836,6 +890,24 @@ ad_proc bug_tracker::version_get_name {
 #
 #####
 
+ad_proc bug_tracker::component_get_filter_data_not_cached {
+    {-package_id:required}
+} {
+    @param package_id The project we're interested in
+    @return list-of-lists with component data for filter
+} {
+    return [db_list_of_lists select {}]
+}
+
+ad_proc bug_tracker::component_get_filter_data {
+    {-package_id:required}
+} {
+    @param package_id The project we're interested in
+    @return list-of-lists with component data for filter
+} {
+    return [util_memoize [list bug_tracker::component_get_filter_data_not_cached \
+                             -package_id $package_id]]
+}
 ad_proc bug_tracker::components_get_options {
     {-package_id ""}
     -include_unknown:boolean
@@ -1226,4 +1298,76 @@ ad_proc bug_tracker::project_new { project_id } {
 	    db_dml bt_components_insert {}
 	}
     }
+}
+
+ad_proc bug_tracker::version_get_filter_data_not_cached {
+    {-package_id:required}
+} {
+    @param package_id The package (project) to select from
+    @return list-of-lists with fix-for-version data for filter
+} {
+    return [db_list_of_lists select {}]
+}
+
+ad_proc bug_tracker::version_get_filter_data {
+    {-package_id:required}
+} {
+    @param package_id The package (project) to select from
+    @return list-of-lists with fix-for-version data for filter
+} {
+    return [util_memoize [list bug_tracker::version_get_filter_data_not_cached \
+                             -package_id $package_id]] 
+}
+
+ad_proc bug_tracker::assignee_get_filter_data_not_cached {
+    {-package_id:required}
+    {-workflow_id:required}
+    {-action_id:required}
+} {
+    @param package_id The package (project) to select from
+    @param workflow_id The workflow we're interested in
+    @param action_id The action we're interested in
+    @return list-of-lists with assignee data for filter
+} {
+    return [db_list_of_lists select {}]
+}
+
+ad_proc bug_tracker::assignee_get_filter_data {
+    {-package_id:required}
+    {-workflow_id:required}
+    {-action_id:required}
+} {
+    @param package_id The package (project) to select from
+    @param workflow_id The workflow we're interested in
+    @param action_id The action we're interested in
+    @return list-of-lists with assignee data for filter
+} {
+    return [util_memoize [list bug_tracker::assignee_get_filter_data_not_cached \
+                             -package_id $package_id \
+                             -workflow_id $workflow_id \
+                             -action_id $action_id]] 
+}
+
+ad_proc bug_tracker::state_get_filter_data_not_cached {
+    {-package_id:required}
+    {-workflow_id:required}
+} {
+    @param package_id The package (project) to select from
+    @param workflow_id The workflow we're interested in
+    @return list-of-lists with state data for filter
+} {
+    return [db_list_of_lists select {}]
+}
+
+ad_proc bug_tracker::state_get_filter_data {
+    {-package_id:required}
+    {-workflow_id:required}
+} {
+    @param package_id The package (project) to select from
+    @param workflow_id The workflow we're interested in
+    @return list-of-lists with state data for filter
+} {
+    return [util_memoize [list bug_tracker::state_get_filter_data_not_cached \
+                             -package_id $package_id \
+                             -workflow_id $workflow_id]]
 }

@@ -44,6 +44,9 @@
       </querytext>
 </fullquery>
 
+
+
+
  
 <fullquery name="bug_tracker::components_get_options_not_cached.components">      
       <querytext>
@@ -177,6 +180,40 @@
         (:component_id, :project_id, 'General')
     </querytext>
 </fullquery>
+
+  <fullquery name="bug_tracker::state_get_filter_data_not_cached.select">
+    <querytext>
+      select st.pretty_name,
+             st.state_id,
+             count(b.bug_id)
+      from   workflow_fsm_states st,
+             bt_bugs b,
+             workflow_cases cas,
+             workflow_case_fsm cfsm
+      where  st.workflow_id = :workflow_id
+      and    cas.workflow_id = :workflow_id
+      and    cas.object_id = b.bug_id
+      and    cfsm.case_id = cas.case_id
+      and    st.state_id = cfsm.current_state
+      group  by st.state_id, st.pretty_name, st.sort_order
+      order  by st.sort_order
+    </querytext>
+  </fullquery>
+
+  <fullquery name="bug_tracker::component_get_filter_data_not_cached.select">
+    <querytext>
+      select c.component_name,
+             c.component_id,
+             count(b.bug_id) as num_bugs
+       from  bt_bugs b,
+             bt_components c
+       where b.project_id = :package_id
+       and   c.component_id = b.component_id
+       group by c.component_name, c.component_id
+       order by c.component_name
+    </querytext>
+  </fullquery>
+
 
  
 </queryset>

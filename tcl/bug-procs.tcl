@@ -18,6 +18,17 @@ namespace eval bug_tracker::bug::get_component_maintainer {}
 namespace eval bug_tracker::bug::get_project_maintainer {}
 namespace eval bug_tracker::bug::notification_info {}
 
+ad_proc -public bug_tracker::bug::cache_flush {
+    -bug_id:required
+} {
+    Flush all list builder instances and other appropriate things for the given bug-tracker
+    package instance.
+} {
+    set project_id [db_string get_project_id {}]
+    cache flush "bugs,project_id=$project_id,*"
+    util_memoize_flush_regexp -log "^bug_tracker::.*_get_filter_data_not_cached -package_id $project_id"
+}
+
 ad_proc -public bug_tracker::bug::workflow_short_name {} {
     Get the short name of the workflow for bugs
 } {
@@ -78,6 +89,8 @@ ad_proc -public bug_tracker::bug::insert {
     {-ip_address ""}
     {-item_subtype "bt_bug"}
     {-content_type "bt_bug_revision"}
+    {-fix_for_version ""}
+    {-assign_to ""}
 } {
     Inserts a new bug into the content repository.
     You probably don't want to run this yourself - to create a new bug, use bug_tracker::bug::new
@@ -101,7 +114,8 @@ ad_proc -public bug_tracker::bug::insert {
     set extra_vars [ns_set create]
     oacs_util::vars_to_ns_set \
         -ns_set $extra_vars \
-        -var_list { bug_id package_id component_id found_in_version summary user_agent comment_content comment_format creation_date }
+        -var_list { bug_id package_id component_id found_in_version summary user_agent comment_content comment_format creation_date fix_for_version assign_to}
+
 
     set bug_id [package_instantiate_object \
                     -creation_user $user_id \
@@ -109,6 +123,8 @@ ad_proc -public bug_tracker::bug::insert {
                     -extra_vars $extra_vars \
                     -package_name "bt_bug" \
                     "bt_bug"]
+
+    cache_flush -bug_id $bug_id
     
     return $bug_id
 }
@@ -127,6 +143,8 @@ ad_proc -public bug_tracker::bug::new {
     {-item_subtype "bt_bug"}
     {-content_type "bt_bug_revision"}
     {-keyword_ids {}}
+    {-fix_for_version {}}
+    {-assign_to ""}
 } {
     Create a new bug, then send out notifications, starts workflow, etc.
 
@@ -135,7 +153,8 @@ ad_proc -public bug_tracker::bug::new {
     @see bug_tracker::bug::insert.
     @return bug_id The same bug_id passed in, just for convenience.
 } {
-    
+   
+
     db_transaction {
 
         set bug_id [bug_tracker::bug::insert \
@@ -151,21 +170,31 @@ ad_proc -public bug_tracker::bug::new {
                 -ip_address $ip_address \
                 -item_subtype $item_subtype \
                 -content_type $content_type \
-                ]
+		-fix_for_version $fix_for_version ]
 
         foreach keyword_id $keyword_ids {
             cr::keyword::item_assign -item_id $bug_id -keyword_id $keyword_id
         }
+	
+	if {![empty_string_p $assign_to]} {
 
-        workflow::case::new \
+	    array set assign_array [list resolver $assign_to]
+	    
+	} else {
+	    array set assign_array ""
+	}
+
+	
+        set case_id [workflow::case::new \
                 -workflow_id [workflow::get_id -object_id $package_id -short_name [workflow_short_name]] \
                 -object_id $bug_id \
                 -comment $description \
                 -comment_mime_type $desc_format \
-                -user_id $user_id
-    }
+		-user_id $user_id \
+		-assignment [array get assign_array]]
     
     return $bug_id
+    }
 }
 
 
@@ -199,6 +228,8 @@ ad_proc -public bug_tracker::bug::update {
         set $name $new_row($name)
     }
     set revision_id [db_exec_plsql update_bug {}]
+
+    cache_flush -bug_id $bug_id
 
     return $bug_id
 }
@@ -278,6 +309,11 @@ ad_proc bug_tracker::bug::delete { bug_id } {
 
     @author Mark Aufflick
 } {
+
+    # Probably not necessary if developers follow the instructions in the
+    # header comment ...
+    cache_flush -bug_id $bug_id
+
     set case_id [db_string get_case_id {}]
     db_exec_plsql delete_bug_case {}
     set notifications [db_list get_notifications {}]
@@ -710,7 +746,6 @@ ad_proc bug_tracker::bug::get_list {
         submitter {
             label "[_ bug-tracker.Submitter]"
             display_template {<a href="@bugs.submitter_url@">@bugs.submitter_first_names@ @bugs.submitter_last_name@</a>}
-            hide_p 1
         }
         assigned_to {
             label "Assigned To"
@@ -733,10 +768,13 @@ ad_proc bug_tracker::bug::get_list {
         display_col component_name
     }
 
-    set state_values [db_list_of_lists select_states {}]
+    set state_values [bug_tracker::state_get_filter_data \
+                         -package_id $package_id \
+                         -workflow_id $workflow_id]
     set state_default_value [lindex [lindex $state_values 0] 1]
 
     set filters {
+        project_id {}
         f_state {
             label "[_ bug-tracker.State]"
             values $state_values
@@ -770,7 +808,9 @@ ad_proc bug_tracker::bug::get_list {
     foreach { parent_id parent_heading } [bug_tracker::category_types] {
         lappend elements category_$parent_id [list label [bug_tracker::category_heading -keyword_id $parent_id] display_col category_name_$parent_id]
 
-        set values [db_list_of_lists select_categories {}]
+        set values [bug_tracker::category_get_filter_data \
+                       -package_id $package_id \
+                       -parent_id $parent_id]
 
         set name category_$parent_id
         
@@ -792,7 +832,7 @@ ad_proc bug_tracker::bug::get_list {
     if { [bug_tracker::versions_p] } {
         lappend filters f_fix_for_version {
             label "[_ bug-tracker.Fix]"
-            values {[db_list_of_lists select_fix_for_versions {}]}
+            values {[bug_tracker::version_get_filter_data -package_id $package_id]}
             where_clause { b.fix_for_version = :f_fix_for_version }
             null_where_clause { b.fix_for_version is null }
             null_label "[_ bug-tracker.Undecided]"
@@ -803,7 +843,10 @@ ad_proc bug_tracker::bug::get_list {
         array unset action
         workflow::action::get -action_id $action_id -array action
 
-        set values [db_list_of_lists select_action_assignees {}]
+        set values [bug_tracker::assignee_get_filter_data \
+                       -package_id $package_id \
+                       -workflow_id $workflow_id \
+                       -action_id $action_id]
         
         lappend filters f_action_$action_id \
             [list \
@@ -818,12 +861,16 @@ ad_proc bug_tracker::bug::get_list {
 
     lappend filters f_component {
         label "[_ bug-tracker.Component]"
-        values {[db_list_of_lists select_components {}]}
+        values {[bug_tracker::component_get_filter_data -package_id $package_id]}
         where_clause {b.component_id = :f_component}
     }
 
     upvar \#[template::adp_level] format format
     
+    foreach var [bug_tracker::get_export_variables] { 
+        upvar \#[template::adp_level] $var $var
+    }
+
     template::list::create \
         -ulevel [expr $ulevel + 1] \
         -name bugs \
@@ -834,6 +881,9 @@ ad_proc bug_tracker::bug::get_list {
         -elements $elements \
         -filters $filters \
         -orderby $orderbys \
+        -page_size 25 \
+        -page_flush_p 0 \
+        -page_query {[bug_tracker::bug::get_query -query_name bugs_pagination]} \
         -formats {
             table {
                 label "[_ bug-tracker.Table]"
@@ -861,9 +911,12 @@ ad_proc bug_tracker::bug::get_list {
         -selected_format $format
 }
 
-
-
-ad_proc bug_tracker::bug::get_query {} {
+ad_proc bug_tracker::bug::get_query {
+    {-query_name bugs}
+} {
+    @param name Either "bugs" or "bugs_pagination"
+    @return The query
+} {
 
     upvar \#[template::adp_level] orderby orderby 
 
@@ -889,7 +942,7 @@ ad_proc bug_tracker::bug::get_query {} {
         set more_columns ""
     }
 
-    return [db_map bugs]
+    return [db_map $query_name]
 }
 
 

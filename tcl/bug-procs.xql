@@ -1,6 +1,12 @@
 <?xml version="1.0"?>
 <queryset>
 
+<fullquery name="bug_tracker::bug::cache_flush.get_project_id">
+    <querytext>
+      select project_id from bt_bugs where bug_id = :bug_id
+    </querytext>
+</fullquery>
+
 <fullquery name="bug_tracker::bug::delete.get_case_id">
     <querytext>
         select case_id
@@ -83,54 +89,17 @@
         and    p.project_id = b.project_id
     </querytext>
   </fullquery>
-
-<fullquery name="bug_tracker::bug::get_list.select_states">
-  <querytext>
-    select st.pretty_name,
-           st.state_id,
-           count(b.bug_id)
-    from   workflow_fsm_states st,
-           bt_bugs b,
-           workflow_cases cas,
-           workflow_case_fsm cfsm
-    where  st.workflow_id = :workflow_id
-    and    b.project_id = :package_id
-    and    cas.workflow_id = :workflow_id
-    and    cas.object_id = b.bug_id
-    and    cfsm.case_id = cas.case_id
-    and    st.state_id = cfsm.current_state
-    group  by st.state_id, st.pretty_name, st.sort_order
-    order  by st.sort_order
-  </querytext>
-</fullquery>
-
-
-<fullquery name="bug_tracker::bug::get_list.select_components">
-  <querytext>
-
-    select c.component_name,
-           c.component_id,
-           count(b.bug_id) as num_bugs
-     from  bt_bugs b,
-           bt_components c
-     where b.project_id = :package_id
-     and   c.component_id = b.component_id
-     group by c.component_name, c.component_id
-     order by c.component_name
-
-  </querytext>
-</fullquery>
  
   <partialquery name="bug_tracker::bug::get_list.filter_assignee_where_clause">
       <querytext>
           exists (select 1
                   from   workflow_case_assigned_actions aa,
-                         workflow_case_role_user_map crum
+                    workflow_case_role_party_map wcrpm
                   where  aa.case_id = cas.case_id
                   and    aa.action_id = $action_id
-                  and    crum.case_id = aa.case_id
-                  and    crum.role_id = aa.role_id
-                  and    crum.user_id = :f_action_$action_id
+                  and    wcrpm.case_id = aa.case_id
+                  and    wcrpm.role_id = aa.role_id
+                  and    wcrpm.party_id = :f_action_$action_id
                  )
       </querytext>
   </partialquery>
