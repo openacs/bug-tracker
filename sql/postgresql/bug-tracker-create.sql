@@ -346,7 +346,7 @@ select acs_object_type__create_type (
     null,
     'f',
     null,
-    ''bt_bug__name''
+    'bt_bug__name'
 );
 
 
