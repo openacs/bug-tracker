@@ -486,7 +486,7 @@ begin
         p_summary,                 -- summary
         p_creation_date,           -- creation_date
         p_creation_user,           -- creation_user
-        p_creation_ip,             -- creation_ip
+        p_creation_ip              -- creation_ip
     );
 
     return v_bug_id;
