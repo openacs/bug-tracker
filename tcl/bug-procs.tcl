@@ -42,20 +42,20 @@ ad_proc -public bug_tracker::bug::get {
     upvar $array row
 
     db_1row select_bug_data {} -column_array row
-
+    
     # Get the case ID, so we can get state information
     set case_id [workflow::case::get_id \
-            -object_id $bug_id \
-            -workflow_short_name [bug_tracker::bug::workflow_short_name]]
-
+                     -object_id $bug_id \
+                     -workflow_short_name [bug_tracker::bug::workflow_short_name]]
+    
     # Derived fields
     set row(bug_number_display) "#$row(bug_number)"
     set row(component_name) [bug_tracker::component_get_name -component_id $row(component_id)]
     set row(found_in_version_name) [bug_tracker::version_get_name -version_id $row(found_in_version)]
     set row(fix_for_version_name) [bug_tracker::version_get_name -version_id $row(fix_for_version)]
     set row(fixed_in_version_name) [bug_tracker::version_get_name -version_id $row(fixed_in_version)]
-
-
+    
+    
     # Get state information
     workflow::case::fsm::get -case_id $case_id -array case -action_id $action_id
     set row(pretty_state) $case(pretty_state)
@@ -65,7 +65,6 @@ ad_proc -public bug_tracker::bug::get {
     set row(state_short_name) $case(state_short_name)
     set row(hide_fields) $case(state_hide_fields)
     set row(entry_id) $case(entry_id)
-
 }
 
 ad_proc -public bug_tracker::bug::insert {
@@ -129,6 +128,7 @@ ad_proc -public bug_tracker::bug::new {
     {-ip_address ""}
     {-item_subtype "bt_bug"}
     {-content_type "bt_bug_revision"}
+    {-keyword_ids {}}
 } {
     Create a new bug, then send out notifications, starts workflow, etc.
 
@@ -154,6 +154,10 @@ ad_proc -public bug_tracker::bug::new {
                 -item_subtype $item_subtype \
                 -content_type $content_type \
                 ]
+
+        foreach keyword_id $keyword_ids {
+            cr::keyword::item_assign -item_id $bug_id -keyword_id $keyword_id
+        }
 
         workflow::case::new \
                 -workflow_id [workflow::get_id -object_id $package_id -short_name [workflow_short_name]] \
