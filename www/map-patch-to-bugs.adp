@@ -1,6 +1,6 @@
 <master src="../lib/master">
 <property name="title">@page_title@</property>
-<property name="context_bar">@context_bar@</property>
+<property name="context">@context@</property>
 
 <if @open_bugs:rowcount@ not eq 0>
 Select one or more of the following @pretty_names.bugs@ for patch "@patch_summary@" (you may select more @pretty_names.bugs@ later):

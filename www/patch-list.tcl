@@ -15,7 +15,7 @@ set package_id [ad_conn package_id]
 set user_id [ad_conn user_id]
 
 set page_title "Patches" 
-set context_bar [ad_context_bar $page_title]
+set context [list $page_title]
 
 # Create the component filter
 set component_filter_list [list]

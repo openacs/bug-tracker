@@ -255,7 +255,7 @@ element create patch mode \
         -value $mode
 
 set page_title "Patch #$patch_number"
-set context_bar [ad_context_bar $page_title]
+set context [list $page_title]
 
 if { [form is_request patch] } {
     # The form was requested
