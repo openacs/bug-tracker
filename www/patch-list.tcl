@@ -59,6 +59,8 @@ template::list::create \
             label "Apply to version"
             values {[db_list_of_lists select_versions {}]}
             where_clause {[db_map apply_to_version_where_clause]}
+            null_where_clause {[db_map apply_to_version_null_where_clause]}
+            null_label {Undecided}
         }
         component_id {
             label "Component"

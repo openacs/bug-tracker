@@ -20,4 +20,20 @@
       </querytext>
 </fullquery>
 
+<fullquery name="select_versions">
+      <querytext>
+
+                select v.version_name,
+                       p.apply_to_version,
+                       count(p.patch_id) as num_patches
+                from   bt_patches p, 
+                       bt_versions v
+                where  p.project_id = :package_id
+                and    v.version_id (+) = p.apply_to_version
+                group  by v.version_name, v.anticipated_freeze_date, p.apply_to_version
+                order  by v.anticipated_freeze_date, v.version_name
+
+      </querytext>
+</fullquery>
+
 </queryset>

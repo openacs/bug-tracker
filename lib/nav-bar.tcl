@@ -61,7 +61,7 @@ if { [ad_conn untrusted_user_id] != 0 } {
 }
 
 if { $patches_p } {
-    multirow append links "Patches" "[ad_conn package_url]patch-list"
+    multirow append links "Patches" [export_vars -no_empty -base "[ad_conn package_url]patch-list" { { status open } { apply_to_version {[bug_tracker::conn current_version_id]} } }]
 
     if { $create_p } {
         multirow append links "New Patch" "[ad_conn package_url]patch-add"

@@ -20,5 +20,23 @@
       </querytext>
 </fullquery>
 
+<fullquery name="select_versions">
+      <querytext>
+
+                select v.version_name,
+                       v.version_id,
+                       (select count(*) 
+                        from   bt_patches p 
+                        where  p.project_id = :package_id 
+                        and    p.apply_to_version = v.version_id
+                       ) as count
+                from   bt_versions v
+                where  exists (select 1 from bt_patches p2
+                               where p2.apply_to_version = v.version_id)
+                order  by v.version_name
+
+      </querytext>
+</fullquery>
+
 
 </queryset>

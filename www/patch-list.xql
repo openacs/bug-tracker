@@ -7,27 +7,15 @@
       </querytext>
 </partialquery>
 
-<fullquery name="select_versions">
-      <querytext>
-
-                select v.version_name,
-                       v.version_id,
-                       (select count(*) 
-                        from   bt_patches p 
-                        where  p.project_id = :package_id 
-                        and    p.apply_to_version = v.version_id
-                       ) as count
-                from   bt_versions v
-                where  exists (select 1 from bt_patches p2
-                               where p2.apply_to_version = v.version_id)
-                order  by v.version_name
-
-      </querytext>
-</fullquery>
-
 <partialquery name="apply_to_version_where_clause">
       <querytext>
                 bt_patches.apply_to_version = :apply_to_version
+      </querytext>
+</partialquery>
+
+<partialquery name="apply_to_version_null_where_clause">
+      <querytext>
+                bt_patches.apply_to_version is null
       </querytext>
 </partialquery>
 
