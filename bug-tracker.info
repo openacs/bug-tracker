@@ -22,7 +22,7 @@
         <requires url="acs-kernel" version="4.6.2"/>
         <requires url="acs-tcl" version="4.6.2d"/>
         <requires url="notifications" version="0.2d"/>
-        <requires url="workflow" version="1.0d3"/>
+        <requires url="workflow" version="1.0d4"/>
 
         <callbacks>
             <callback type="after-install"  proc="bug_tracker::install::package_install"/>
