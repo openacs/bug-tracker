@@ -278,7 +278,7 @@ ad_proc -public bug_tracker::bug::get_watch_link {
     @return 3-tuple of url, label and title.
 } {
     set user_id [ad_conn user_id]
-    set return_url [util_get_current_url]
+    set return_url [ad_return_url]
     
     # Get the type id
     set type "workflow_case"

@@ -21,7 +21,7 @@ if { [exists_and_not_null bug_number] } {
 }
 
 set user_id [ad_conn user_id]
-set return_url [util_get_current_url]
+set return_url [ad_return_url]
 
 multirow create notifications url label title subscribed_p
 
