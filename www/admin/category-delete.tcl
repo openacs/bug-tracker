@@ -4,6 +4,9 @@ ad_page_contract {
     keyword_id:integer
 }
 
-db_exec_plsql delete_keyword { }
+cr::keyword::delete \
+    -keyword_id $keyword_id
+
+bug_tracker::get_keywords_flush
 
 ad_returnredirect categories
