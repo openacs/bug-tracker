@@ -31,7 +31,7 @@ ad_form -name project -cancel_url $return_url -form {
         {label {Project Maintainer}}
         {options [bug_tracker::users_get_options]}
         optional
-        {search_query_name project_search}
+        {search_query {[db_map user_search]}}
     }
 } -select_query_name project_select -edit_data {
     db_transaction {

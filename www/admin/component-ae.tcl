@@ -32,14 +32,7 @@ ad_form -name component -cancel_url $return_url -form {
         {label "Maintainer"}
         {options [bug_tracker::users_get_options]}
         optional
-        {search_query 
-            {
-                select distinct u.first_names || ' ' || u.last_name || ' (' || u.email || ')' as name, u.user_id
-                from   cc_users u
-                where  upper(coalesce(u.first_names || ' ', '')  || coalesce(u.last_name || ' ', '') || u.email || ' ' || coalesce(u.screen_name, '')) like upper('%'||:value||'%')
-                order  by name
-            } 
-        }
+        {search_query {[db_map user_search]}}
     }
 } -select_query {
     select component_id, 

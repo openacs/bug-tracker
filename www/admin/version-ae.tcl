@@ -27,7 +27,7 @@ ad_form -name version -cancel_url $return_url -form {
         {label "Maintainer"}
         {options {[bug_tracker::users_get_options]}}
         optional
-        {search_query_name version_search}
+        {search_query {[db_map user_search]}}
     }
     {anticipated_freeze_date:date,to_sql(sql_date),to_html(sql_date),optional
         {label "Anticipated freeze"} optional

@@ -3,7 +3,7 @@
 <queryset>
    <rdbms><type>postgresql</type><version>7.1</version></rdbms>
 
-<fullquery name="version_search">
+<fullquery name="user_search">
   <querytext>
       select distinct u.first_names || ' ' || u.last_name || ' (' || u.email || ')' as name, u.user_id
       from   cc_users u

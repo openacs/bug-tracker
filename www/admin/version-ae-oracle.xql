@@ -3,17 +3,16 @@
 <queryset>
    <rdbms><type>oracle</type><version>8.1.6</version></rdbms>
 
-<fullquery name="version_search">
+<fullquery name="user_search">
   <querytext>
       select distinct u.first_names || ' ' || u.last_name || ' (' || u.email || ')' as name, u.user_id
       from   cc_users u
-      where  upper(coalesce(u.first_names || ' ', '')  ||
+      where  upper(nvl(u.first_names || ' ', '')  ||
              nvl(u.last_name || ' ', '') ||
              u.email || ' ' ||
              nvl(u.screen_name, '')) like upper('%'||:value||'%')
       order  by name
   </querytext>
-<fullquery>
- 
+</fullquery>
 
 </queryset>
