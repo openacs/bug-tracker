@@ -712,6 +712,13 @@ ad_proc bug_tracker::bug::get_list {
             display_template {<a href="@bugs.submitter_url@">@bugs.submitter_first_names@ @bugs.submitter_last_name@</a>}
             hide_p 1
         }
+        assigned_to {
+            label "Assigned To"
+            display_template {<a href="@bugs.assignee_url@">@bugs.assignee_first_names@
+                               @bugs.assignee_last_name@</a>
+                               <if @bugs.action_pretty_name@ not nil> to </if>
+                               @bugs.action_pretty_name@}
+        }
     }
 
     if { [bug_tracker::versions_p] } {
@@ -742,18 +749,18 @@ ad_proc bug_tracker::bug::get_list {
         default_value bug_number,desc
         bug_number {
             label "[bug_tracker::conn Bug] \#"
-            orderby b.bug_number
+            orderby bug_number
             default_direction desc
         }
         summary {
             label "Summary"
-            orderby_asc {upper(b.summary) asc, b.summary asc, b.bug_number asc}
-            orderby_desc {upper(b.summary) desc, b.summary desc, b.bug_number desc}
+            orderby_asc {lower_summary asc, summary asc, bug_number asc}
+            orderby_desc {lower_summary desc, summary desc, bug_number desc}
         }
         submitter {
             label "Submitter"
-            orderby_asc {upper(submitter.first_names) asc, upper(submitter.last_name) asc, b.bug_number asc}
-            orderby_asc {upper(submitter.first_names) desc, upper(submitter.last_name) desc, b.bug_number desc}
+            orderby_asc {lower_submitter_first_names asc, lower_submitter_last_name asc, bug_number asc}
+            orderby_desc {lower_submitter_first_names desc, lower_submitter_last_name desc, bug_number desc}
         }
     }
 
@@ -778,8 +785,8 @@ ad_proc bug_tracker::bug::get_list {
         lappend orderbys $name \
             [list \
                  label $parent_heading \
-                 orderby_desc {kw_order.heading desc, b.bug_number desc} \
-                 orderby_asc {kw_order.heading asc, b.bug_number asc}]
+                 orderby_desc {heading desc, bug_number desc} \
+                 orderby_asc {heading asc, bug_number asc}]
     }
 
     if { [bug_tracker::versions_p] } {
@@ -870,6 +877,16 @@ ad_proc bug_tracker::bug::get_query {} {
     if { [info exists orderby] && [regexp {^category_(.*),.*$} $orderby match orderby_parent_id] } {
         append from_bug_clause [db_map orderby_category_from_bug_clause]
         set orderby_category_where_clause [db_map orderby_category_where_clause]
+
+        # Branimir: The ORDER BY clause needs to be at the very end of the
+        # query. That also means that we need to have in the select list every
+        # column we want to order by.  Which colums we can afford to have in
+        # the select list depends on which tables are we joining against.  BTW,
+        # all these kludges are consequence of the initial (bad, IMHO) decision
+        # to do the joins against cr_keywords in memory rather then in SQL.
+        set more_columns ", kw_order.heading as heading"
+    } else {
+        set more_columns ""
     }
 
     return [db_map bugs]
@@ -887,6 +904,7 @@ ad_proc bug_tracker::bug::get_multirow {} {
     set extend_list { 
         comment_short
         submitter_url 
+        assignee_url 
         status_pretty
         resolution_pretty
         component_name
@@ -920,6 +938,7 @@ ad_proc bug_tracker::bug::get_multirow {} {
             set fixed_in_version_name [bug_tracker::version_get_name -version_id $fixed_in_version]
             set comment_short [string_truncate -len $truncate_len -- $comment_content]
             set submitter_url [acs_community_member_url -user_id $submitter_user_id]
+            set assignee_url [acs_community_member_url -user_id $assigned_user_id]
             set resolution_pretty [bug_tracker::resolution_pretty $resolution]
             
             # Hide fields in this state
