@@ -429,29 +429,33 @@ if { [form is_request bug] } {
         set write_p 1
     }
 
-    if { [string equal $mode "view"] && $write_p } {
+    if { [string equal $mode "view"] } {
         set button_form_export_vars [export_vars -form { bug_number filter:array }]
         multirow create button name label
-        multirow append button "comment" "Comment"
-        multirow append button "edit" "Edit"
 
-        switch -- $bug(status) {
-            open {
-                multirow append button "reassign" "Reassign"
-                multirow append button "resolve" "Resolve"
-            }
-            resolved {
-                multirow append button "resolve" "Resolve"
-                multirow append button "reopen" "Reopen"
-                multirow append button "close" "Close"
-            }
-            closed {
-                multirow append button "reopen" "Reopen"
+        multirow append button "comment" "Comment"
+
+        if { $write_p } {
+            multirow append button "edit" "Edit"
+
+            switch -- $bug(status) {
+                open {
+                    multirow append button "reassign" "Reassign"
+                    multirow append button "resolve" "Resolve"
+                }
+                resolved {
+                    multirow append button "resolve" "Resolve"
+                    multirow append button "reopen" "Reopen"
+                    multirow append button "close" "Close"
+                }
+                closed {
+                    multirow append button "reopen" "Reopen"
+                }
             }
         }
     }
 
-    if { ![string equal $mode "view"] && !$write_p } {
+    if { ![string equal $mode "view"] && ![string equal $mode "comment"] && !$write_p } {
         ns_log notice "[ad_conn user_id] doesn't have write on object $bug(bug_id)"
         ad_return_forbidden "Security Violation" "<blockquote>
         You don't have permission to edit this bug.
@@ -541,7 +545,7 @@ if { [form is_valid bug] } {
         }
     }
 
-    if { !$write_p } {
+    if { !$write_p && ![string equal $mode "comment"] } {
         ns_log notice "$bug(submitter_user_id) doesn't have write on object $bug(bug_id)"
         ad_return_forbidden \
                 "Security Violation" \
