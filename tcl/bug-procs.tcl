@@ -751,13 +751,13 @@ ad_proc bug_tracker::bug::get_list {
         }
         summary {
             label "Summary"
-            orderby_asc {upper_summary asc, summary asc, bug_number asc}
-            orderby_desc {upper_summary desc, summary desc, bug_number desc}
+            orderby_asc {lower_summary asc, summary asc, bug_number asc}
+            orderby_desc {lower_summary desc, summary desc, bug_number desc}
         }
         submitter {
             label "Submitter"
-            orderby_asc {upper_submitter_first_names asc, upper_submitter_last_name asc, bug_number asc}
-            orderby_desc {upper_submitter_first_names desc, upper_submitter_last_name desc, bug_number desc}
+            orderby_asc {lower_submitter_first_names asc, lower_submitter_last_name asc, bug_number asc}
+            orderby_desc {lower_submitter_first_names desc, lower_submitter_last_name desc, bug_number desc}
         }
     }
 
