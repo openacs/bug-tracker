@@ -686,7 +686,7 @@ ad_proc bug_tracker::bug::get_list {
 
     set elements {
         bug_number {
-            label "Bug \#"
+            label "[bug_tracker::conn Bug] \#"
             display_template {\#@bugs.bug_number@}
             html { align right }
         }
@@ -738,7 +738,7 @@ ad_proc bug_tracker::bug::get_list {
     set orderbys {
         default_value bug_number,desc
         bug_number {
-            label "Bug \#"
+            label "[bug_tracker::conn Bug] \#"
             orderby b.bug_number
             default_direction desc
         }
