@@ -152,11 +152,11 @@
     </querytext>
 </fullquery>
 
-<fullquery name="bug_tracker::project_delete.unset_project_revisions">
+<fullquery name="bug_tracker::project_delete.min_bug_id">
     <querytext>
-        update cr_items
-        set live_revision = null, latest_revision = null
-        where parent_id = :folder_id
+        select min(bug_id)
+        from   bt_bugs
+        where  project_id = :project_id
     </querytext>
 </fullquery>
 
