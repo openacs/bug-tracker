@@ -314,6 +314,10 @@ create table bt_bug_actions (
   action                        varchar(50)
                                 constraint bt_bug_actions_action_ck
                                 check (action in ('open','edit','comment','reassign','resolve','reopen','close')),
+  resolution                    varchar(50)
+                                constraint bt_bugs_actions_resolution_ck
+                                check (resolution is null or 
+                                       resolution in ('fixed','bydesign','wontfix','postponed','duplicate','norepro')),
   actor                         integer not null
                                 constraint bt_bug_actions_actor_fk
                                 references users(user_id),

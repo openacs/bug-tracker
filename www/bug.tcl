@@ -336,6 +336,7 @@ if { [form is_request bug] } {
     db_foreach actions {
         select ba.action_id,
                ba.action,
+               ba.resolution,
                ba.actor as actor_user_id,
                actor.first_names as actor_first_names,
                actor.last_name as actor_last_name,
@@ -350,7 +351,7 @@ if { [form is_request bug] } {
         and    actor.user_id = ba.actor
         order  by action_date
     } {
-        append action_html "<b>$action_date_pretty [bug_tracker::bug_action_pretty $action] by $actor_first_names $actor_last_name</b>
+        append action_html "<b>$action_date_pretty [bug_tracker::bug_action_pretty $action $resolution] by $actor_first_names $actor_last_name</b>
         <blockquote>[bug_tracker::bug_convert_comment_to_html -comment $comment -format $comment_format]</blockquote>"
     }
 
@@ -471,11 +472,15 @@ if { [form is_valid bug] } {
             set $column [element get_value bug $column]
         }
 
+        if { ![info exists resolution] } {
+            set resolution {}
+        }
+
         db_dml bug_action {
             insert into bt_bug_actions
-            (action_id, bug_id, action, actor, comment, comment_format)
+            (action_id, bug_id, action, resolution, actor, comment, comment_format)
             values
-            (:action_id, :bug_id, :mode, :user_id, :description, :desc_format)
+            (:action_id, :bug_id, :mode, :resolution, :user_id, :description, :desc_format)
         }
     }
 

@@ -443,6 +443,7 @@ namespace eval bug_tracker {
     
     ad_proc bug_action_pretty {
         action
+        {resolution ""}
     } {
         array set action_codes {
             open "Opened"
@@ -454,7 +455,8 @@ namespace eval bug_tracker {
             close "Closed"
         }
         if { [info exists action_codes($action)] } {
-            return $action_codes($action)
+            set resolution_pretty [resolution_pretty $resolution]
+            return "$action_codes($action) [ad_decode $resolution_pretty "" "" " ($resolution_pretty)"]"
         } else {
             return ""
         }
