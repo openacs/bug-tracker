@@ -153,7 +153,8 @@ db_multirow -extend { description_short submitter_url status_pretty resolution_p
     and    [join $where_clauses " and "]
     order  by $order_by_clause
 " {
-    set description_short [string_truncate -len $truncate_len [bug_tracker::bug_convert_comment_to_text -comment $description -format $desc_format]]
+    set description_short [string_truncate -len $truncate_len -format $desc_format $description]
+    set summary [ad_quotehtml $summary]
     set submitter_url [acs_community_member_url -user_id $submitter_user_id]
     set status_pretty [bug_tracker::status_pretty $status]
     set resolution_pretty [bug_tracker::resolution_pretty $resolution]
@@ -282,7 +283,7 @@ db_multirow -extend { name_url stat_name } -append stats stats_by_actionby {
 }
 
 db_multirow -extend { name_url stat_name } -append stats stats_by_component {
-    select coalesce('com/'||c.url_name||'/', to_char(c.component_id,'99999999')) as unique_id,
+    select coalesce('com/'||c.url_name||'/', trim(to_char(c.component_id,'99999999'))) as unique_id,
            c.component_name as name,
            count(b.bug_id) as num_bugs
     from   bt_bugs b left join
