@@ -404,7 +404,7 @@ ad_proc -private bug_tracker::bug::workflow_create {} {
                 reassign {
                     pretty_name "Reassign"
                     pretty_past_tense "Reassigned"
-                    allowed_role { submitter resolver }
+                    allowed_roles { submitter resolver }
                     privileges { write }
                     enabled_states { resolved }
                     assigned_states { open }
