@@ -1181,5 +1181,29 @@ ad_proc bug_tracker::project_new { project_id } {
 
     @author Peter Marklund
 } {
-    db_exec_plsql create_project {}
+
+    # THIS IS AN UGLY HACK TO GET IT WORKING AGAIN. Once keywords work with the CR someone can clean it up and get the SQL out of here :)
+
+    if {![db_0or1row already_there {select 1 from bt_projects where  project_id = :project_id} ] } {
+	if [db_0or1row instance_info {select p.instance_name, o.creation_user, o.creation_ip from apm_packages p join acs_objects o on (p.package_id = o.object_id) where  p.package_id = :project_id }] {
+	    set folder_id [content::folder::new -name "bug_tracker_$project_id" -package_id $project_id]
+	    content::folder::register_content_type -folder_id $folder_id -content_type {bt_bug_revision} -include_subtypes t
+	    
+	    # set keyword_I [content::keyword::new -heading "$instance_name"]
+	    set keyword_id [db_1row keyword "select content_keyword__new(
+        :instance_name,                -- heading
+        null,                           -- description
+        null,                           -- parent_id
+        null,                           -- keyword_id
+        current_timestamp,              -- creation_date
+        :creation_user,                -- creation_user
+        :creation_ip,                  -- creation_ip
+        'content_keyword'             -- object_type
+    )"]
+	    
+	    # Inserts into bt_projects
+	    db_dml bt_projects_insert {insert into bt_projects (project_id, folder_id, root_keyword_id) values (:project_id, :folder_id, :keyword_id)}
+	    db_dml bt_components_insert {insert into bt_components (component_id, project_id, component_name) select acs_object_id_seq.nextval, :project_id, 'General'}
+	}
+    }
 }
