@@ -132,7 +132,7 @@ if { [form is_valid patch] } {
 
         set ip_address [ns_conn peeraddr]
         
-        db_exec_plsql new_patch {}        
+        db_exec_plsql new_patch {}
 
         set patch_number [db_string patch_number_for_id {}]
 
