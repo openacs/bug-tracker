@@ -160,6 +160,7 @@ from (
   select b.bug_id,
          b.bug_number,
          b.summary,
+         upper(b.summary) as upper_summary,
          b.comment_content,
          b.comment_format,
          b.component_id,
@@ -169,6 +170,9 @@ from (
          submitter.first_names as submitter_first_names,
          submitter.last_name as submitter_last_name,
          submitter.email as submitter_email,
+         upper(submitter.first_names) as upper_submitter_first_names,
+         upper(submitter.last_name) as upper_submitter_last_name,
+         upper(submitter.email) as upper_submitter_email,
          st.pretty_name as pretty_state,
          st.short_name as state_short_name,
          st.state_id,
@@ -178,6 +182,7 @@ from (
          b.fix_for_version,
          b.fixed_in_version,
          cas.case_id
+         $more_columns
     from $from_bug_clause,
          acs_users_all submitter,
          acs_users_all assignee,
@@ -191,7 +196,6 @@ from (
      and st.state_id = cfsm.current_state 
    $orderby_category_where_clause
    [template::list::filter_where_clauses -and -name "bugs"]
-   [template::list::orderby_clause -orderby -name "bugs"]
 ) q
 left outer join
   cr_item_keyword_map km
@@ -213,6 +217,7 @@ left outer join
       and wa.action_id = aa.action_id
   ) assign_info
 on (q.case_id = assign_info.case_id)
+   [template::list::orderby_clause -orderby -name "bugs"]
 
   </querytext>
 </fullquery>

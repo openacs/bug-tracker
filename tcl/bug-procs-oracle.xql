@@ -173,6 +173,7 @@ from (
   select b.bug_id,
          b.bug_number,
          b.summary,
+         upper(b.summary) as upper_summary,
          b.comment_content,
          b.comment_format,
          b.component_id,
@@ -182,6 +183,9 @@ from (
          submitter.first_names as submitter_first_names,
          submitter.last_name as submitter_last_name,
          submitter.email as submitter_email,
+         upper(submitter.first_names) as upper_submitter_first_names,
+         upper(submitter.last_name) as upper_submitter_last_name,
+         upper(submitter.email) as upper_submitter_email,
          st.pretty_name as pretty_state,
          st.short_name as state_short_name,
          st.state_id,
@@ -191,6 +195,7 @@ from (
          b.fix_for_version,
          b.fixed_in_version,
          cas.case_id
+         $more_columns
     from $from_bug_clause,
          acs_users_all submitter,
          acs_users_all assignee,
