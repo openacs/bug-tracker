@@ -4,7 +4,7 @@ ad_library {
 
     @creation-date 2002-05-03
     @author Lars Pind <lars@collaboraid.biz>
-    @cvs-id $Id$
+    @cvs-id bug-tracker-procs.tcl,v 1.13.2.7 2003/03/05 18:13:39 lars Exp
 
 }
 
@@ -959,7 +959,6 @@ ad_proc bug_tracker::bug_convert_comment_to_html {
     {-comment:required}
     {-format:required}
 } {
-    ns_log Notice "LARS: Format=$format, comment=$comment, formatted = [ad_html_text_convert -from $format -to text/html -- $comment]"
     return [ad_html_text_convert -from $format -to text/html -- $comment]
 }
 
