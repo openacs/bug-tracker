@@ -76,7 +76,7 @@ if { $patches_p } {
     }
 }
 
-multirow append links "Notifications" "[ad_conn package_url]notifications"
+multirow append links [_ bug-tracker.Notifications] "[ad_conn package_url]notifications"
 
 if { $versions_p } {
     multirow append links "Prefs" "[ad_conn package_url]prefs"
