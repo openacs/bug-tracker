@@ -372,7 +372,7 @@ if { ![form is_valid bug] } {
     set pretty(severity) $bug(severity_pretty)
     set pretty(priority) $bug(priority_pretty)
     set pretty(found_in_version) $bug(found_in_version_name)
-    set pretty(patches) "[bug_tracker::get_patch_links -bug_id $bug(bug_id) -show_patch_status $show_patch_status] &nbsp; \[ <a href=\"patch-add?bug_number=$bug(bug_number)\">Upload a patch</a> \]"
+    set pretty(patches) "[bug_tracker::get_patch_links -bug_id $bug(bug_id) -show_patch_status $show_patch_status] &nbsp; \[ <a href=\"patch-add?[export_vars { { bug_number $bug(bug_number) } { component_id $bug(component_id) } }]\">Upload a patch</a> \]"
     set pretty(user_agent) $bug(user_agent)
     set pretty(fix_for_version) $bug(fix_for_version_name)
     set pretty(fixed_in_version) $bug(fixed_in_version_name)
