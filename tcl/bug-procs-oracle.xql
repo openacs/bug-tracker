@@ -164,7 +164,7 @@
      allows user to break this assumption you'll also need to deal with
      this.
 -->
-<fullquery name="bug_tracker::bug::get_query.bugs">
+<fullquery name="bug_tracker::bug::get_query.bugs_pagination">
   <querytext>
 select q.*,
        km.keyword_id,
@@ -209,7 +209,6 @@ from (
      and st.state_id = cfsm.current_state 
    $orderby_category_where_clause
    [template::list::filter_where_clauses -and -name "bugs"]
-   [template::list::orderby_clause -orderby -name "bugs"]
 ) q,
   cr_item_keyword_map km,
   (select cru.user_id as assigned_user_id,
@@ -229,6 +228,76 @@ from (
   ) assign_info
 where q.bug_id = km.item_id (+)
   and q.case_id = assign_info.case_id (+)
+[template::list::orderby_clause -orderby -name "bugs"]
+  </querytext>
+</fullquery>
+
+<fullquery name="bug_tracker::bug::get_query.bugs">
+  <querytext>
+select q.*,
+       km.keyword_id,
+       assign_info.*
+from (
+  select b.bug_id,
+         b.bug_number,
+         b.summary,
+         lower(b.summary) as lower_summary,
+         b.comment_content,
+         b.comment_format,
+         b.component_id,
+         b.creation_date,
+         to_char(b.creation_date, 'fmMM/DDfm/YYYY') as creation_date_pretty,
+         b.creation_user as submitter_user_id,
+         submitter.first_names as submitter_first_names,
+         submitter.last_name as submitter_last_name,
+         submitter.email as submitter_email,
+         lower(submitter.first_names) as lower_submitter_first_names,
+         lower(submitter.last_name) as lower_submitter_last_name,
+         lower(submitter.email) as lower_submitter_email,
+         st.pretty_name as pretty_state,
+         st.short_name as state_short_name,
+         st.state_id,
+         st.hide_fields,
+         b.resolution,
+         b.found_in_version,
+         b.fix_for_version,
+         b.fixed_in_version,
+         cas.case_id
+         $more_columns
+    from $from_bug_clause,
+         acs_users_all submitter,
+         workflow_cases cas,
+         workflow_case_fsm cfsm,
+         workflow_fsm_states st 
+   where submitter.user_id = b.creation_user
+     and cas.workflow_id = :workflow_id
+     and cas.object_id = b.bug_id
+     and cfsm.case_id = cas.case_id
+     and cfsm.parent_enabled_action_id is null
+     and st.state_id = cfsm.current_state 
+   $orderby_category_where_clause
+   [template::list::page_where_clause -and -name bugs -key bug_id]
+   [template::list::filter_where_clauses -and -name "bugs"]
+) q,
+  cr_item_keyword_map km,
+  (select cru.user_id as assigned_user_id,
+          aa.action_id,
+          aa.case_id,
+          wa.pretty_name as action_pretty_name,
+          p.first_names as assignee_first_names,
+          p.last_name as assignee_last_name
+     from workflow_case_assigned_actions aa,
+          workflow_case_role_user_map cru,
+          workflow_actions wa,
+          persons p
+    where aa.case_id = cru.case_id
+      and aa.role_id = cru.role_id
+      and cru.user_id = p.person_id
+      and wa.action_id = aa.action_id
+  ) assign_info
+where q.bug_id = km.item_id (+)
+  and q.case_id = assign_info.case_id (+)
+[template::list::orderby_clause -orderby -name "bugs"]
 
   </querytext>
 </fullquery>

@@ -840,7 +840,7 @@ ad_proc bug_tracker::bug::get_list {
         -page_size 25 \
         -page_groupsize 1 \
         -page_flush_p 1 \
-        -page_query {[bug_tracker::bug::get_query]} \
+        -page_query {[bug_tracker::bug::get_query -query_name bugs_pagination]} \
         -formats {
             table {
                 label "Table"
@@ -868,9 +868,12 @@ ad_proc bug_tracker::bug::get_list {
         -selected_format $format
 }
 
-
-
-ad_proc bug_tracker::bug::get_query {} {
+ad_proc bug_tracker::bug::get_query {
+    {-query_name bugs}
+} {
+    @param name Either "bugs" or "bugs_pagination"
+    @return The query
+} {
 
     upvar #[template::adp_level] orderby orderby 
 
@@ -896,7 +899,7 @@ ad_proc bug_tracker::bug::get_query {} {
         set more_columns ""
     }
 
-    return [db_map bugs]
+    return [db_map $query_name]
 }
 
 
