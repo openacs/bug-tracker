@@ -178,7 +178,7 @@ ad_page_contract {
 
     @author $author
     @creation-date [ns_fmttime [ns_time] "%B %d, %Y"]
-    @cvs-id \$[string range "Id" 0 end]\$
+    @cvs-id $Id$
 } {
     cancel:optional
     {$primary_key \"\"}

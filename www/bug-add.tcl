@@ -2,7 +2,7 @@ ad_page_contract {
     Bug listing page. The most complicated page in the package.
     
     @author Lars Pind (lars@pinds.com)
-    @date 2002-03-25
+    @creation-date 2002-03-25
     @cvs-id $Id$
 } {
     cancel:optional

@@ -2,7 +2,7 @@ ad_page_contract {
     Bug-Tracker versions admin page.
     
     @author Lars Pind (lars@pinds.com)
-    @date 2002-03-26
+    @creation-date 2002-03-26
     @cvs-id $Id$
 } {
 }

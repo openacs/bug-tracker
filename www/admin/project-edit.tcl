@@ -2,7 +2,7 @@ ad_page_contract {
     Pick a project maintainer
 
     @author Lars Pind (lars@pinds.com)
-    @date 2002-03-26
+    @creation-date 2002-03-26
     @cvs-id $Id$
 } {
     cancel:optional

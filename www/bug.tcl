@@ -2,7 +2,7 @@ ad_page_contract {
     Shows one bug.
 
     @author Lars Pind (lars@pinds.com)
-    @date 2002-03-20
+    @creation-date 2002-03-20
     @cvs-id $Id$
 } {
     mode:optional
