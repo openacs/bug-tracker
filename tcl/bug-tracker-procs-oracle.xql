@@ -120,7 +120,7 @@
   <fullquery name="bug_tracker::project_delete.delete_project">
     <querytext>
         begin
-             bt_project.delete(:project_id);
+             bt_project.del(:project_id);
         end;
     </querytext>
   </fullquery>

@@ -6,7 +6,7 @@
 <fullquery name="delete_keyword">
   <querytext>
       begin
-          content_keyword.delete(:keyword_id);
+          content_keyword.del(:keyword_id);
       end;
   </querytext>
 </fullquery>

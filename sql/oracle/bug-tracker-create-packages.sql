@@ -11,7 +11,7 @@ as
     procedure new (
         package_id      in integer
     );
-    procedure delete (
+    procedure del (
         project_id      in integer
     );
     procedure keywords_delete (
@@ -42,7 +42,7 @@ as
         component_id    in integer,
         found_in_version in integer,
         summary         in varchar2,
-        user_agent      in varchar2 default '',
+        user_agent      in varchar2 default null,
         comment_content in varchar2,
         comment_format  in varchar2,
         creation_date   in date default sysdate(),
@@ -52,7 +52,7 @@ as
         content_type    in varchar2 default 'bt_bug_revision'
     ) return integer;
 
-    procedure delete (
+    procedure del (
         bug_id          in integer
     );
 
@@ -100,7 +100,7 @@ as
         creation_ip     in varchar2
     ) return integer;
 
-    procedure delete (
+    procedure del (
         patch_id        in integer
     );
 
@@ -195,7 +195,7 @@ as
         return;
     end new;
 
-    procedure delete (
+    procedure del (
         project_id      in integer
     )
     is
@@ -207,23 +207,23 @@ as
         select folder_id, root_keyword_id
         into   v_folder_id, v_root_keyword_id
         from   bt_projects
-        where  project_id = bt_project.delete.project_id;
+        where  project_id = bt_project.del.project_id;
 
         -- This get''s done in tcl before we are called ... for now
         -- Delete the bugs
         -- for rec in select item_id from cr_items where parent_id = v_folder_id
         -- loop
-        --      bt_bug.delete(rec.item_id);
+        --      bt_bug.del(rec.item_id);
         -- end loop;
 
         -- Delete the patches
-        for rec in (select patch_id from bt_patches where project_id = bt_project.delete.project_id)
+        for rec in (select patch_id from bt_patches where project_id = bt_project.del.project_id)
         loop
-             bt_patch.delete(rec.patch_id);
+             bt_patch.del(rec.patch_id);
         end loop;
 
         -- delete the content folder
-        content_folder.delete(v_folder_id);
+        content_folder.del(v_folder_id);
 
         -- delete the projects keywords
         bt_project.keywords_delete(
@@ -232,12 +232,12 @@ as
         );
 
         -- These tables should really be set up to cascade
-        delete from bt_versions where project_id = bt_project.delete.project_id;
-        delete from bt_components where project_id = bt_project.delete.project_id;
-        delete from bt_user_prefs where project_id = bt_project.delete.project_id;      
+        delete from bt_versions where project_id = bt_project.del.project_id;
+        delete from bt_components where project_id = bt_project.del.project_id;
+        delete from bt_user_prefs where project_id = bt_project.del.project_id;      
 
-        delete from bt_projects where project_id = bt_project.delete.project_id;   
-    end delete;
+        delete from bt_projects where project_id = bt_project.del.project_id;   
+    end del;
 
     procedure keywords_delete (
         project_id      in integer,
@@ -275,7 +275,7 @@ as
                where  content_keyword.is_leaf(keyword_id) = 't')
             loop
                 if (delete_root_p = 't') or (rec.keyword_id != v_root_keyword_id) then
-                    content_keyword.delete(rec.keyword_id);
+                    content_keyword.del(rec.keyword_id);
                     v_changed_p := 't';
                 end if;
             end loop;
@@ -328,7 +328,7 @@ as
         comment_format  in varchar2,
         creation_date   in date default sysdate(),
         creation_user   in integer,
-        creation_ip     in varchar2 default '',
+        creation_ip     in varchar2 default null,
         item_subtype    in varchar2 default 'bt_bug',
         content_type    in varchar2 default 'bt_bug_revision'
     ) return integer
@@ -412,7 +412,7 @@ as
         return v_bug_id;
     end new;
 
-    procedure delete (
+    procedure del (
         bug_id          in integer
     )
     is
@@ -422,22 +422,22 @@ as
         -- Every bug is associated with a workflow case
         select case_id into v_case_id
         from workflow_cases
-        where object_id = bt_bug.delete.bug_id;
+        where object_id = bt_bug.del.bug_id;
 
-        foo := workflow_case_pkg.delete(v_case_id);
+        foo := workflow_case_pkg.del(v_case_id);
         
         -- Every bug may have notifications attached to it
         -- and there is one column in the notificaitons datamodel that doesn't
         -- cascade
-        for rec in (select notification_id from notifications where response_id = bt_bug.delete.bug_id)
+        for rec in (select notification_id from notifications where response_id = bt_bug.del.bug_id)
         loop
-            notification.delete (rec.notification_id);
+            notification.del (rec.notification_id);
         end loop;
 
-        acs_object.delete(bug_id);
+        acs_object.del(bug_id);
         
         return;
-    end delete;
+    end del;
 
     function name (
         bug_id         in integer
@@ -595,15 +595,15 @@ as
     end name;
 
 
-    procedure delete (
+    procedure del (
         patch_id          in integer
     )
     is
     begin
-        acs_object.delete( patch_id );
+        acs_object.del( patch_id );
 
         return;
-    end delete;
+    end del;
 
 end bt_patch;
 /
