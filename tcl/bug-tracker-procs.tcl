@@ -687,15 +687,20 @@ ad_proc -public bug_tracker::get_default_configurations {} {
         ] \
         [_ bug-tracker.Support_Center] [list \
 	    categories [list \
-		"[_ bug-tracker.Support_Type]" [list \
-                    "[_ bug-tracker.Support_Question]" \
-                    "[_ bug-tracker.Support_Suggestion]" \
+		"[_ bug-tracker.Message_Type]" [list \
                     "[_ bug-tracker.Support_Problem]" \
+                    "[_ bug-tracker.Support_Suggestion]" \
+                    "[_ bug-tracker.Support_Error]" \
                 ] \
+    	        "[_ bug-tracker.Priority]" [list \
+	            "[_ bug-tracker.Prio_High_Cat]" \
+		    "[_ bug-tracker.Prio_Norm_Cat]" \
+		    "[_ bug-tracker.Prio_Low_Cat]" \
+		] \
             ] \
             parameters {
-                TicketPrettyName "issue"
-                TicketPrettyPlural "issues"
+                TicketPrettyName "message"
+                TicketPrettyPlural "messages"
                 ComponentPrettyName "area"
                 ComponentPrettyPlural "areas"
                 PatchesP "0" 
@@ -1286,7 +1291,7 @@ ad_proc bug_tracker::project_new { project_id } {
 } {
 
     if {![db_0or1row already_there {select 1 from bt_projects where  project_id = :project_id} ] } {
-	if [db_0or1row instance_info {select p.instance_name, o.creation_user, o.creation_ip from apm_packages p join acs_objects o on (p.package_id = o.object_id) where  p.package_id = :project_id }] {
+	if [db_0or1row instance_info { *SQL* } ] {
 	    set folder_id [content::folder::new -name "bug_tracker_$project_id" -package_id $project_id]
 	    content::folder::register_content_type -folder_id $folder_id -content_type {bt_bug_revision} -include_subtypes t
 	    

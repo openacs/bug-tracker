@@ -56,7 +56,7 @@ set case_id [workflow::case::get_id \
         -object_id $bug(bug_id) \
         -workflow_short_name [bug_tracker::bug::workflow_short_name]]
 
-set workflow_id [bug_tracker::bug::get_instance_workflow_id]
+set workflow_id [bug_tracker::bug::get_instance_workflow_id ]
 
 
 #####
@@ -101,8 +101,6 @@ if { [empty_string_p $enabled_action_id] } {
         lappend actions [list "     [lang::util::localize $available_action(pretty_name)]     " $available_enabled_action_id]
     }
 }
-
-ns_log Notice "actions: $actions"
 
 #####
 #

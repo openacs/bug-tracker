@@ -15,7 +15,7 @@ foreach name [lsort -ascii [array names default_configs]] {
 }
 
 ad_form -name setup -cancel_url categories -form {
-    {setup:text(select) {label [_ bug-tracker.Choose_setup]} {options $options}}
+    {setup:text(select) {label "[_ bug-tracker.Choose_setup]"} {options $options}}
 } -on_submit {
     array set config $default_configs($setup)
     

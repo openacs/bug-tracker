@@ -8,16 +8,14 @@
     <singleton-p>f</singleton-p>
     
     <version name="1.4d3" url="http://openacs.org/repository/download/apm/bug-tracker-1.4d3.apm">
-    <database-support>
-        <database>postgresql</database>
-        <database>oracle</database>
-    </database-support>
         <owner url="mailto:lars@collaboraid.biz">Lars Pind</owner>
         <summary>Tracks bugs and features, versions and maintainers, in software projects.</summary>
         <release-date>2003-02-28</release-date>
         <vendor url="http://www.museatech.net">Musea Technologies</vendor>
         <description format="text/html">Bug tracking application with notifications, configurable state management, and patch upload.
         Contains the best of SDM, Bugzilla, FogBUGZ, and bughost.com.</description>
+        <maturity>0</maturity>
+
         <provides url="bug-tracker" version="1.4d3"/>
         <requires url="acs-content-repository" version="5.2.0d2"/>
         <requires url="acs-kernel" version="5.2.0d2"/>
@@ -28,17 +26,18 @@
         <callbacks>
             <callback type="after-install"  proc="bug_tracker::install::package_install"/>
             <callback type="after-instantiate"  proc="bug_tracker::install::package_instantiate"/>
+            <callback type="after-upgrade"  proc="bug_tracker::install::package_upgrade"/>
             <callback type="before-uninstall"  proc="bug_tracker::install::package_uninstall"/>
             <callback type="before-uninstantiate"  proc="bug_tracker::install::package_uninstantiate"/>
-            <callback type="after-upgrade"  proc="bug_tracker::install::package_upgrade"/>
         </callbacks>
-
         <parameters>
+            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="AutoSubmitErrorsP"  default="1" description="AutoSubmitErrorsp"/>
             <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="ComponentPrettyName"  default="component" description="Pretty name of a component/area/module, e.g. 'area'. Use the capitalization that you would use in the middle of a sentence."/>
             <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="ComponentPrettyPlural"  default="components" description="Plural pretty name of a component/area/module, e.g. 'area'. Use the capitalization that you would use in the middle of a sentence."/>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="PatchesP"  default="1" description="Enable patch submissions for this project"/>
             <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="TicketPrettyName"  default="bug" description="Pretty name of a ticket, e.g. 'ticket'. Use the capitalization that you would use in the middle of a sentence."/>
             <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="TicketPrettyPlural"  default="bugs" description="Plural pretty name of a ticket , e.g. 'tickets'. Use the capitalization that you would use in the middle of a sentence."/>
+            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="TimeToLive"  default="0" description="Use this parameter to specify the time (number of days) to live of the bugs. If a bug is not modified before the number of days specified by this parameter, it will be automatically closed. This will work only for the instance of the bug tracker specified by the BugTrackerInsance parameter in the acs-kernel package.  Leave this parameter in 0 (zero) if you do not want to automatically close any bug."/>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="TruncateDescriptionLength"  default="200" description="At what length should bug descriptions be truncated on the bug list pgae."/>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="VersionsP"  default="1" description="Enable versions for this project"/>
         </parameters>

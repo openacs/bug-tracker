@@ -1,4 +1,7 @@
 
+
+\i auto-error-report-drop.sql
+
 drop function bt_bug__new(
     integer,     -- bug_id
     integer,     -- package_id

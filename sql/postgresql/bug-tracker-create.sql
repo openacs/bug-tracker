@@ -838,3 +838,7 @@ create table bt_patch_bug_map (
 create index bt_patch_bug_map_patch_id_idx on bt_patch_bug_map(patch_id);
 create index bt_patch_bug_map_bug_id_idx on bt_patch_bug_map(bug_id);
 
+-- AutoSubmition functionality
+
+\i auto-error-report.sql
+

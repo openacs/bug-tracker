@@ -219,6 +219,8 @@ High&amp;quot;, &amp;quot;2 - Normal&amp;quot;, etc., or &amp;quot;A - Critical&
   <msg key="Support_Question">*Question</msg>
   <msg key="Support_Suggestion">Suggestion</msg>
   <msg key="Support_Type">Support Type</msg>
+  <msg key="Message_Type">Message Type</msg>
+  <msg key="Support_Error">*Error</msg>
   <msg key="Supported">platforms</msg>
   <msg key="Table">Table</msg>
   <msg key="There_are_no_open_to_map">There are no open %pretty_names.bugs% to map the patch to. Try changing the component filter above.</msg>
