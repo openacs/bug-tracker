@@ -152,8 +152,14 @@ as
             name => 'bug_tracker_' || bt_project.new.package_id,
             label => v_instance_name,
             description => null,
-            parent_id => v_root_folder_id
+            parent_id => v_root_folder_id,
+            context_id => bt_project.new.package_id,
+            creation_user => v_creation_user,
+            creation_ip => v_creation_ip
         );
+
+        -- Set package_id column. Oddly enoguh, there is no API to set it
+        update cr_folders set package_id = bt_project.new.package_id where folder_id = v_folder_id;
 
         -- register our content type
         content_folder.register_content_type (

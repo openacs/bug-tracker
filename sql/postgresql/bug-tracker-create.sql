@@ -65,6 +65,9 @@ begin
         ''t''                                  -- security_inherit_p
     );
 
+    -- Set package_id column. Oddly enoguh, there is no API to set it
+    update cr_folders set package_id = p_package_id where folder_id = v_folder_id;
+
     -- register our content type
     PERFORM content_folder__register_content_type (
         v_folder_id,          -- folder_id
