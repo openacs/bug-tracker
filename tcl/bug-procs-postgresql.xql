@@ -185,7 +185,6 @@ from (
          $more_columns
     from $from_bug_clause,
          acs_users_all submitter,
-         acs_users_all assignee,
          workflow_cases cas,
          workflow_case_fsm cfsm,
          workflow_fsm_states st 
