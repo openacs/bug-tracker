@@ -148,8 +148,7 @@ as
             name => 'bug_tracker_' || bt_project.new.package_id,
             label => v_instance_name,
             description => null,
-            parent_id => v_root_folder_id,
-            context_id => bt_project.new.package_id
+            parent_id => v_root_folder_id
         );
 
         -- register our content type
@@ -415,7 +414,7 @@ as
         from workflow_cases
         where object_id = bt_bug.delete.bug_id;
 
-        foo := workflow_case.delete(v_case_id);
+        foo := workflow_case_pkg.delete(v_case_id);
         
         -- Every bug may have notifications attached to it
         -- and there is one column in the notificaitons datamodel that doesn't
