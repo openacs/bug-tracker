@@ -285,12 +285,12 @@ where q.bug_id = km.item_id (+)
       <querytext>
           exists (select 1
                   from   workflow_case_assigned_actions aa,
-                         workflow_case_role_user_map crum
+                         workflow_case_role_party_map wcrpm
                   where  aa.case_id = cas.case_id
                   and    aa.action_id = $action_id
-                  and    crum.case_id (+) = aa.case_id
-                  and    crum.role_id (+) = aa.role_id
-                  and    crum.user_id is null
+                  and    wcrpm.case_id (+) = aa.case_id
+                  and    wcrpm.role_id (+) = aa.role_id
+                  and    wcrpm.party_id is null
                  )
       </querytext>
   </partialquery>

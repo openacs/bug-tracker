@@ -273,11 +273,12 @@ on (q.case_id = assign_info.case_id)
   <partialquery name="bug_tracker::bug::get_list.filter_assignee_null_where_clause">
       <querytext>
           exists (select 1
-                  from   workflow_case_assigned_actions aa left outer join
-                         workflow_case_role_user_map crum on (crum.case_id = aa.case_id and crum.role_id = aa.role_id)
-                  where  aa.case_id = cas.case_id
-                  and    aa.action_id = $action_id
-                  and    crum.user_id is null
+                  from workflow_case_assigned_actions aa left outer join
+                    workflow_case_role_party_map wcrpm
+                      on (wcrpm.case_id = aa.case_id and wcrpm.role_id = aa.role_id)
+                  where aa.case_id = cas.case_id
+                    and aa.action_id = $action_id
+                    and wcrpm.party_id is null
                  )
       </querytext>
   </partialquery>
