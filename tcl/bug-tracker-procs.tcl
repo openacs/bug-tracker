@@ -599,23 +599,20 @@ ad_proc -public bug_tracker::get_default_configurations {} {
     return {
         "Bug-Tracker" {
             categories {
-                "Bug Type" {
+               "Bug Type" {
                     "*Bug"
-                    "Suggestion"
-                    "Todo"
+                    "Task"
                 }
                 "Priority" {
-                    "1 - High"
-                    "*2 - Normal"
-                    "3 - Low"
+                    "1 - Fix Immediately"
+                    "2 - Fix Before Release"
+                    "*3 - Normal"
                 }
                 "Severity" {
-                    "1 - Critical"
-                    "2 - Major"
-                    "*3 - Normal"
-                    "4 - Minor"
-                    "5 - Trivial"
-                    "6 - Enhancement"
+                    "1 - Crash, Data Loss, or Security"
+                    "2 - Broken Function"
+                    "*3 - Inconvenience"
+                    "4 - Cosmetic"
                 }
             }
             parameters {

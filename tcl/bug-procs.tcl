@@ -713,7 +713,7 @@ ad_proc bug_tracker::bug::get_list {
             aggregate_label "Number of $pretty_names(bugs)"
         }
 	comment {
-	    label "[_ bug-tracker.Details]"
+	    label "Details"
             display_col comment_short
             hide_p 1
         }
