@@ -1477,6 +1477,7 @@ drop table bt_priority_codes;
 
 -- ******* Drop temporary upgrade tables
 drop table code_keyword_map_temp;
+drop table bug_type_keyword_map_temp;
 drop table bt_bugs_temp;
 drop table project_temp;
 

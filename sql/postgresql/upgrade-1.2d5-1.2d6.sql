@@ -1,4 +1,5 @@
 -- The bt_project__delete proc had a misspelled call to bt_project__keyword_delete.
+-- The upgrade-0.9d1-1.2d2.sql upgrade script forgot to delete a temporary table
 --
 -- @author Lars Pind
 -- @creation-date 2003-03-11
@@ -49,3 +50,24 @@ begin
     return 0;
 end;
 ' language 'plpgsql';
+
+
+create or replace function inline_0 ()
+returns integer as '
+declare
+  v_count               integer;
+begin
+    select count(*)
+    into   v_count
+    from   pg_class
+    where  relname = ''bug_type_keyword_map_temp'';
+
+    if v_count > 0 then
+        drop table bug_type_keyword_map_temp;
+    end if;
+
+    return 0;
+end;' language 'plpgsql';
+select inline_0();
+drop function inline_0();
+
