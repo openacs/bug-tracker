@@ -68,7 +68,7 @@ if { ![empty_string_p $component_id] } {
     set component_name [bug_tracker::component_get_name -component_id $component_id]
     set component_filter_url "map-patch-to-bugs?[export_vars -url {patch_number component_id return_url offset show_only_open_p interval_size}]"
     if { $show_all_components_p } {
-        set component_filter "\[ <a href=\"$component_filter_url&show_all_components_p=0\">[_ bug-tracker.Only]"</a> | [_ bug-tracker.All_1] \]"
+        set component_filter "\[ <a href=\"$component_filter_url&show_all_components_p=0\">[_ bug-tracker.Only]</a> | [_ bug-tracker.All_1] \]"
     } else {
         set component_where_clause "\n     and bt_bugs.component_id = :component_id"
     

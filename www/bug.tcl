@@ -9,6 +9,7 @@ ad_page_contract {
     {user_agent_p:boolean 0}
     {show_patch_status open}
 }]
+set pretty_names_bugs Fooooooooooooo
 
 #####
 #
@@ -25,8 +26,8 @@ set package_key [ad_conn package_key]
 set user_id [ad_conn user_id]
 
 permission::require_permission -object_id $package_id -privilege read
-set Bug_name [bug_tracker::conn Bug]
-set page_title "[_ bug-tracker.%Bug_name% %bug_number%]"
+set bug_name [bug_tracker::conn Bug]
+set page_title [_ bug-tracker.Bug_Title]
 
 set context [list [ad_quotehtml $page_title]]
 
@@ -45,10 +46,8 @@ set patches_p [bug_tracker::patches_p]
 
 # Get the bug_id
 if { ![db_0or1row permission_info {} -column_array bug] } {
-    set Bug_name [bug_tracker::conn Bug]
-    set could_not_be_found [_ bug-tracker.Could_not_find]
-    ad_return_complaint 1 "[_ bug-tracker.%Bug_name% %bug_number% %could_not_be_found%]"
-    return
+    ad_return_complaint 1 [_ bug-tracker.Bug_not_found]
+    ad_script_abort
 }
 
 set case_id [workflow::case::get_id \
@@ -320,7 +319,8 @@ if { ![form is_valid bug] } {
 
         # check that the element exists
         if { [info exists bug:$element] && [info exists bug($element)] } {
-            if { [form is_request bug] || [string equal [element get_property bug $element mode] "[_ acs-kernel.common_display]" } {
+            if { [form is_request bug] \
+                     || [string equal [element get_property bug $element mode] [_ acs-kernel.common_display]] } { 
                 element set_value bug $element $bug($element)
             }
         }

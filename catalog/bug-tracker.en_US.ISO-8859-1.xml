@@ -2,6 +2,7 @@
 <message_catalog package_key="bug-tracker" package_version="1.3d3" locale="en_US" charset="ISO-8859-1">
 
   <msg key="Accepted">Accepted</msg>
+  <msg key="Accept">Accept</msg>
   <msg key="action_open">Open</msg>
   <msg key="Actual">freeze</msg>
   <msg key="Actual_1">release</msg>
@@ -34,7 +35,9 @@
   <msg key="Bug-tracker_2">bug info</msg>
   <msg key="Bug_Bug_cat">*Bug</msg>
   <msg key="Bug_Number">Bug Number</msg>
-  <msg key="Bug_status_open_filter">Bug status: [ %open_filter;noquote% ]</msg>
+  <msg key="Bug_not_found">Bug #%bug_number% not found.</msg>
+  <msg key="Bug_Title">#%bug_number% - %bug_name%</msg>
+  <msg key="Bug_status_open_filter">Bug status: [ %open_filter% ]</msg>
   <msg key="Bug_Sug_Cat">Suggestion</msg>
   <msg key="Bug_Type">Bug Type</msg>
   <msg key="Bug_Tracker">Bug Tracker</msg>
@@ -55,8 +58,7 @@
   <msg key="component">component</msg>
   <msg key="Component_id_not_found">Component_id %component_id% not found</msg>
   <msg key="components">components</msg>
-  <msg key="Components_component_filter">Components: %component_filter;noquote%</msg>
-  <msg key="Could_not_find">could  not be found</msg>
+  <msg key="Components_component_filter">Components: %component_filter%</msg>
   <msg key="Create_new">Create new</msg>
   <msg key="Create_new_category_type">Create new category type</msg>
   <msg key="Creation_Date">Creation Date</msg>
@@ -85,7 +87,7 @@
   <msg key="Fix_for_Version">Fix  for Version</msg>
   <msg key="Fixed">Fixed</msg>
   <msg key="Fixed_1">in version</msg>
-  <msg key="Fixed_2">Fixed by &lt;a href=\&quot;patch?patch_number=%patch_number%\&quot;&gt;patch \#%patch_number%&lt;/a&gt;</msg>
+  <msg key="Fixed_2">Fixed by &lt;a href=&quot;patch?patch_number=%patch_number%&quot;&gt;patch #%patch_number%&lt;/a&gt;</msg>
   <msg key="Fixed_in_Version">Fixed in Version</msg>
   <msg key="Found">in version</msg>
   <msg key="Found_in_Version">Found in Version</msg>
@@ -110,8 +112,8 @@
   <msg key="Maintainer_1">Maintainer</msg>
   <msg key="Manage_Categories">Manage Categories</msg>
   <msg key="Manage_your_notification">Manage your notifications</msg>
-  <msg key="Map">to %bugs_name%</msg>
-  <msg key="Mapping">Patch #%patch_number% \&quot;%patch_summary%\&quot; to a Bug</msg>
+  <msg key="Map">map to %bugs_name%</msg>
+  <msg key="Mapping">Map patch #%patch_number% &quot;%patch_summary%&quot; to a Bug</msg>
   <msg key="Name_in_shortcut_URL">Name in shortcut URL</msg>
   <msg key="Need_Info">Need_Info</msg>
   <msg key="New">New</msg>
@@ -123,7 +125,7 @@
   <msg key="No_Maintainer">No Maintainer</msg>
   <msg key="No_of_All">%next_bug_num% of %all_bugs%</msg>
   <msg key="No_patches">No %patches_name%.</msg>
-  <msg key="No_Permission_to_do_action">You don't have permission to '%action.pretty_name%' on bug #%bug_id% (\&quot;%bug.summary%\&quot;).</msg>
+  <msg key="No_Permission_to_do_action">You don't have permission to '%action.pretty_name%' on bug #%bug_id% &quot;%bug.summary%&quot;</msg>
   <msg key="No_user_in_database">Couldn't find user in database</msg>
   <msg key="None">None</msg>
   <msg key="Not_logged_in">You're not logged in. For more options, &lt;a href=&quot;%login_url%&quot;&gt;log in now&lt;/a&gt;.</msg>
@@ -131,20 +133,21 @@
   <msg key="Notification">tag</msg>
   <msg key="Notifications">Notifications</msg>
   <msg key="Notifications_for">Notifications for</msg>
-  <msg key="Number">No of %pretty_names.bugs%</msg>
+  <msg key="Number">Total</msg>
   <msg key="number_symbol">#</msg>
-  <msg key="Only">%Component_name% \&quot;%component_name%\&quot;</msg>
-  <msg key="Only_1">%Component_name% \&quot;%component_name%\&quot;</msg>
+  <msg key="Only">%Component_name% &quot;%component_name%&quot;</msg>
+  <msg key="Only_1">%Component_name% &quot;%component_name%&quot;</msg>
   <msg key="Only_2">Open Bugs</msg>
   <msg key="Open">Open</msg>
   <msg key="Opened">Opened</msg>
   <msg key="Page_with_pagination">Page with  [ %pagination_filter% ] &amp;nbsp; &amp;nbsp; Show</msg>
   <msg key="Parameters">Parameters</msg>
+  <msg key="Patch_Header">%patch_pretty_name% %patch_action_pretty_mode% by %bt_user_first_names% %bt_user_last_name%</msg>
   <msg key="Patch">file</msg>
-  <msg key="Patch_1">\#</msg>
+  <msg key="Patch_1">#</msg>
   <msg key="Patch_2">file (leave blank to keep current file):</msg>
-  <msg key="Patch_3">\#%patch_number%</msg>
-  <msg key="Patch_4">\# %patch_number%: %patch.summary%</msg>
+  <msg key="Patch_3">#%patch_number%</msg>
+  <msg key="Patch_Page_Title">Patch #%patch_number%: %patch_summary%</msg>
   <msg key="Permission">Denied</msg>
   <msg key="Permission_Denied">Permission Denied</msg>
   <msg key="Permissions">Permissions</msg>
@@ -164,6 +167,7 @@
   <msg key="Project_administration">Project administration</msg>
   <msg key="Reassign">Reassign</msg>
   <msg key="Refused">Refused</msg>
+  <msg key="Refuse">Refuse</msg>
   <msg key="Release">Release</msg>
   <msg key="Release_1">Version</msg>
   <msg key="Release_this_version">Release this version</msg>

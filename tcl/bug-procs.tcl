@@ -685,14 +685,14 @@ ad_proc bug_tracker::bug::get_list {
 
     set elements {
         bug_number {
-            label "[bug_tracker::conn Bug] [_ bug-tracker.number_symbol] "
+            label "[bug_tracker::conn Bug] [_ bug-tracker.number_symbol]"
             display_template {[_ bug-tracker.number_symbol]@bugs.bug_number@}
             html { align right }
         }
         summary {
             label "[_ bug-tracker.Summary]"
             link_url_eval {[export_vars -base bug -entire_form -override { bug_number }]}
-            aggregate_label "[_ bug-tracker.Number]"
+            aggregate_label {[_ bug-tracker.Number]}
 	}
 	comment {
 	    label "[_ bug-tracker.Details]"

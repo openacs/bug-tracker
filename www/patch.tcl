@@ -337,21 +337,22 @@ if { [form is_request patch] } {
         element set_properties patch description -value $action_html
     } else {
 
-	set patch_pretty_name "$patch(now_pretty)"
+	set patch_pretty_name $patch(now_pretty)
 	set patch_action_pretty_mode [bug_tracker::patch_action_pretty $mode]
 	set bt_user_first_names [bug_tracker::conn user_first_names]
 	set bt_user_last_name [bug_tracker::conn user_last_name]
 
         element set_properties patch description \
-                -history $action_html \
-                -header "[_ bug-tracker.%patch_pretty_name% %patch_action_pretty_mode%  by %bt_user_first_names% %bt_user_last_name%]" \
-                -value ""
-    }    
-    
+            -history $action_html \
+            -header [_ bug-tracker.Patch_Header ] \
+            -value ""
+    }
+
     # Now that we have the patch summary we can make the page title more informative
 
     set Patch_name [bug_tracker::conn Patch]
-    set page_title "[_ bug-tracker.Patch_4]"
+    set patch_summary $patch(summary)
+    set page_title [_ bug-tracker.Patch_Page_Title]
 
     # Create the buttons
     # If the user has submitted the patch he gets full write access on the patch
