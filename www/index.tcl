@@ -223,8 +223,8 @@ db_multirow -extend { name_url header selected_p } -append stats stats_by_assign
 
     regexp {^([0-9]+)\.([0-9]+)\.([0-9]+)$} $unique_id match action_id state_id assignee_id
 
-    set name_url "?[bug_tracker::filter_url_vars -array filter -override [list assignee $assignee_id status $state_id]]"
-    set selected_p [expr { [exists_and_equal filter(assignee) $assignee_id] && \
+    set name_url "?[bug_tracker::filter_url_vars -array filter -override [list enabled_action_assignee $assignee_id status $state_id]]"
+    set selected_p [expr { [exists_and_equal filter(enabled_action_assignee) $assignee_id] && \
                            [exists_and_equal filter(status) $state_id] } ]
 }
 

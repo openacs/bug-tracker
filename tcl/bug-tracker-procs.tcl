@@ -1275,6 +1275,7 @@ ad_proc bug_tracker::parse_filters { filter_array_name } {
         {action_id}
         fix_for_version:integer
         assignee:integer
+        enabled_action_assignee:integer
         action_id:integer
         component_id:integer
         keyword:integer,multiple
@@ -1380,6 +1381,38 @@ ad_proc bug_tracker::parse_filters { filter_array_name } {
             lappend keyword_human "[category_parent_heading -keyword_id $keyword_id] is $category_name"
         }
         append human_readable_filter " where [join $keyword_human " and "]"
+    }
+
+    if { [info exists filter_enabled_action_assignee] } {
+        lappend where_clauses {
+            exists (
+                select 1 
+                from   workflow_cases cas2,
+                       workflow_case_fsm cfsm2,
+                       workflow_actions a2,
+                       workflow_case_role_party_map crpm2
+                where  cas2.object_id = b.bug_id            
+                  and  (a2.always_enabled_p = 't'
+                        or exists (select 1
+                                   from   workflow_fsm_action_en_in_st aeis
+                                   where  aeis.state_id = cfsm.current_state
+                                     and  aeis.action_id = a2.action_id
+                                     and  aeis.assigned_p = 't'
+                                   )
+                       )
+                  and cfsm2.case_id = cas2.case_id
+                  and crpm2.case_id = cas2.case_id
+                  and crpm2.role_id = a2.assigned_role
+                  and crpm2.party_id = :filter_enabled_action_assignee
+            )
+        }
+        if { $filter_enabled_action_assignee == [ad_conn user_id] } {
+            append human_readable_filter " awaiting action by me"
+        } else {
+            array set person [person::get -person_id $filter_enabled_action_assignee]
+            
+            append human_readable_filter " awaiting action by $person(first_names) $person(last_name)"
+        }
     }
     
     if { ![empty_string_p [conn component_id]] } {
