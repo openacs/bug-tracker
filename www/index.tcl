@@ -12,6 +12,7 @@ ad_page_contract {
     priority:integer,optional
     assignee:integer,optional
     component_id:integer,optional
+    {orderby ""}
 }
 
 ad_require_permission [ad_conn package_id] read
@@ -45,7 +46,7 @@ if { $num_bugs == 0 } {
 
 set where_clauses [list]
 
-set filter_vars { status fix_for_vresion assignee component_id }
+set filter_vars { status fix_for_version assignee component_id }
 
 if { [info exists status] } {
     lappend where_clauses "b.status = :status"
@@ -95,6 +96,20 @@ if { [info exists fix_for_version] } {
     } else {
         lappend where_clauses "b.fix_for_version = :fix_for_version"
         append human_readable_filter " to be fixed in version [db_string version_name { select version_name from bt_versions where version_id = :fix_for_version }]"
+    }
+}
+
+switch -exact -- $orderby {
+    severity {
+        set order_by_clause "sc.sort_order, b.bug_number desc"
+        append human_readable_filter ", most severe bugs first"
+    }
+    priority {
+        set order_by_clause "pc.sort_order, b.bug_number desc"
+        append human_readable_filter ", highest priority bugs first"
+    }
+    default {
+        set order_by_clause "b.bug_number desc"
     }
 }
 
@@ -153,7 +168,7 @@ db_multirow -extend { description_short submitter_url status_pretty resolution_p
     and    b.project_id = :package_id
     and    submitter.user_id = o.creation_user
     [ad_decode $where_clauses "" "" "and [join $where_clauses " and "]"]
-    order  by b.bug_number desc
+    order  by $order_by_clause
 " {
     set description_short [bug_tracker::string_truncate [bug_tracker::bug_convert_comment_to_text -comment $description -format $desc_format]]
     set submitter_url [acs_community_member_url -user_id $submitter_user_id]
@@ -211,6 +226,13 @@ db_multirow -extend { name_url stat_name } -append stats stats {
     set name_url "?[export_vars -url { { fix_for_version $unique_id } }]"
 }
 
+set stat_name_val "Severity"
+if { ![string equal $orderby "severity"] } {
+    append stat_name_val " (<a href=\"?[export_vars { { orderby severity } }]\">order</a>)"
+} else {
+    append stat_name_val " (*)"
+}
+
 db_multirow -extend { name_url stat_name } -append stats stats {
     select b.severity as unique_id,
            p.sort_order || ' - ' || p.severity_name as name,
@@ -222,8 +244,15 @@ db_multirow -extend { name_url stat_name } -append stats stats {
     group  by unique_id, name
     order  by name
 } {
-    set stat_name "Severity"
-    set name_url "?[export_vars -url { { severity $unique_id } }]"
+    set stat_name $stat_name_val
+    set name_url "?[export_vars { { severity $unique_id } }]"
+}
+
+set stat_name_val "Priority"
+if { ![string equal $orderby "priority"] } {
+    append stat_name_val " (<a href=\"?[export_vars { { orderby priority } }]\">order</a>)"
+} else {
+    append stat_name_val " (*)"
 }
 
 db_multirow -extend { name_url stat_name } -append stats stats {
@@ -237,8 +266,8 @@ db_multirow -extend { name_url stat_name } -append stats stats {
     group  by unique_id, name
     order  by name
 } {
-    set stat_name "Priority"
-    set name_url "?[export_vars -url { { priority $unique_id } }]"
+    set stat_name $stat_name_val
+    set name_url "?[export_vars { { priority $unique_id } }]"
 }
 
 db_multirow -extend { name_url stat_name } -append stats stats {
