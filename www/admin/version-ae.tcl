@@ -4,134 +4,59 @@ ad_page_contract {
     @creation-date March 26, 2002
     @cvs-id $Id$
 } {
-    {version_id ""}
-    {return_url ""}
-    cancel:optional
+    version_id:integer,optional
+    {return_url "."}
 }
 
-if { [exists_and_not_null cancel] } {
-    ad_returnredirect $return_url
-    ad_script_abort
-}
-
-set project_name [bug_tracker::conn project_name]
 set package_id [ad_conn package_id]
-set package_key [ad_conn package_key]
 
-if { [info exists component_id] } {
+if { [info exists version_id] } {
     set page_title "Edit Version"
 } else {
     set page_title "Add Version"
 }
-set context_bar [ad_context_bar [list $return_url "Versions"] $page_title]
+set context [list [list $return_url "Versions"] $page_title]
 
-
-# TODO: check that the handling of the primary key is okay.  If there is
-# no primary key and you're only inserting, you can just ignore it.  
-# Add handling for any other incoming URL variables that should become part of the form.
-
-form create version
-
-element create version version_id -widget hidden
-element create version return_url -datatype text -widget hidden -value $return_url
-
-element create version version_name -label "Version name" -widget text -datatype text -html { size 50 }
-element create version description -label "Description" -widget textarea -datatype text -optional -html { cols 50 rows 8 }
-element create version supported_platforms -label "Supported platforms" -widget text -datatype text \
-        -html { size 50 } -optional  
-
-element create version maintainer \
-        -widget search \
-        -datatype search \
-        -result_datatype integer \
-        -label "Maintainer" \
-        -options [bug_tracker::users_get_options] \
-        -optional \
-        -search_query {
-    select distinct u.first_names || ' ' || u.last_name || ' (' || u.email || ')' as name, u.user_id
-    from   cc_users u
-    where  upper(coalesce(u.first_names || ' ', '')  || coalesce(u.last_name || ' ', '') || u.email || ' ' || coalesce(u.screen_name, '')) like upper('%'||:value||'%')
-    order  by name
-} 
-
-
-element create version anticipated_freeze_date -label "Anticipated freeze date" -widget date -datatype date -optional -format "MONTH DD, YYYY" 
-element create version anticipated_release_date -label "Anticipated release date" -widget date -datatype date -optional -format "MONTH DD, YYYY" 
-element create version assignable_p -label "Assignable?" -widget select -datatype text -optional  -options {{Yes t} {No f}}
-
-element create version insert_or_update -widget hidden -datatype text
-
-if { [form is_request version] } {
-    if {[empty_string_p $version_id]} {    
-	set insert_or_update insert
-	element set_properties version insert_or_update -value insert
-	set version_id [db_nextval "acs_object_id_seq"]
-	element set_properties version version_id -value $version_id
+ad_form -name version -cancel_url $return_url -form {
+    {version_id:key(acs_object_id_seq)}
+    {version_name:text {label "Version name"} {html { size 50 }}}
+    {description:text(textarea) {label "Description"} optional {html { cols 50 rows 8 }}}
+    {supported_platforms:text {label "Supported platforms"} {html { size 50 }} optional}
+    {maintainer:search
+        {result_datatype integer}
+        {label "Maintainer"}
+        {options {[bug_tracker::users_get_options]}}
+        optional
+        {search_query_name version_search}
+    }
+    {anticipated_freeze_date:date,to_sql(sql_date),to_html(sql_date),optional
+        {label "Anticipated freeze"} optional
+    }
+    {actual_freeze_date:date,to_sql(sql_date),to_html(sql_date),optional
+        {label "Actual freeze"} optional
+    }
+    {anticipated_release_date:date,to_sql(sql_date),to_html(sql_date) ,optional
+        {label "Anticipated release"} optional
+    }
+    {actual_release_date:date,to_sql(sql_date),to_html(sql_date),optional
+        {label "Actual release"} optional
+    }
+    {assignable_p:text(radio) {label "Assignable?"} optional {options {{Yes t} {No f}}}}
+    {return_url:text(hidden) {value $return_url}}
+} -select_query_name version_select  -new_request {
+    set assignable_p "t"
+} -new_data {
+    if { [db_0or1row check_exists {}] } {
+        # detected a double form submission - you can return
+        # an error if you want, but it's not really necessary
     } else {
-	set insert_or_update update
-	element set_properties version insert_or_update -value update
-	db_1row get_current_values "
-	    select version_id, version_name, description, to_char(anticipated_freeze_date, 'YYYY MM DD HH24 MI') as anticipated_freeze_date, to_char(anticipated_release_date, 'YYYY MM DD HH24 MI') as anticipated_release_date, maintainer, supported_platforms, assignable_p
-	      from bt_versions
-	     where version_id = :version_id
-	"
-        element set_properties version version_id -value $version_id
-        element set_properties version version_name -value $version_name
-        element set_properties version description -value $description
-        element set_properties version anticipated_freeze_date -value $anticipated_freeze_date
-        element set_properties version anticipated_release_date -value $anticipated_release_date
-        element set_properties version maintainer -value $maintainer
-        element set_properties version supported_platforms -value $supported_platforms
-        element set_properties version assignable_p -value $assignable_p
-
-
+        db_dml insert_row ""
     }
-}
-
-set insert_or_update [element::get_value version insert_or_update]
-
-if { [form is_valid version] } {
-    # valid form submission
-    set version_id [element::get_value version version_id]
-    set project_id [ad_conn package_id]
-    set version_name [element::get_value version version_name]
-    set description [element::get_value version description]
-    set anticipated_freeze_date [element::get_value version anticipated_freeze_date]
-    if {![empty_string_p $anticipated_freeze_date]} {
-	set anticipated_freeze_date [util::date::get_property sql_date $anticipated_freeze_date]
-    } else {	
-	set anticipated_freeze_date NULL
-    }
-    set anticipated_release_date [element::get_value version anticipated_release_date]
-    if {![empty_string_p $anticipated_release_date]} {
-	set anticipated_release_date [util::date::get_property sql_date $anticipated_release_date]
-    } else {	
-	set anticipated_release_date NULL
-    }
-    set maintainer [element::get_value version maintainer]
-    set supported_platforms [element::get_value version supported_platforms]
-    set assignable_p [element::get_value version assignable_p]
-
-    if {$insert_or_update == "insert"} {
-	if {[db_0or1row check_exists "
-	    select 1 from bt_versions where version_id = :version_id
-        "]} {
-	    # detected a double form submission - you can return
-	    # an error if you want, but it's not really necessary
-	} else {
-	    db_dml insert_row "
-	        insert into bt_versions (version_id, project_id, version_name, description, anticipated_freeze_date, anticipated_release_date, maintainer, supported_platforms, assignable_p)
-	        values (:version_id, :project_id, :version_name, :description, $anticipated_freeze_date, $anticipated_release_date, :maintainer, :supported_platforms, :assignable_p)
-	    "
-	}
-    } else {
-	db_dml update_row "
-	    update bt_versions
-	    set version_id=:version_id, project_id=:project_id, version_name=:version_name, description=:description, anticipated_freeze_date=$anticipated_freeze_date, anticipated_release_date=$anticipated_release_date, maintainer=:maintainer, supported_platforms=:supported_platforms, assignable_p=:assignable_p
-	    where version_id = :version_id
-	"
-    }
-
+} -edit_data {
+    db_dml update_row ""
+} -after_submit {
+    bug_tracker::versions_flush
+    
     ad_returnredirect $return_url
     ad_script_abort
 }

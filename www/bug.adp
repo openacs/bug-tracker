@@ -1,9 +1,9 @@
 <master src="../lib/master">
 <property name="title">@page_title@</property>
 <property name="context_bar">@context_bar@</property>
-<property name="notification_link">@notification_link@</property>
+<if @notification_link@ not nil><property name="notification_link">@notification_link@</property></if>
 
-<if @mode@ eq "view">
+<if @action_id@ nil>
   <table align="right">
     <tr>
       <td>
@@ -17,22 +17,17 @@
   </table>
 </if>
 
-<formtemplate id="bug" style="standard-lars"></formtemplate>
-
 <p>
+  <formtemplate id="bug" style="standard-lars"></formtemplate>
+</p>
 
-<if @button_form_export_vars@ not nil>
-  <blockquote>
-    <form method="GET" action="bug">
-      @button_form_export_vars@
-      <multiple name="button">
-        <input type="submit" name="@button.name@" value="     @button.label@     ">
-      </multiple>
-    </form>
-  </blockquote>
+<if @user_id@ eq 0>
+  <p>
+    You're not logged in. For more options, <a href="@login_url@">log in now</a>.
+  </p>
 </if>
 
-<if @mode@ eq "view">
+<if @action_id@ nil>
   <div style="font-size: 75%;" align="right">
     <if @user_agent_p@ false>
       (<a href="@show_user_agent_url@">show user agent</a>)
@@ -43,4 +38,3 @@
   </div>
 </if>
 
-<p>

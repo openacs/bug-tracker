@@ -3,111 +3,59 @@ ad_page_contract {
     @creation-date 2002-03-26
     @cvs-id $Id$
 } {
-    cancel:optional
     component_id:integer,optional
-    {return_url ""}
+    {return_url "."}
 }
 
-if { [exists_and_not_null cancel] } {
-    ad_returnredirect $return_url
-    ad_script_abort
-}
-
-set project_name [bug_tracker::conn project_name]
 set package_id [ad_conn package_id]
-set package_key [ad_conn package_key]
 
 if { [info exists component_id] } {
-    set page_title "Edit Component"
+    set page_title "Edit [bug_tracker::conn Component]"
 } else {
-    set page_title "Add Component"
+    set page_title "Add [bug_tracker::conn Component]"
 }
-set context_bar [ad_context_bar $page_title]
+set context [list $page_title]
 
-form create component
+# LARS:
+# I've hidden the description, because we don't use it anywhere
 
-element create component return_url -datatype text -widget hidden -value $return_url
-
-element create component name \
-        -datatype text \
-        -html { size 50 } \
-        -label "Component Name"
-
-element create component description \
-        -datatype text \
-        -widget textarea \
-        -label "Description" \
-        -optional \
-        -html { cols 50 rows 8 }
-
-element create component url_name \
-        -datatype text \
-        -html { size 50 } \
-        -label "Name in shortcut URL" \
-        -optional
-
-element create component maintainer \
-        -widget search \
-        -datatype search \
-        -result_datatype integer \
-        -label "Maintainer" \
-        -options [bug_tracker::users_get_options] \
-        -optional \
-        -search_query {
-    select distinct u.first_names || ' ' || u.last_name || ' (' || u.email || ')' as name, u.user_id
-    from   cc_users u
-    where  upper(coalesce(u.first_names || ' ', '')  || coalesce(u.last_name || ' ', '') || u.email || ' ' || coalesce(u.screen_name, '')) like upper('%'||:value||'%')
-    order  by name
-} 
-
-
-
-element create component component_id \
-        -datatype integer \
-        -widget hidden
-
-if { [form is_request component] } {
-    if { ![info exists component_id] } {
-        element set_properties component component_id -value [db_nextval "acs_object_id_seq"]
-    } else {
-        db_1row component_info {
-            select component_id, 
-                   component_name as name, 
-                   description, 
-                   maintainer,
-                   url_name
-            from   bt_components
-            where  component_id = :component_id
-        } -column_array component_info
-        form set_values component component_info
+ad_form -name component -cancel_url $return_url -form {
+    {component_id:key(acs_object_id_seq)}
+    {return_url:text(hidden) {value $return_url}}
+    {name:text {html { size 50 }} {label "[bug_tracker::conn Component] Name"}}
+    {description:text(hidden) {label {Description}} optional {html { cols 50 rows 8 }}}
+    {url_name:text {html { size 50 }} {label {Name in shortcut URL}} optional
+        {help_text "You can filter by this [bug_tracker::conn component] by viisting [ad_conn package_url]com/this-name/"}
     }
-}
-
-if { [form is_valid component] } {
-    form get_values component name description maintainer url_name
-
-    set count [db_0or1row num_components { select 1 from bt_components where component_id = :component_id }]
-    
-    if { $count == 0 } {
-        db_dml component_create {
-            insert into bt_components
-            (component_id, project_id, component_name, description, url_name, maintainer)
-            values
-            (:component_id, :package_id, :name, :description, :url_name, :maintainer)
-        }
-    } else {
-        db_dml component_update {
-            update bt_components
-            set    component_name = :name,
-                   description = :description,
-                   maintainer = :maintainer,
-                   url_name = :url_name
-            where component_id = :component_id
+    {maintainer:search
+        {result_datatype integer}
+        {label "Maintainer"}
+        {options [bug_tracker::users_get_options]}
+        optional
+        {search_query 
+            {
+                select distinct u.first_names || ' ' || u.last_name || ' (' || u.email || ')' as name, u.user_id
+                from   cc_users u
+                where  upper(coalesce(u.first_names || ' ', '')  || coalesce(u.last_name || ' ', '') || u.email || ' ' || coalesce(u.screen_name, '')) like upper('%'||:value||'%')
+                order  by name
+            } 
         }
     }
+} -select_query {
+    select component_id, 
+           component_name as name, 
+           description, 
+           maintainer,
+           url_name
+    from   bt_components
+    where  component_id = :component_id
+} -new_data {
+    db_dml component_create {}
+} -edit_data {
+    db_dml component_update {}
+} -after_submit {
+    bug_tracker::components_flush
 
     ad_returnredirect $return_url
     ad_script_abort
 }
-
-ad_return_template

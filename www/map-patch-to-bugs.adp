@@ -3,7 +3,7 @@
 <property name="context_bar">@context_bar@</property>
 
 <if @open_bugs:rowcount@ not eq 0>
-Select one or more of the following bugs for patch "@patch_summary@" (you may select more bugs later):
+Select one or more of the following @pretty_names.bugs@ for patch "@patch_summary@" (you may select more @pretty_names.bugs@ later):
 </if>
 
 <p>
@@ -15,7 +15,7 @@ Bug status: [ @open_filter@ ]
 </p>
 
 <p>
-<include src="../lib/pagination" row_count="@bug_count@" offset="@offset@" interval_size="@interval_size@" variable_set_to_export="@pagination_export_var_set@" pretty_plural="bugs">
+<include src="../lib/pagination" row_count="@bug_count@" offset="@offset@" interval_size="@interval_size@" variable_set_to_export="@pagination_export_var_set@" pretty_plural="@pretty_names.bugs@">
 </p>
 
 <blockquote>
@@ -43,7 +43,7 @@ Bug status: [ @open_filter@ ]
   </table>
 
    <if @open_bugs:rowcount@ eq 0>
-     <i>There are no open bugs to map the patch to. Try changing the component filter above.</i>
+     <i>There are no open @pretty_names.bugs@ to map the patch to. Try changing the component filter above.</i>
 
      <p>
      <center>
@@ -54,7 +54,7 @@ Bug status: [ @open_filter@ ]
    <else>
      <p>
        <center>
-          <input type="submit" name="do_map" value="Map Bugs" /> &nbsp; &nbsp;
+          <input type="submit" name="do_map" value="Map @pretty_names.bugs@" /> &nbsp; &nbsp;
           <input type="submit" name="cancel" value="Cancel" />
        </center>
      </p>

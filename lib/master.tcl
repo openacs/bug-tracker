@@ -8,10 +8,6 @@ if { ![info exists header] } {
     set header $title
 }
 
-if { ![info exists context_bar] } {
-    set header $context_bar
-}
-
 if { ![info exists notification_link] } {
     set notification_link ""
 }

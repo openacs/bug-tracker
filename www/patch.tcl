@@ -25,12 +25,18 @@ set package_id [ad_conn package_id]
 set user_id [ad_conn user_id]
 # Does the user have write privilege on the project?
 set write_p [ad_permission_p $package_id write]
-set user_is_submitter_p [expr $user_id == [bug_tracker::get_patch_submitter -patch_number $patch_number]]
+
+set submitter_id [bug_tracker::get_patch_submitter -patch_number $patch_number]
+
+set user_is_submitter_p [expr { ![empty_string_p $submitter_id] && $user_id == $submitter_id }]
 set write_or_submitter_p [expr $write_p || $user_is_submitter_p]
 set project_name [bug_tracker::conn project_name]
 set package_key [ad_conn package_key]
 set view_patch_url "[ad_conn url]?[export_vars -url { patch_number }]"
-set patch_status [db_string patch_status "select status from bt_patches where patch_number = :patch_number and project_id = :package_id"]
+set patch_status [db_string patch_status {}]
+
+# Is this project using multiple versions?
+set versions_p [bug_tracker::versions_p]
 
 # Abort editing and return to view mode if the user hit cancel on the edit form
 if { [exists_and_not_null cancel_edit] } {
@@ -41,7 +47,7 @@ if { [exists_and_not_null cancel_edit] } {
 # If the download link was clicked - return the text content of the patch
 if { [exists_and_not_null download] } {
     
-    set patch_content [db_string get_patch_content "select content from bt_patches where patch_number = :patch_number and project_id = :package_id"]
+    set patch_content [db_string get_patch_content {}]
 
     doc_return 200 "text/plain" $patch_content
     ad_script_abort
@@ -125,13 +131,15 @@ if { ![string equal $mode "view"] } {
     ad_maybe_redirect_for_registration
 }    
 
+# XXX FIXME TODO editing a patch invokes filename::validate, which is too paranoid...
+
 # Create the form
 switch -- $mode {
       view {
-          form create patch -has_submit 1
+          form create patch -has_submit 1 -cancel_url "[ad_conn url]?[export_vars -url { patch_number }]"
       } 
       default {
-          form create patch -html { enctype multipart/form-data }
+          form create patch -html { enctype multipart/form-data } -cancel_url "[ad_conn url]?[export_vars -url { patch_number }]"
       }
 }
 
@@ -252,46 +260,11 @@ set context_bar [ad_context_bar $page_title]
 if { [form is_request patch] } {
     # The form was requested
 
-    db_1row patch {
-     select bt_patches.patch_id,
-            bt_patches.patch_number,
-            bt_patches.project_id,
-            bt_patches.component_id,
-            bt_patches.summary,
-            bt_patches.content,
-            bt_patches.generated_from_version,
-            bt_patches.apply_to_version,
-            bt_patches.applied_to_version,
-            bt_patches.status,
-            bt_components.component_name,
-            acs_objects.creation_user as submitter_user_id,
-            submitter.first_names as submitter_first_names,
-            submitter.last_name as submitter_last_name,
-            submitter.email as submitter_email,
-            acs_objects.creation_date,
-            to_char(acs_objects.creation_date, 'fmMM/DDfm/YYYY') as creation_date_pretty,
-            coalesce((select version_name 
-                      from bt_versions 
-                      where bt_versions.version_id = bt_patches.generated_from_version), 'Unknown') as generated_from_version_name,
-            coalesce((select version_name 
-                      from bt_versions 
-                      where bt_versions.version_id = bt_patches.apply_to_version), 'Unknown') as apply_to_version_name,
-            coalesce((select version_name 
-                      from bt_versions 
-                      where bt_versions.version_id = bt_patches.applied_to_version), 'Unknown') as applied_to_version_name,
-            to_char(now(), 'fmMM/DDfm/YYYY') as now_pretty
-     from bt_patches,
-          acs_objects,
-          cc_users submitter,
-          bt_components
-     
-     where bt_patches.patch_number = :patch_number
-       and bt_patches.project_id = :package_id
-       and bt_patches.patch_id = acs_objects.object_id
-       and bt_patches.component_id = bt_components.component_id
-       and submitter.user_id = acs_objects.creation_user
-      
-    } -column_array patch
+    db_1row patch {} -column_array patch
+    set patch(generated_from_version_name) [ad_decode $patch(generated_from_version) "" "Unknown" [bug_tracker::version_get_name -version_id $patch(generated_from_version)]]
+    set patch(apply_to_version_name) [ad_decode $patch(apply_to_version) "" "Undecided" [bug_tracker::version_get_name -version_id $patch(apply_to_version)]]
+    set patch(applied_to_version_name) [bug_tracker::version_get_name -version_id $patch(applied_to_version)]
+
 
     # When the user is taking an action that should change the status of the patch
     # - update the status (the new status will show up in the form)
@@ -319,7 +292,7 @@ if { [form is_request patch] } {
     if { [string equal $mode "view"] } {
         set map_new_bug_link [ad_decode $write_or_submitter_p "1" "\[ <a href=\"map-patch-to-bugs?patch_number=$patch(patch_number)\">Map to bugs</a> \]" ""]
         element set_properties patch fixes_bugs \
-            -value "[bug_tracker::get_bug_links -patch_id $patch(patch_id) -patch_number $patch(patch_number) -write_or_submitter_p $write_or_submitter_p] $map_new_bug_link"
+            -value "[bug_tracker::get_bug_links -patch_id $patch(patch_id) -patch_number $patch(patch_number) -write_or_submitter_p $write_or_submitter_p] <br>$map_new_bug_link"
     }
     element set_properties patch summary \
             -value [ad_decode [info exists field_editable_p(summary)] 1 $patch(summary) "<b>$patch(summary)</b>"]
@@ -331,7 +304,6 @@ if { [form is_request patch] } {
 
     element set_properties patch status \
             -value [ad_decode [info exists field_editable_p(status)] 1 $patch(status) [bug_tracker::patch_status_pretty $patch(status)]]
-
     element set_properties patch generated_from_version \
             -value [ad_decode [info exists field_editable_p(generated_from_version)] 1 $patch(generated_from_version) $patch(generated_from_version_name)]
     element set_properties patch apply_to_version \
@@ -346,23 +318,8 @@ if { [form is_request patch] } {
     # Description/Actions/History
     set patch_id $patch(patch_id)
     set action_html ""
-    db_foreach actions {
-        select bt_patch_actions.action_id,
-               bt_patch_actions.action,
-               bt_patch_actions.actor as actor_user_id,
-               actor.first_names as actor_first_names,
-               actor.last_name as actor_last_name,
-               actor.email as actor_email,
-               bt_patch_actions.action_date,
-               to_char(bt_patch_actions.action_date, 'fmMM/DDfm/YYYY') as action_date_pretty,
-               bt_patch_actions.comment,
-               bt_patch_actions.comment_format
-        from   bt_patch_actions,
-               cc_users actor
-        where  bt_patch_actions.patch_id = :patch_id
-        and    actor.user_id = bt_patch_actions.actor
-        order  by action_date
-    } {
+    db_foreach actions {} {
+        set comment $comment_text
         append action_html "<b>$action_date_pretty [bug_tracker::patch_action_pretty $action] by $actor_first_names $actor_last_name</b>
         <blockquote>[bug_tracker::bug_convert_comment_to_html -comment $comment -format $comment_format]</blockquote>"
     }
@@ -431,6 +388,10 @@ if { [form is_request patch] } {
         </blockquote>"
         ad_script_abort
     }    
+
+    if { !$versions_p } {
+        element set_properties patch generated_from_version -widget hidden
+    }
 }
 
 if { [form is_valid patch] } {
@@ -473,10 +434,10 @@ if { [form is_valid patch] } {
     }
 
     db_transaction {
-        set patch_id [db_string patch_id "select patch_id from bt_patches where patch_number = :patch_number and project_id = :package_id"]
+        set patch_id [db_string patch_id {}]
 
         if { [llength $update_exprs] > 0 } {
-            db_dml update_patch "update bt_patches \n set    [join $update_exprs ",\n        "] \n where  patch_id = :patch_id"
+            db_dml update_patch {}
         }
 
         set action_id [db_nextval "acs_object_id_seq"]
@@ -485,12 +446,8 @@ if { [form is_valid patch] } {
             set $column [element get_value patch $column]
         }
 
-        db_dml patch_action {
-            insert into bt_patch_actions
-            (action_id, patch_id, action, actor, comment, comment_format)
-            values
-            (:action_id, :patch_id, :mode, :user_id, :description, :desc_format)
-        }
+        set action $mode
+        db_dml patch_action {}
 
         if { [string equal $mode "accept"] } {
             # Resolve any bugs that the user selected
@@ -498,26 +455,18 @@ if { [form is_valid patch] } {
 
             foreach bug_number $resolve_bugs {
 
-                db_transaction {
-                    set bug_id [bug_tracker::get_bug_id -bug_number $bug_number -project_id $package_id]
-
-                    db_dml resolve_bug {
-                        update bt_bugs 
-                        set status = 'resolved' 
-                        where bug_id = :bug_id 
-                    }
-
-                    set bug_action_id [db_nextval "acs_object_id_seq"]
-
-                    set resolve_description "Fixed by <a href=\"patch?patch_number=$patch_number\">patch #$patch_number</a>"
-
-                    db_dml bug_action_resolve {
-                        insert into bt_bug_actions
-                      (action_id, bug_id, action, resolution, actor, comment, comment_format)
-                        values
-                      (:bug_action_id, :bug_id, 'resolve', 'fixed', :user_id, :resolve_description, 'html')
-                    }
-                }
+                set resolve_description "Fixed by <a href=\"patch?patch_number=$patch_number\">patch #$patch_number</a>"
+                
+                set workflow_id [bug_tracker::bug::get_instance_workflow_id]
+                set bug_id [bug_tracker::get_bug_id -bug_number $bug_number -project_id $package_id]
+                set action_id [workflow::action::get_id -workflow_id $workflow_id -short_name "resolve"]
+                
+                bug_tracker::bug::edit \
+                    -bug_id $bug_id \
+                    -action_id $action_id \
+                    -description $resolve_description \
+                    -desc_format "text/html" \
+                    -array bug_row
             }
         }
     }

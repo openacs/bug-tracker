@@ -5,73 +5,44 @@ ad_page_contract {
     @creation-date 2002-03-26
     @cvs-id $Id$
 } {
-    cancel:optional
-    {return_url ""}
-}
-
-if { [exists_and_not_null cancel] } {
-    ad_returnredirect $return_url
-    ad_script_abort
+    {return_url "."}
 }
 
 set project_name [bug_tracker::conn project_name]
 set package_id [ad_conn package_id]
-set package_key [ad_conn package_key]
 
 set page_title "Edit Project"
-set context_bar [ad_context_bar $page_title]
+set context [list $page_title]
 
-form create project_info
-
-element create project_info return_url -datatype text -widget hidden -value $return_url
-
-element create project_info name \
-        -datatype text \
-        -html { size 50 } \
-        -label "Project Name"
-
-element create project_info description \
-        -datatype text \
-        -widget textarea \
-        -label "Description" \
-        -optional \
-        -html { cols 50 rows 8 }
-
-element create project_info email_subject_name  \
-        -datatype text \
-        -html { size 50 } \
-        -label "Email subject tag" 
-
-if { [form is_request project_info] } {
-    db_1row project_info { 
-        select description, email_subject_name 
-        from   bt_projects 
-        where  project_id = :package_id
-    } -column_array project_info
-
-    form set_values project_info project_info
-
-    element set_properties project_info name \
-            -value [bug_tracker::conn project_name]
-
-}
-
-if { [form is_valid project_info] } {
-    form get_values project_info description email_subject_name name
-
+ad_form -name project -cancel_url $return_url -form {
+    package_id:key
+    {return_url:text(hidden) {value $return_url}}
+    {name:text {html { size 50 }} {label "Project Name"}
+        {help_text {This is also the name of this package in the site map}}
+    }
+    {description:text(hidden) {label "Description"} optional {html { cols 50 rows 8 }}
+        {help_text {This isn't actually used anywhere at this point. Sorry.}}
+    }
+    {email_subject_name:text {html { size 50 }} {label "Notification tag"} optional
+        {help_text {This text will be included in square brackets at the beginning of all notifications, for example \[OpenACS Bugs\]}}
+    }
+    {maintainer:search
+        {result_datatype integer}
+        {label {Project Maintainer}}
+        {options [bug_tracker::users_get_options]}
+        optional
+        {search_query_name project_search}
+    }
+} -select_query_name project_select -edit_data {
     db_transaction {
-        db_dml project_info_update {
-            update bt_projects
-            set    description = :description,
-                   email_subject_name = :email_subject_name
-            where  project_id = :package_id
-        }
+        db_dml project_info_update {}
 
         bug_tracker::set_project_name $name
     }
-    
+    site_nodes_sync
+    bug_tracker::get_project_info_flush
+} -after_submit {
     ad_returnredirect $return_url
     ad_script_abort
 }
 
-ad_return_template

@@ -5,7 +5,7 @@ ad_page_contract {
     @creation-date 2002-03-20
     @cvs-id $Id$
 } {
-    filter:optional,array
+    filter:optional,array,multiple
 }
 
 ad_require_permission [ad_conn package_id] read
@@ -14,11 +14,18 @@ set project_name [bug_tracker::conn project_name]
 set package_id [ad_conn package_id]
 set package_key [ad_conn package_key]
 
+bug_tracker::get_pretty_names -array pretty_names
+
+set project_root_keyword_id [bug_tracker::conn project_root_keyword_id]
+
+# Is this project using multiple versions?
+set versions_p [bug_tracker::versions_p]
+
 if { [info exists filter] } {
     if { [array names filter] == [list "actionby"] && $filter(actionby) == [ad_conn user_id] } {
-        set context_bar [bug_tracker::context_bar "My bugs"]
+        set context_bar [bug_tracker::context_bar "My [bug_tracker::conn bugs]"]
     } else {
-        set context_bar [bug_tracker::context_bar "Filtered bug list"]
+        set context_bar [bug_tracker::context_bar "Filtered [bug_tracker::conn bug] list"]
     }
 } else {
     set context_bar [bug_tracker::context_bar]
@@ -28,48 +35,43 @@ set admin_p [ad_permission_p [ad_conn package_id] admin]
 
 set return_url "[ad_conn url][ad_decode [ad_conn query] "" "" "?[ad_conn query]"]"
 
-set num_components [db_string num_components { select count(component_id) from bt_components where project_id = :package_id }]
+set num_components [db_string num_components {}]
 
 if { $num_components == 0 } {
     ad_return_template "no-components"
     return
 }
 
-set num_bugs [db_string num_bugs { select count(bug_id) from bt_bugs where project_id = :package_id }]
-
-set user_id [ad_conn user_id]
-
-# Notifications for a project. Provide a link for logged in users
-set notification_link [bug_tracker::get_notification_link \
-        -type       bug_tracker_project_notif \
-        -object_id  $package_id \
-        -url        $return_url \
-        -pretty_name "project"]
-
-if { $num_bugs == 0 } {
+if { ![bug_tracker::bugs_exist_p] } {
     ad_return_template "no-bugs"
     return
 }
 
+
+#####
 #
 # Filter management
 #
+#####
 
 set filter_parsed [bug_tracker::parse_filters filter]
 
 set human_readable_filter [bug_tracker::conn filter_human_readable]
 set where_clauses [bug_tracker::conn filter_where_clauses]
+set from_bug_clause [bug_tracker::conn filter_from_bug_clause]
 set order_by_clause [bug_tracker::conn filter_order_by_clause]
 
 lappend where_clauses "b.project_id = :package_id"
 
-if { [llength [array names filter]] > 0 } {
+if { [llength [array names filter]] > 0 && [array names filter] != "orderby" } {
     set clear_url [ad_conn package_url]
 }
 
+#####
 #
 # Order by
 #
+#####
 
 if { [info exists filter(orderby)] } { 
     set save_orderby $filter(orderby)
@@ -82,223 +84,176 @@ if { [info exists save_orderby] } {
 }
 
 multirow create orderby value label selected_p
-foreach value { "" severity priority } label { "Bug number" "Severity" "Priority" } {
-    if { [info exists filter(orderby)] && [string equal $filter(orderby) $value] } {
-        set selected_p 1
-    } else {
-        set selected_p 0
-    }
-    multirow append orderby $value $label $selected_p
+
+multirow append orderby {} "[bug_tracker::conn Bug] number" [exists_and_equal filter(orderby) {}]
+
+
+foreach { category_type_id label } [bug_tracker::category_types] {
+    multirow append orderby \
+        $category_type_id \
+        $label \
+        [exists_and_equal filter(orderby) $category_type_id]
 }
 
+
+#####
+#
+# Last n days filter
+#
+#####
+
+multirow create options_n_days url label selected_p 
+
+foreach n_days { 1 3 7 30 90 365 all } {
+    multirow append options_n_days ".?[bug_tracker::filter_url_vars -array filter -override [list n_days $n_days]]" $n_days [exists_and_equal filter_n_days $n_days]
+
+}
+
+
+#####
 #
 # Get bug list
 #
+#####
 
 set truncate_len [ad_parameter "TruncateDescriptionLength" -default 200]
 
-db_multirow -extend { description_short submitter_url status_pretty resolution_pretty bug_type_pretty original_esimate_pretty latest_estimate_pretty elapsed_time_pretty assignee_url bug_url } bugs bugs "
-    select b.bug_id,
-           b.bug_number,
-           b.summary,
-           bact.comment as description,
-           bact.comment_format as desc_format,
-           b.component_id,
-           c.component_name,
-           o.creation_date,
-           to_char(o.creation_date, 'fmMM/DDfm/YYYY') as creation_date_pretty,
-           o.creation_user as submitter_user_id,
-           submitter.first_names as submitter_first_names,
-           submitter.last_name as submitter_last_name,
-           submitter.email as submitter_email,
-           pc.sort_order || ' - ' || pc.priority_name as priority_pretty,
-           sc.sort_order || ' - ' || sc.severity_name as severity_pretty,
-           b.status,
-           b.resolution,
-           b.bug_type,
-           b.original_estimate_minutes,
-           b.latest_estimate_minutes, 
-           b.elapsed_time_minutes,
-           b.found_in_version,
-           coalesce((select version_name 
-                     from   bt_versions found_in_v 
-                     where  found_in_v.version_id = b.found_in_version), 'Unknown') as found_in_version_name,
-           b.fix_for_version,
-           coalesce((select version_name 
-                     from   bt_versions fix_for_v 
-                     where  fix_for_v.version_id = b.fix_for_version), 'Undecided') as fix_for_version_name,
-           b.fixed_in_version,
-           coalesce((select version_name 
-                     from   bt_versions fixed_in_v 
-                     where  fixed_in_v.version_id = b.fixed_in_version), 'Unknown') as fixed_in_version_name,
-           b.assignee as assignee_user_id,
-           assignee.first_names as assignee_first_names,
-           assignee.last_name as assignee_last_name,
-           assignee.email as assignee_email
-    from   bt_bugs b left outer join
-           cc_users assignee on (assignee.user_id = b.assignee),
-           bt_bug_actions bact,
-           bt_components c,
-           acs_objects o,
-           bt_priority_codes pc,
-           bt_severity_codes sc,
-           cc_users submitter
-    where  c.component_id = b.component_id
-    and    bact.bug_id = b.bug_id
-    and    bact.action = 'open'
-    and    o.object_id = b.bug_id
-    and    pc.priority_id = b.priority
-    and    sc.severity_id = b.severity
-    and    submitter.user_id = o.creation_user
-    and    [join $where_clauses " and "]
-    order  by $order_by_clause
-" {
-    set description_short [string_truncate -len $truncate_len -format $desc_format -- $description]
+set workflow_id [bug_tracker::bug::get_instance_workflow_id]
+set initial_state_id [workflow::fsm::get_initial_state -workflow_id $workflow_id]
+
+# Role will be assignee or submitter
+set action_role [db_string select_resolve_role {}]
+
+set initial_action_id [workflow::get_element -workflow_id $workflow_id -element initial_action_id]
+
+set bugs_count 0
+set last_bug_id {}
+
+db_multirow -extend { 
+    comment_short
+    submitter_url 
+    status_pretty
+    resolution_pretty
+    assignee_url
+    bug_url
+    component_name
+    found_in_version_name
+    fix_for_version_name
+    fixed_in_version_name
+    category_name
+    category_value
+} bugs bugs {} {
+
+    if { ![string equal $bug_id $last_bug_id] } {
+        incr bugs_count
+        set last_bug_id $bug_id
+    }
+
+    set component_name [bug_tracker::component_get_name -component_id $component_id]
+    set found_in_version_name [bug_tracker::version_get_name -version_id $found_in_version]
+    set fix_for_version_name [bug_tracker::version_get_name -version_id $fix_for_version]
+    set fixed_in_version_name [bug_tracker::version_get_name -version_id $fixed_in_version]
+    set comment_short [string_truncate -len $truncate_len -format $comment_format $comment_content]
     set summary [ad_quotehtml $summary]
     set submitter_url [acs_community_member_url -user_id $submitter_user_id]
-    set status_pretty [bug_tracker::status_pretty $status]
     set resolution_pretty [bug_tracker::resolution_pretty $resolution]
-    set bug_type_pretty [bug_tracker::bug_type_pretty $bug_type]
-    set original_estimate_pretty [ad_decode $original_estimate_minutes "" "" 0 "" "$original_estimate_minutes minutes"]
-    set latest_estimate_pretty [ad_decode $latest_estimate_minutes "" "" 0 "" "$latest_estimate_minutes minutes"]
-    set elapsed_time_pretty [ad_decode $elapsed_time_minutes "" "" 0 "" "$elapsed_time_minutes minutes"]
-    set assignee_url [acs_community_member_url -user_id $assignee_user_id]
+    set assignee_url {}
+    if { ![empty_string_p $assignee_party_id] } {
+        set assignee_url [acs_community_member_url -user_id $assignee_party_id]
+    }
     set bug_url "bug?[export_vars { bug_number filter:array }]"
+    set category_name [bug_tracker::category_parent_heading -keyword_id $keyword_id]
+    set category_value [bug_tracker::category_heading -keyword_id $keyword_id]
+    
+    # Hide fields in this state
+    foreach element $hide_fields {
+        set $element {}
+    }
 }
 
+
+#####
 #
 # Get stats
 #
+#####
 
-db_multirow -extend { name name_url } by_status by_status {
-    select b.status as unique_id,
-           count(b.bug_id) as num_bugs
-    from   bt_bugs b
-    where  b.project_id = :package_id
-    group  by unique_id
-    order  by bt_bug__status_sort_order(b.status)
-} {
-    set name "[bug_tracker::status_pretty $unique_id] Bugs"
-    set name_url "?[export_vars { { filter.status $unique_id } }]"
+# Stat: Status
+
+db_multirow -extend { name_url stat_name header selected_p } stats by_status {} {
+    set header "All [bug_tracker::conn bugs] by status:"
+    set stat_name "Status"
+    set name_url "?[bug_tracker::filter_url_vars -array filter -override [list status $unique_id]]"
+    set selected_p [expr { [info exists filter(status)] && [string equal $filter(status) $unique_id] }]
 }
 
-db_multirow -extend { name name_url stat_name } stats stats_by_bug_type {
-    select b.bug_type as unique_id,
-           count(b.bug_id) as num_bugs
-    from   bt_bugs b
-    where  b.project_id = :package_id
-    and    b.status = 'open'
-    group  by unique_id
-    order  by bt_bug__bug_type_sort_order(b.bug_type) 
-} {
-    set stat_name "Type of bug"
-    set name [bug_tracker::bug_type_pretty $unique_id]
-    set name_url "?[export_vars { { filter.bug_type $unique_id } }]"
-}
+set open_bugs_header "Open [bug_tracker::conn bugs] summary:"
 
-db_multirow -extend { name_url stat_name } -append stats stats_by_fix_for_version {
-    select b.fix_for_version as unique_id,
-           v.version_name as name,
-           count(b.bug_id) as num_bugs
-    from   bt_bugs b left outer join
-           bt_versions v on (v.version_id = b.fix_for_version)
-    where  b.project_id = :package_id
-    and    b.status = 'open'
-    group  by unique_id, v.anticipated_freeze_date, name
-    order  by v.anticipated_freeze_date, name
-} {
-    set stat_name "Fix For"
-    if { [empty_string_p $unique_id] } {
-        set name "<i>Undecided</i>"
+# Stat: By Category
+
+foreach { parent_id parent_heading } [bug_tracker::category_types] {
+    db_multirow -extend { header selected_p stat_name name name_url } -append stats stats_by_category {} {
+        set header $open_bugs_header
+        set stat_name "By $parent_heading"
+        set name [bug_tracker::category_heading -keyword_id $unique_id]
+        set name_url "?[bug_tracker::filter_url_vars -array filter -override [list keyword $unique_id]]"
+        set selected_p [expr { [info exists filter(keyword)] && [lsearch -exact $filter(keyword) $unique_id] != -1 }]
     }
-    set name_url "?[export_vars { { filter.fix_for_version $unique_id } }]"
 }
 
-set stat_name_val "Severity"
+# Stat: Fix for version
 
-db_multirow -extend { name_url stat_name } -append stats stats_by_severity {
-    select b.severity as unique_id,
-           p.sort_order || ' - ' || p.severity_name as name,
-           count(b.bug_id) as num_bugs
-    from   bt_bugs b left join
-           bt_severity_codes p on (p.severity_id = b.severity)
-    where  b.project_id = :package_id
-    and    b.status = 'open'
-    group  by unique_id, name
-    order  by name
-} {
-    set stat_name $stat_name_val
-    set name_url "?[export_vars { { filter.severity $unique_id } }]"
-}
-
-set stat_name_val "Priority"
-
-db_multirow -extend { name_url stat_name } -append stats stats_by_priority {
-    select b.priority as unique_id,
-           p.sort_order || ' - ' || p.priority_name as name,
-           count(b.bug_id) as num_bugs
-    from   bt_bugs b left join
-           bt_priority_codes p on (p.priority_id = b.priority)
-    where  b.project_id = :package_id
-    and    b.status = 'open'
-    group  by unique_id, name
-    order  by name
-} {
-    set stat_name $stat_name_val
-    set name_url "?[export_vars { { filter.priority $unique_id } }]"
-}
-
-db_multirow -extend { name_url stat_name } -append stats stats_by_assignee {
-    select b.assignee as unique_id,
-           assignee.first_names || ' ' || assignee.last_name as name,
-           count(b.bug_id) as num_bugs
-    from   bt_bugs b left outer join
-           cc_users assignee on (assignee.user_id = b.assignee)
-    where  b.project_id = :package_id
-    and    b.status = 'open'
-    group  by unique_id, name
-    order  by name
-} {
-    set stat_name "Assigned To"
-    if { [empty_string_p $unique_id] } {
-        set name "<i>Unassigned</i>"
+if { $versions_p } {
+    db_multirow -extend { name_url stat_name header selected_p } -append stats stats_by_fix_for_version {} {
+        set header $open_bugs_header
+        set stat_name "Fix For"
+        if { [empty_string_p $unique_id] } {
+            set name "<i>Undecided</i>"
+        }
+        set name_url "?[bug_tracker::filter_url_vars -array filter -override [list fix_for_version $unique_id]]"
+        set selected_p [expr { [info exists filter(fix_for_version)] && [string equal $filter(fix_for_version) $unique_id] }]
     }
-    set name_url "?[export_vars -url { { filter.assignee $unique_id } }]"
 }
 
-db_multirow -extend { name_url stat_name } -append stats stats_by_actionby {
-    select o.creation_user as unique_id,
-           submitter.first_names || ' ' || submitter.last_name as name,
-           count(b.bug_id) as num_bugs
-    from   bt_bugs b join
-           acs_objects o on (object_id = bug_id) join
-           cc_users submitter on (submitter.user_id = o.creation_user)
-    where  b.project_id = :package_id
-    and    b.status = 'resolved'
-    group  by unique_id, name
-    order  by name
-} {
-    set stat_name "To Be Verified By"
-    set name_url "?[export_vars -url { { filter.status resolved } { filter.actionby $unique_id } }]"
+
+# Stat: Assigned action
+
+db_multirow -extend { name_url header selected_p } -append stats stats_by_assigned_action {} {
+    set header $open_bugs_header
+
+    regexp {^([0-9]+)\.([0-9]+)\.([0-9]+)$} $unique_id match action_id state_id assignee_id
+
+    set name_url "?[bug_tracker::filter_url_vars -array filter -override [list assignee $assignee_id status $state_id]]"
+    set selected_p [expr { [exists_and_equal filter(assignee) $assignee_id] && \
+                           [exists_and_equal filter(status) $state_id] } ]
 }
 
-db_multirow -extend { name_url stat_name } -append stats stats_by_component {
-    select coalesce('com/'||c.url_name||'/', trim(to_char(c.component_id,'99999999'))) as unique_id,
-           c.component_name as name,
-           count(b.bug_id) as num_bugs
-    from   bt_bugs b left join
-           bt_components c on (c.component_id = b.component_id)
-    where  b.project_id = :package_id
-    and    b.status = 'open'
-    group  by unique_id, name
-    order  by name
-} {
-    set stat_name "Components"
+# Stat: Unassigned action
+
+db_multirow -extend { unique_id name stat_name name_url header selected_p } -append stats stats_by_unassigned_action {} {
+    set header $open_bugs_header
+
+    set name "<i>Unassigned</i>"
+    set stat_name "Resolve"
+
+    set unique_id "."
+    set action_id ""
+    set assignee_id ""
+
+    set name_url "?[bug_tracker::filter_url_vars -array filter -override [list assignee $assignee_id status $initial_state_id]]"
+    set selected_p [expr { [exists_and_equal filter(assignee) $assignee_id] && \
+                           [exists_and_equal filter(status) $initial_state_id] } ]
+}
+
+# Stat: By Component
+
+db_multirow -extend { name_url stat_name header selected_p } -append stats stats_by_component {} {
+    set header $open_bugs_header
+    set stat_name "[bug_tracker::conn Components]"
     if { [string match "com/*" $unique_id] } {
         set name_url "[ad_conn package_url]$unique_id"
     } else {
-        set name_url "[ad_conn package_url]?[export_vars -url { { filter.component_id $unique_id } }]"
+        set name_url "[ad_conn package_url]?[bug_tracker::filter_url_vars -array filter -override [list component_id $unique_id]]"
     }
+    set selected_p [expr { [exists_and_equal filter(component_id) $unique_id] || [string equal [ad_conn extra_url] $unique_id] }]
 }
-
-ad_return_template
