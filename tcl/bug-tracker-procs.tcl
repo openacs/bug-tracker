@@ -633,7 +633,7 @@ namespace eval bug_tracker {
             and    submitter.user_id = o.creation_user
         } -column_array bug
 
-        set subject_start "Bug #$bug(bug_number). [string_truncate -len 30 $bug(summary)]"
+        set subject_start "Bug #$bug(bug_number). [ad_html_to_text -- [string_truncate -len 30 $bug(summary)]]"
         set body_start "Bug #$bug(bug_number). $bug(summary)"
 
         if { ![string equal $action "patched"] } {
