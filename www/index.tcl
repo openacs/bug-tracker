@@ -196,7 +196,7 @@ db_multirow -extend { name name_url } by_status by_status {
     set name_url "[ad_conn package_url]?[export_vars -url { { status $unique_id } }]"
 }
 
-db_multirow -extend { name name_url stat_name } stats stats {
+db_multirow -extend { name name_url stat_name } stats stats_by_bug_type {
     select b.bug_type as unique_id,
            count(b.bug_id) as num_bugs
     from   bt_bugs b
@@ -210,7 +210,7 @@ db_multirow -extend { name name_url stat_name } stats stats {
     set name_url "[ad_conn package_url]?[export_vars -url { { bug_type $unique_id } }]"
 }
 
-db_multirow -extend { name_url stat_name } -append stats stats {
+db_multirow -extend { name_url stat_name } -append stats stats_by_fix_for_version {
     select b.fix_for_version as unique_id,
            v.version_name as name,
            count(b.bug_id) as num_bugs
@@ -235,7 +235,7 @@ if { ![string equal $orderby "severity"] } {
     append stat_name_val " (*)"
 }
 
-db_multirow -extend { name_url stat_name } -append stats stats {
+db_multirow -extend { name_url stat_name } -append stats stats_by_severity {
     select b.severity as unique_id,
            p.sort_order || ' - ' || p.severity_name as name,
            count(b.bug_id) as num_bugs
@@ -257,7 +257,7 @@ if { ![string equal $orderby "priority"] } {
     append stat_name_val " (*)"
 }
 
-db_multirow -extend { name_url stat_name } -append stats stats {
+db_multirow -extend { name_url stat_name } -append stats stats_by_priority {
     select b.priority as unique_id,
            p.sort_order || ' - ' || p.priority_name as name,
            count(b.bug_id) as num_bugs
@@ -272,7 +272,7 @@ db_multirow -extend { name_url stat_name } -append stats stats {
     set name_url "[ad_conn package_url]?[export_vars { { priority $unique_id } }]"
 }
 
-db_multirow -extend { name_url stat_name } -append stats stats {
+db_multirow -extend { name_url stat_name } -append stats stats_by_assignee {
     select b.assignee as unique_id,
            assignee.first_names || ' ' || assignee.last_name as name,
            count(b.bug_id) as num_bugs
@@ -290,7 +290,7 @@ db_multirow -extend { name_url stat_name } -append stats stats {
     set name_url "[ad_conn package_url]?[export_vars -url { { assignee $unique_id } }]"
 }
 
-db_multirow -extend { name_url stat_name } -append stats stats {
+db_multirow -extend { name_url stat_name } -append stats stats_by_component {
     select b.component_id as unique_id,
            c.component_name as name,
            count(b.bug_id) as num_bugs
