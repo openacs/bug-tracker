@@ -151,6 +151,9 @@
   <msg key="Permission">Denied</msg>
   <msg key="Permission_Denied">Permission Denied</msg>
   <msg key="Permissions">Permissions</msg>
+  <msg key="Plain">Plain</msg>
+  <msg key="HTML">Plain</msg>
+  <msg key="Preformatted">Preformatted</msg>
   <msg key="Planned_Freeze">Planned Freeze</msg>
   <msg key="Planned_Release">Planned Release</msg>
   <msg key="Please_contact_admin">Please contact a project administrator to get the components set up.</msg>
@@ -171,6 +174,7 @@
   <msg key="Release">Release</msg>
   <msg key="Release_1">Version</msg>
   <msg key="Release_this_version">Release this version</msg>
+  <msg key="Reopen">Reopen</msg>
   <msg key="Reopened">Reopened</msg>
   <msg key="request_notification_for_bug">Request notifications for all activity on this %bug_name%</msg>
   <msg key="Resolution">Resolution</msg>
@@ -214,6 +218,7 @@ High&amp;quot;, &amp;quot;2 - Normal&amp;quot;, etc., or &amp;quot;A - Critical&
   <msg key="Support_Suggestion">Suggestion</msg>
   <msg key="Support_Type">Support Type</msg>
   <msg key="Supported">platforms</msg>
+  <msg key="Table">Table</msg>
   <msg key="There_are_no_open_to_map">There are no open %pretty_names.bugs% to map the patch to. Try changing the component filter above.</msg>
   <msg key="this_bug">this %bug_name%</msg>
   <msg key="This_is_a_new_project">This is a new project.</msg>
@@ -238,7 +243,7 @@ High&amp;quot;, &amp;quot;2 - Normal&amp;quot;, etc., or &amp;quot;A - Critical&
   <msg key="Version">Version</msg>
   <msg key="Version_1">name</msg>
   <msg key="Version_2">Name</msg>
-  <msg key="Version_id">Version_id $version_id not found</msg>
+  <msg key="Version_id">Version_id %version_id% not found</msg>
   <msg key="Versions">Versions</msg>
   <msg key="View_the_bug_fo_component">View the %pretty_names.bugs% for this component</msg>
   <msg key="watch_this_bug">Watch this %bug_name%</msg>

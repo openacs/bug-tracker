@@ -66,7 +66,7 @@ element create patch description_format \
                 -datatype text \
                 -widget select \
                 -label "[_ bug-tracker.Description_1]" \
-    -options { { "[_ bug-tracker.Plain]" plain } { "[_ bug-tracker.HTML]" html } { "[_ bug-tracker.Preformatted]" pre } }
+    -options [list [list [_ bug-tracker.Plain] plain] [list [_ bug-tracker.HTML] html] [list [_ bug-tracker.Preformatted] pre ]]
 
 element create patch version_id \
         -datatype text \

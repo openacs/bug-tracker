@@ -825,7 +825,7 @@ ad_proc bug_tracker::version_get_name {
             return $name
         }
     }
-    error [_ bug-tracker.Version_id]
+    error [_ bug-tracker.Version_id [list version_id $version_id]]
 }
 
 

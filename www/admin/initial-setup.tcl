@@ -20,7 +20,7 @@ ad_form -name setup -cancel_url . -form {
 } -on_submit {
     if { [info exists default_configs($setup)] } {
         array set config $default_configs($setup)
-        
+
         bug_tracker::delete_all_project_keywords
         bug_tracker::install_keywords_setup -spec $config(categories)
         bug_tracker::install_parameters_setup -spec $config(parameters)

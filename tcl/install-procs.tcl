@@ -17,6 +17,7 @@ ad_proc -private bug_tracker::install::package_install {} {
 } {
     db_transaction {
         bug_tracker::install::register_implementations
+        bug_tracker::search::register_implementations
         bug_tracker::bug::workflow_create
     }
 }
@@ -27,6 +28,7 @@ ad_proc -private bug_tracker::install::package_uninstall {} {
     db_transaction {
         bug_tracker::bug::workflow_delete
         bug_tracker::install::unregister_implementations
+        bug_tracker::search::unregister_implementations
     }
 }
 
@@ -51,6 +53,9 @@ ad_proc -private bug_tracker::install::package_upgrade {
                 db_foreach select_project_ids {} {
                     bug_tracker::bug::instance_workflow_create -package_id $project_id
                 }
+            }
+            1.4d2 1.4d3 { 
+                bug_tracker::search::register_implementations
             }
         }
 }

@@ -84,7 +84,7 @@ if { [empty_string_p $enabled_action_id] } {
         # TODO: avoid the enabled_action_get query by caching it, or caching only the enabled_action_id -> action_id lookup?
         workflow::case::enabled_action_get -enabled_action_id $available_enabled_action_id -array enabled_action
         workflow::action::get -action_id $enabled_action(action_id) -array available_action
-        lappend actions [list "     $available_action(pretty_name)     " $available_enabled_action_id]
+        lappend actions [list "     [lang::util::localize $available_action(pretty_name)]     " $available_enabled_action_id]
     }
 }
 
@@ -362,7 +362,7 @@ if { ![form is_valid bug] } {
         set context [list \
                          [list \
                               [export_vars -base . [bug_tracker::get_export_variables]] \
-                              "[_ bug-tracker.Filtered]"] \
+                              [_ bug-tracker.Filtered]] \
                          [ad_quotehtml $page_title]]
     } else {
         set context [list [ad_quotehtml $page_title]]
