@@ -694,8 +694,8 @@ ad_proc bug_tracker::bug::get_list {
             link_url_eval {[export_vars -base bug -entire_form -override { bug_number }]}
             aggregate_label "Number of $pretty_names(bugs)"
         }
-        comment {
-            label "Details"
+	comment {
+	    label "[_ bug-tracker.Details]"
             display_col comment_short
             hide_p 1
         }
@@ -710,7 +710,6 @@ ad_proc bug_tracker::bug::get_list {
         submitter {
             label "Submitter"
             display_template {<a href="@bugs.submitter_url@">@bugs.submitter_first_names@ @bugs.submitter_last_name@</a>}
-            hide_p 1
         }
         assigned_to {
             label "Assigned To"
@@ -824,6 +823,10 @@ ad_proc bug_tracker::bug::get_list {
 
     upvar \#[template::adp_level] format format
     
+    foreach var [bug_tracker::get_export_variables] { 
+        upvar \#[template::adp_level] $var $var
+    }
+
     template::list::create \
         -ulevel [expr $ulevel + 1] \
         -name bugs \
@@ -834,6 +837,10 @@ ad_proc bug_tracker::bug::get_list {
         -elements $elements \
         -filters $filters \
         -orderby $orderbys \
+        -page_size 25 \
+        -page_groupsize 1 \
+        -page_flush_p 1 \
+        -page_query {[bug_tracker::bug::get_query]} \
         -formats {
             table {
                 label "Table"
