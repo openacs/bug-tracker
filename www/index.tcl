@@ -21,7 +21,7 @@ if { ![bug_tracker::bugs_exist_p] } {
     return
 }
 
-
+set project_id [ad_conn package_id]
 
 #####
 #

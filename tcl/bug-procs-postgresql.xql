@@ -158,6 +158,7 @@ select q.*,
        assign_info.*
 from (
   select b.bug_id,
+         b.project_id,
          b.bug_number,
          b.summary,
          lower(b.summary) as lower_summary,
@@ -228,6 +229,7 @@ select q.*,
        assign_info.*
 from (
   select b.bug_id,
+         b.project_id,
          b.bug_number,
          b.summary,
          lower(b.summary) as lower_summary,

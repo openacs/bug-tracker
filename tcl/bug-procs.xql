@@ -1,6 +1,12 @@
 <?xml version="1.0"?>
 <queryset>
 
+<fullquery name="bug_tracker::bug::cache_flush.get_project_id">
+    <querytext>
+      select project_id from bt_bugs where bug_id = :bug_id
+    </querytext>
+</fullquery>
+
 <fullquery name="bug_tracker::bug::delete.get_case_id">
     <querytext>
         select case_id

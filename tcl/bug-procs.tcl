@@ -19,6 +19,15 @@ namespace eval bug_tracker::bug::get_component_maintainer {}
 namespace eval bug_tracker::bug::get_project_maintainer {}
 namespace eval bug_tracker::bug::notification_info {}
 
+ad_proc -public bug_tracker::bug::cache_flush {
+    -bug_id:required
+} {
+    Flush all list builder instances for the given bug-tracker
+    package instance.
+} {
+    cache flush "bugs,project_id=[db_string get_project_id {}],*"
+}
+
 ad_proc -public bug_tracker::bug::workflow_short_name {} {
     Get the short name of the workflow for bugs
 } {
@@ -111,6 +120,8 @@ ad_proc -public bug_tracker::bug::insert {
                     -extra_vars $extra_vars \
                     -package_name "bt_bug" \
                     "bt_bug"]
+
+    cache_flush -bug_id $bug_id
     
     return $bug_id
 }
@@ -202,6 +213,8 @@ ad_proc -public bug_tracker::bug::update {
     }
     set revision_id [db_exec_plsql update_bug {}]
 
+    cache_flush -bug_id $bug_id
+
     return $bug_id
 }
 
@@ -280,6 +293,11 @@ ad_proc bug_tracker::bug::delete { bug_id } {
 
     @author Mark Aufflick
 } {
+
+    # Probably not necessary if developers follow the instructions in the
+    # header comment ...
+    cache_flush -bug_id $bug_id
+
     set case_id [db_string get_case_id {}]
     db_exec_plsql delete_bug_case {}
     set notifications [db_list get_notifications {}]
@@ -736,6 +754,7 @@ ad_proc bug_tracker::bug::get_list {
     set state_default_value [lindex [lindex $state_values 0] 1]
 
     set filters {
+        project_id {}
         f_state {
             label "State"
             values $state_values
@@ -839,7 +858,7 @@ ad_proc bug_tracker::bug::get_list {
         -orderby $orderbys \
         -page_size 25 \
         -page_groupsize 1 \
-        -page_flush_p 1 \
+        -page_flush_p 0 \
         -page_query {[bug_tracker::bug::get_query -query_name bugs_pagination]} \
         -formats {
             table {
