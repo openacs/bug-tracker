@@ -112,8 +112,8 @@ ad_form -name bug -cancel_url $return_url -mode display -has_edit 1 -actions $ac
     }
     {summary:text(text)
 	{label "Summary"}
-	{after_html "<b>"}
-	{before_html "</b>"}
+	{before_html "<b>"}
+	{after_html "</b>"}
 	{mode display}
 	{html {size 50}}
     }
@@ -338,11 +338,17 @@ if { ![form is_valid bug] } {
     set page_title "[bug_tracker::conn Bug] #$bug_number: $bug(summary)"
 
     # Context bar
-    set context [list [list "[export_vars -base . -entire_form -exclude { bug_number }]" "Filtered [bug_tracker::conn bug] list"] $page_title]
+    # TODO: Make real
+    set filtered_p 1
+    if { $filtered_p } {
+        set context [list [list [export_vars -base . -entire_form -exclude { bug_number }] "Filtered [bug_tracker::conn bug] list"] $page_title]
+    } else {
+        set context [list $page_title]
+    }
     
     # User agent show/hide URLs
-    set show_user_agent_url "bug?[export_vars { bug_number { user_agent_p 1 }}]"
-    set hide_user_agent_url "bug?[export_vars { bug_number }]"
+    set show_user_agent_url [export_vars -base bug -entire_form -override { { user_agent_p 1 }}]
+    set hide_user_agent_url [export_vars -base bug -entire_form -exclude { user_agent_p }]
     
     # Login
     set login_url [ad_get_login_url]
