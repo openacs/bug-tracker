@@ -416,7 +416,7 @@ if { ![form is_valid bug] } {
     }
 
     # Patches
-    set bug(patches_display) "[bug_tracker::get_patch_links -bug_id $bug(bug_id) -show_patch_status $show_patch_status] &nbsp; \[ <a href=\"patch-add?bug_number=$bug(bug_number)\">Upload a patch</a> \]"
+    set bug(patches_display) "[bug_tracker::get_patch_links -bug_id $bug(bug_id) -show_patch_status $show_patch_status] &nbsp; \[ <a href=\"patch-add?[export_vars { { bug_number $bug(bug_number) } { component_id $bug(component_id) } }]\">Upload a patch</a> \]"
 
     # Hide elements that should be hidden depending on the bug status
     foreach element $workflow_hide_fields(${bug(status)}) {
@@ -533,4 +533,3 @@ if { ![form is_valid bug] } {
 }
 
 ad_return_template
-
