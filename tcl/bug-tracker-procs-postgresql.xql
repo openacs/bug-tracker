@@ -187,22 +187,22 @@
   </fullquery>
 
 
-   <fullquery name="bug_tracker::assignee_get_options.assignees">      
+   <fullquery name="bug_tracker::assignee_get_options.assignees">
      <querytext>
        select acs_object__name(p.party_id) || ' (' || p.email || ')'  as label,
 	party_id from  parties p
-	where party_id in (select distinct(party_id) from workflow_case_role_party_map, 
-				workflow_cases	
+	where party_id in (select distinct(party_id) from workflow_case_role_party_map,
+				workflow_cases
 				where workflow_case_role_party_map.case_id = workflow_cases.case_id
 				and workflow_cases.workflow_id = :workflow_id)
      </querytext>
     </fullquery>
 
-   <fullquery name="bug_tracker::project_new.instance_info">      
+   <fullquery name="bug_tracker::project_new.instance_info">
      <querytext>
-	select p.instance_name, o.creation_user, o.creation_ip 
-	from apm_packages p join acs_objects o on (p.package_id = o.object_id) w
-	here  p.package_id = :project_id      
+	select p.instance_name, o.creation_user, o.creation_ip
+	from apm_packages p join acs_objects o on (p.package_id = o.object_id)
+        where p.package_id = :project_id
      </querytext>
    </fullquery>
 
