@@ -11,4 +11,6 @@ ad_page_contract {
 
 db_exec_plsql set_active_version {}
 
+bug_tracker::get_project_info_flush
+
 ad_returnredirect $return_url
