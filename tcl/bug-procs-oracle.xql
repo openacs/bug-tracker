@@ -166,9 +166,7 @@
 -->
 <fullquery name="bug_tracker::bug::get_query.bugs_pagination">
   <querytext>
-select q.*
-from (
-  select b.bug_id,
+    select b.bug_id,
          b.project_id,
          b.bug_number,
          b.summary,
@@ -200,34 +198,15 @@ from (
          workflow_cases cas,
          workflow_case_fsm cfsm,
          workflow_fsm_states st 
-   where submitter.user_id = b.creation_user
-     and cas.workflow_id = :workflow_id
-     and cas.object_id = b.bug_id
-     and cfsm.case_id = cas.case_id
-     and cfsm.parent_enabled_action_id is null
-     and st.state_id = cfsm.current_state 
-   $orderby_category_where_clause
-   [template::list::filter_where_clauses -and -name "bugs"]
-) q,
-  cr_item_keyword_map km,
-  (select cru.user_id as assigned_user_id,
-          aa.action_id,
-          aa.case_id,
-          wa.pretty_name as action_pretty_name,
-          p.first_names as assignee_first_names,
-          p.last_name as assignee_last_name
-     from workflow_case_assigned_actions aa,
-          workflow_case_role_user_map cru,
-          workflow_actions wa,
-          persons p
-    where aa.case_id = cru.case_id
-      and aa.role_id = cru.role_id
-      and cru.user_id = p.person_id
-      and wa.action_id = aa.action_id
-  ) assign_info
-where q.bug_id = km.item_id (+)
-  and q.case_id = assign_info.case_id (+)
-[template::list::orderby_clause -orderby -name "bugs"]
+    where submitter.user_id = b.creation_user
+      and cas.workflow_id = :workflow_id
+      and cas.object_id = b.bug_id
+      and cfsm.case_id = cas.case_id
+      and cfsm.parent_enabled_action_id is null
+      and st.state_id = cfsm.current_state 
+    $orderby_category_where_clause
+    [template::list::filter_where_clauses -and -name "bugs"]
+    [template::list::orderby_clause -orderby -name "bugs"]
   </querytext>
 </fullquery>
 
