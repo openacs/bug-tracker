@@ -62,25 +62,29 @@ set workflow_id [bug_tracker::bug::get_instance_workflow_id]
 #
 #####
 
-set action_id [form get_action bug]
+set enabled_action_id [form get_action bug]
 
 # Registration required for all actions
-if { ![empty_string_p $action_id] } {
+set action_id ""
+if { ![empty_string_p $enabled_action_id] } {
     ad_maybe_redirect_for_registration
+    workflow::case::enabled_action_get -enabled_action_id $enabled_action_id -array enabled_action    
+    set action_id $enabled_action(action_id)
 }
 
 # Check permissions
-if { ![workflow::case::action::available_p -case_id $case_id -action_id $action_id] } {
-    bug_tracker::security_violation -user_id $user_id -bug_id $bug(bug_id) -action $action_id
+if { ![workflow::case::action::available_p -enabled_action_id $enabled_action_id] } {
+    bug_tracker::security_violation -user_id $user_id -bug_id $bug(bug_id) -action_id $action_id
 }
-
 
 # Buttons
 set actions [list]
-if { [empty_string_p $action_id] } {
-    foreach available_action_id [workflow::case::get_available_actions -case_id $case_id] {
-        workflow::action::get -action_id $available_action_id -array available_action
-        lappend actions [list "     $available_action(pretty_name)     " $available_action(action_id)]
+if { [empty_string_p $enabled_action_id] } {
+    foreach available_enabled_action_id [workflow::case::get_available_enabled_action_ids -case_id $case_id] {
+        # TODO: avoid the enabled_action_get query by caching it, or caching only the enabled_action_id -> action_id lookup?
+        workflow::case::enabled_action_get -enabled_action_id $available_enabled_action_id -array enabled_action
+        workflow::action::get -action_id $enabled_action(action_id) -array available_action
+        lappend actions [list "     $available_action(pretty_name)     " $available_enabled_action_id]
     }
 }
 
@@ -99,7 +103,7 @@ if { [empty_string_p $action_id] } {
 # lets you use +var+ for a var to eval on the second round.  
 # cf http://openacs.org/bugtracker/openacs/bug?bug%5fnumber=1099
 
-if { [empty_string_p $action_id] } {
+if { [empty_string_p $enabled_action_id] } {
     set patch_label [ad_decode $show_patch_status \
                          "open" "Open Patches (<a href=\"[string map {+ %20} [export_vars -base [ad_conn url] -entire_form -override { { show_patch_status all } }]]\">show all</a>)" \
                          "all" "All Patches (<a href=\"[string map {+ %20} [export_vars -base [ad_conn url] -entire_form -override { { show_patch_status open } }]]\">show only open)" \
@@ -208,7 +212,7 @@ foreach name [bug_tracker::get_export_variables] {
 ad_form -extend -name bug -form $filters
 
 # Set editable fields
-if { ![empty_string_p $action_id] } {
+if { ![empty_string_p $enabled_action_id] } {   
     foreach field [workflow::action::get_element -action_id $action_id -element edit_fields] { 
 	element set_properties bug $field -mode edit 
     }
@@ -227,7 +231,7 @@ ad_form -extend -name bug -on_submit {
 
     array set row [list] 
     
-    if { ![empty_string_p $action_id] } { 
+    if { ![empty_string_p $enabled_action_id] } { 
         foreach field [workflow::action::get_element -action_id $action_id -element edit_fields] {
             set row($field) [element get_value bug $field]
         }
@@ -240,7 +244,7 @@ ad_form -extend -name bug -on_submit {
     
     bug_tracker::bug::edit \
             -bug_id $bug(bug_id) \
-            -action_id $action_id \
+            -enabled_action_id $enabled_action_id \
             -description [template::util::richtext::get_property contents $description] \
             -desc_format [template::util::richtext::get_property format $description] \
             -array row \
@@ -261,7 +265,7 @@ ad_form -extend -name bug -on_submit {
 if { ![form is_valid bug] } {
 
     # Get the bug data
-    bug_tracker::bug::get -bug_id $bug(bug_id) -array bug -action_id $action_id
+    bug_tracker::bug::get -bug_id $bug(bug_id) -array bug -enabled_action_id $enabled_action_id
 
 
     # Make list of form fields
@@ -321,7 +325,7 @@ if { ![form is_valid bug] } {
     }
     
     # Add empty option to resolution code
-    if { ![empty_string_p $action_id] } {
+    if { ![empty_string_p $enabled_action_id] } {
         if { [lsearch [workflow::action::get_element -action_id $action_id -element edit_fields] "resolution"] == -1 } {
             element set_properties bug resolution -options [concat {{{} {}}} [element get_property bug resolution options]]
         }
@@ -363,7 +367,7 @@ if { ![form is_valid bug] } {
     }
     
     # User agent show/hide URLs
-    if { [empty_string_p $action_id] } {
+    if { [empty_string_p $enabled_action_id] } {
         set show_user_agent_url [export_vars -base bug -entire_form -override { { user_agent_p 1 }}]
         set hide_user_agent_url [export_vars -base bug -entire_form -exclude { user_agent_p }]
     }
@@ -372,13 +376,13 @@ if { ![form is_valid bug] } {
     set login_url [ad_get_login_url]
     
     # Single-bug notifications 
-    if { [empty_string_p $action_id]  } {
+    if { [empty_string_p $enabled_action_id]  } {
         set notification_link [bug_tracker::bug::get_watch_link -bug_id $bug(bug_id)]
     }
 
 
     # Filter management
-    if { [empty_string_p $action_id] } {
+    if { [empty_string_p $enabled_action_id] } {
     
         set filter_bug_numbers [bug_tracker::bug::get_bug_numbers]
         set filter_bug_index [lsearch -exact $filter_bug_numbers $bug_number]

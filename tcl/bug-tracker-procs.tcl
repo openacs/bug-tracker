@@ -1141,13 +1141,16 @@ ad_proc bug_tracker::get_uploaded_patch_file_content {
 ad_proc bug_tracker::security_violation {
     -user_id:required
     -bug_id:required
-    -action:required
+    -action_id:required
 } {
-    ns_log notice "bug_tracker::security_violation: $user_id doesn't have permission to '$action' on bug $bug_id"
+    workflow::action::get -action_id $enabled_action(action_id) -array action
+    bug_tracker::bug::get -bug_id $bug_id -array bug
+
+    ns_log notice "bug_tracker::security_violation: $user_id doesn't have permission to '$action(pretty_name)' on bug $bug(summary)"
     ad_return_forbidden \
             "Permission Denied" \
             "<blockquote>
-    You don't have permission to '$action' on this bug.
+    You don't have permission to '$action(pretty_name)' on bug #$bug_id (\"$bug(summary)\").
     </blockquote>"
     ad_script_abort
 }

@@ -34,7 +34,7 @@ ad_proc -public bug_tracker::bug::object_type {} {
 ad_proc -public bug_tracker::bug::get {
     {-bug_id:required}
     {-array:required}
-    {-action_id {}}
+    {-enabled_action_id {}}
 } {
     Get the fields for a bug
 } {
@@ -57,7 +57,7 @@ ad_proc -public bug_tracker::bug::get {
     
     
     # Get state information
-    workflow::case::fsm::get -case_id $case_id -array case -action_id $action_id
+    workflow::case::fsm::get -case_id $case_id -array case -enabled_action_id $enabled_action_id
     set row(pretty_state) $case(pretty_state)
     if { ![empty_string_p $row(resolution)] } {
         append row(pretty_state) " ([bug_tracker::resolution_pretty $row(resolution)])"
@@ -209,7 +209,7 @@ ad_proc -public bug_tracker::bug::update {
 
 ad_proc -public bug_tracker::bug::edit {
     -bug_id:required
-    -action_id:required
+    -enabled_action_id:required
     {-user_id ""}
     {-creation_ip ""}
     -description:required
@@ -263,8 +263,7 @@ ad_proc -public bug_tracker::bug::edit {
                 -array assignments
         
         workflow::case::action::execute \
-                -case_id $case_id \
-                -action_id $action_id \
+                -enabled_action_id $enabled_action_id \
                 -comment $description \
                 -comment_mime_type $desc_format \
                 -user_id $user_id \
