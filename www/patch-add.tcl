@@ -73,9 +73,9 @@ element create patch version_id \
         -optional
     
 element create patch patch_file \
-        -datatype filename \
+        -datatype file \
         -widget file \
-        -label "Patch file:" \
+        -label "Patch file" \
 
 if { [exists_and_not_null bug_number] } {
     # Export the bug number
