@@ -186,6 +186,17 @@
 </fullquery>
 
 
+  <partialquery name="bug_tracker::bug::get_list.filter_assignee_null_where_clause">
+      <querytext>
+          exists (select 1
+                  from   workflow_case_assigned_actions aa left outer join
+                         workflow_case_role_user_map crum on (crum.case_id = aa.case_id and crum.role_id = aa.role_id)
+                  where  aa.case_id = cas.case_id
+                  and    aa.action_id = $action_id
+                  and    crum.user_id is null
+                 )
+      </querytext>
+  </partialquery>
 
  
 </queryset>

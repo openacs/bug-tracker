@@ -800,27 +800,8 @@ ad_proc bug_tracker::bug::get_list {
                  label $action(pretty_name) \
                  values $values \
                  null_label "Unassigned" \
-                 where_clause "
-                     exists (select 1
-                             from   workflow_case_assigned_actions aa,
-                                    workflow_case_role_user_map crum
-                             where  aa.case_id = cas.case_id
-                             and    aa.action_id = $action_id
-                             and    crum.case_id = aa.case_id
-                             and    crum.role_id = aa.role_id
-                             and    crum.user_id = :f_action_$action_id
-                            )
-                 " \
-                 null_where_clause "
-                     exists (select 1
-                             from   workflow_case_assigned_actions aa,
-                                    workflow_case_role_user_map crum
-                             where  aa.case_id = cas.case_id
-                             and    aa.action_id = $action_id
-                             and    crum.case_id (+) = aa.case_id
-                             and    crum.role_id (+) = aa.role_id
-                             and    crum.user_id is null
-                            )"]
+                 where_clause [db_map filter_assignee_where_clause] \
+                 null_where_clause [db_map filter_assignee_null_where_clause]]
     }
 
     # Stat: By Component
