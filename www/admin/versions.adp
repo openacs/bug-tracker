@@ -78,7 +78,7 @@
       <th>#bug-tracker.Assign#</th>
       <th>#acs-kernel.common_edit#</th>
       <th>#acs-kernel.common_delete#</th>
-      <th>#bug-tracker.Current#</th>
+      <th>#bug-tracker.current#</th>
     </tr>
     <multiple name="future_version">
       <if @future_version.rownum@ odd>
