@@ -53,8 +53,6 @@ set case_id [workflow::case::get_id \
 
 set workflow_id [bug_tracker::bug::get_instance_workflow_id]
 
-set role_ids [workflow::get_roles -workflow_id $workflow_id]
-
 
 #####
 #
@@ -63,12 +61,6 @@ set role_ids [workflow::get_roles -workflow_id $workflow_id]
 #####
 
 set action_id [form get_action bug]
-
-if { ![empty_string_p $action_id] } {
-    set action_short_name [workflow::action::get_element -action_id $action_id -element short_name]
-} else {
-    set action_short_name {}
-}
 
 # Registration required for all actions
 if { ![empty_string_p $action_id] } {
@@ -211,8 +203,10 @@ if { ![empty_string_p $action_id] } {
     foreach field [workflow::action::get_element -action_id $action_id -element edit_fields] { 
 	element set_properties bug $field -mode edit 
     }
-    if {[string compare $action_short_name "edit"] == 0} {
-        foreach {category_id category_name} [bug_tracker::category_types] {
+    
+    # LARS: Hack! How do we set editing of dynamic fields?
+    if { [string equal [workflow::action::get_element -action_id $action_id -element short_name] "edit"] } {
+        foreach { category_id category_name } [bug_tracker::category_types] {
             element set_properties bug $category_id -mode edit
         }
     }
@@ -253,7 +247,7 @@ ad_form -extend -name bug -on_submit {
     # whenever the form is displayed, whether initially or because of a validation error.
 }
 
-# Not-valid block (request, error)
+# Not-valid block (request or submit error)
 if { ![form is_valid bug] } {
 
     # Get the bug data
@@ -340,8 +334,14 @@ if { ![form is_valid bug] } {
     }
 
     # Set values for description field
+    if { ![empty_string_p $action_id] } {
+        set current_action_html "<p><b>$bug(now_pretty) [workflow::action::get_element -action_id $action_id -element pretty_past_tense] by [bug_tracker::conn user_first_names] [bug_tracker::conn user_last_name]</b></p>"
+    } else {
+        set current_action_html {}
+    }
+
     element set_properties bug description \
-            -before_html "[workflow::case::get_activity_html -case_id $case_id][ad_decode $action_id "" "" "<p><b>$bug(now_pretty) [bug_tracker::bug_action_pretty $action_short_name] by [bug_tracker::conn user_first_names] [bug_tracker::conn user_last_name]</b></p>"]"
+            -before_html "[workflow::case::get_activity_html -case_id $case_id]$current_action_html"
 
     # Set page title
     set page_title "[bug_tracker::conn Bug] #$bug_number: $bug(summary)"
