@@ -98,10 +98,18 @@ if { [empty_string_p $action_id] } {
 # JCD: The string map below is to work around a "feature" in the form generation that 
 # lets you use +var+ for a var to eval on the second round.  
 # cf http://openacs.org/bugtracker/openacs/bug?bug%5fnumber=1099
-set patch_label [ad_decode $show_patch_status \
-                     "open" "Open Patches (<a href=\"[string map {+ %20} [export_vars -base [ad_conn url] -entire_form -override { { show_patch_status all } }]]\">show all</a>)" \
-                     "all" "All Patches (<a href=\"[string map {+ %20} [export_vars -base [ad_conn url] -entire_form -override { { show_patch_status open } }]]\">show only open)" \
-                     "Patches"]
+
+if { [empty_string_p $action_id] } {
+    set patch_label [ad_decode $show_patch_status \
+                         "open" "Open Patches (<a href=\"[string map {+ %20} [export_vars -base [ad_conn url] -entire_form -override { { show_patch_status all } }]]\">show all</a>)" \
+                         "all" "All Patches (<a href=\"[string map {+ %20} [export_vars -base [ad_conn url] -entire_form -override { { show_patch_status open } }]]\">show only open)" \
+                         "Patches"]
+} else {
+    set patch_label [ad_decode $show_patch_status \
+                         "open" "Open Patches" \
+                         "all" "All Patches" \
+                         "Patches"]
+}
 
 ad_form -name bug -cancel_url $return_url -mode display -has_edit 1 -actions $actions -form  {
     {bug_number_display:text(inform)
@@ -345,14 +353,20 @@ if { ![form is_valid bug] } {
     # TODO: Make real
     set filtered_p 1
     if { $filtered_p } {
-        set context [list [list [export_vars -base . -entire_form -exclude { bug_number }] "Filtered [bug_tracker::conn bug] list"] [ad_quotehtml $page_title]]
+        set context [list \
+                         [list \
+                              [export_vars -base . [bug_tracker::get_export_variables]] \
+                              "Filtered [bug_tracker::conn bug] list"] \
+                         [ad_quotehtml $page_title]]
     } else {
         set context [list [ad_quotehtml $page_title]]
     }
     
     # User agent show/hide URLs
-    set show_user_agent_url [export_vars -base bug -entire_form -override { { user_agent_p 1 }}]
-    set hide_user_agent_url [export_vars -base bug -entire_form -exclude { user_agent_p }]
+    if { [empty_string_p $action_id] } {
+        set show_user_agent_url [export_vars -base bug -entire_form -override { { user_agent_p 1 }}]
+        set hide_user_agent_url [export_vars -base bug -entire_form -exclude { user_agent_p }]
+    }
     
     # Login
     set login_url [ad_get_login_url]
