@@ -1,6 +1,6 @@
 <master src="../lib/master">
-<property name="title">@project_name@</property>
-<property name="context_bar">@context_bar@</property>
+<property name="title">@project_name;noquote@</property>
+<property name="context_bar">@context_bar;noquote@</property>
 
 <table border="0" cellpadding="0" cellspacing="0" width="100%">
   <tr>

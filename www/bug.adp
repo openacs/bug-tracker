@@ -1,7 +1,7 @@
 <master src="../lib/master">
-<property name="title">@page_title@</property>
-<property name="context_bar">@context_bar@</property>
-<if @notification_link@ not nil><property name="notification_link">@notification_link@</property></if>
+<property name="title">@page_title;noquote@</property>
+<property name="context_bar">@context_bar;noquote@</property>
+<if @notification_link;noquote@ not nil><property name="notification_link">@notification_link;noquote@</property></if>
 
 <if @action_id@ nil>
   <table align="right">

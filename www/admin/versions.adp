@@ -1,6 +1,6 @@
 <master src="../../lib/master">
 <property name="title">@ Versions</property>
-<property name="context_bar">@context_bar@</property>
+<property name="context_bar">@context_bar;noquote@</property>
 
 <h3>Current Version</h3>
 
