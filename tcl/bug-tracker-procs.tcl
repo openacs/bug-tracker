@@ -200,6 +200,21 @@ namespace eval bug_tracker {
     
         return [util_memoize "bug_tracker::get_user_prefs_internal $package_id $user_id"]
     }
+
+    ad_proc get_user_prefs_flush {
+        -package_id
+        -user_id
+    } {
+        if { ![info exists package_id] } {
+            set package_id [ad_conn package_id]
+        }
+    
+        if { ![info exists user_id] } {
+            set user_id [ad_conn user_id]
+        }
+    
+        util_memoize_flush "bug_tracker::get_user_prefs_internal $package_id $user_id"
+    }
     
     
     #####
