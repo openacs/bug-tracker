@@ -98,8 +98,6 @@ if { [info exists fix_for_version] } {
     }
 }
 
-set truncate_len [ad_parameter "TruncateDescriptionLength" -default 200]
-
 db_multirow -extend { description_short submitter_url status_pretty resolution_pretty bug_type_pretty original_esimate_pretty latest_estimate_pretty elapsed_time_pretty assignee_url bug_url } bugs bugs "
     select b.bug_id,
            b.bug_number,
@@ -157,12 +155,7 @@ db_multirow -extend { description_short submitter_url status_pretty resolution_p
     [ad_decode $where_clauses "" "" "and [join $where_clauses " and "]"]
     order  by b.bug_number desc
 " {
-    set desc_as_text [bug_tracker::bug_convert_comment_to_text -comment $description -format $desc_format]
-    if { [string length $desc_as_text] > $truncate_len } {
-        set description_short "[util_close_html_tags [string range $desc_as_text 0 $truncate_len]]..."
-    } else {
-        set description_short [util_close_html_tags $desc_as_text]
-    }
+    set description_short [bug_tracker::string_truncate [bug_tracker::bug_convert_comment_to_text -comment $description -format $desc_format]]
     set submitter_url [acs_community_member_url -user_id $submitter_user_id]
     set status_pretty [bug_tracker::status_pretty $status]
     set resolution_pretty [bug_tracker::resolution_pretty $resolution]

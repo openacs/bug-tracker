@@ -455,8 +455,17 @@ namespace eval bug_tracker {
             close "Closed"
         }
         if { [info exists action_codes($action)] } {
-            set resolution_pretty [resolution_pretty $resolution]
-            return "$action_codes($action) [ad_decode $resolution_pretty "" "" " ($resolution_pretty)"]"
+
+            set action_pretty $action_codes($action)
+
+            if { [string equal $action "resolve"] } {
+                set resolution_pretty [resolution_pretty $resolution]
+                if { ![empty_string_p $resolution_pretty] } {
+                    append action_pretty " ($resolution_pretty)"
+                }
+            }
+
+            return $action_pretty
         } else {
             return ""
         }
@@ -481,6 +490,46 @@ namespace eval bug_tracker {
         return $users_list
     }
     
+    #####
+    #
+    # Truncate
+    #
+    #####
+
+    ad_proc string_truncate { 
+        {-len}
+        {-format html}
+        string 
+    } {
+        Truncates a string to len characters (defaults to the
+        parameter TruncateDescriptionLength), adding an ellipsis (...) if the
+        string was truncated. If format is html (default), any open
+        HTML tags are closed. Otherwise, it's converted to text using
+        ad_html_to_text.
+
+        @param len The lenght to truncate to. Defaults to parameter TruncateDescriptionLength.
+        @param format html or text.
+        @param string The string to truncate.
+        @return The truncated string, with HTML tags cloosed or
+                converted to text, depending on format.
+    } {
+        if { ![info exists len] } {
+            set len [ad_parameter "TruncateDescriptionLength" -default 200]
+        }
+        
+        if { [string length $string] > $len } {
+            set string "[string range $string 0 $len]..."
+        } 
+        
+        if { [string equal $format "html"] } {
+            set string [util_close_html_tags $string]
+        } else {
+            set string [ad_html_to_text -- $string]
+        }
+        return $string
+    }
+
+
     
     #####
     #
@@ -493,6 +542,7 @@ namespace eval bug_tracker {
         action
         comment
         comment_format
+        {resolution ""}
     } {
         ns_log Notice "bug_id = $bug_id"
     
@@ -554,11 +604,11 @@ namespace eval bug_tracker {
             and    submitter.user_id = o.creation_user
         } -column_array bug
     
-        set subject "Bug #$bug(bug_number). $bug(summary): [bug_action_pretty $action] by [conn user_first_names] [conn user_last_name]"
+        set subject "Bug #$bug(bug_number). [string_truncate -len 30 $bug(summary)]: [bug_action_pretty $action $resolution] by [conn user_first_names] [conn user_last_name]"
     
         set body "Bug #$bug(bug_number). $bug(summary)
     
-    Action: [bug_action_pretty $action] by [conn user_first_names] [conn user_last_name]
+    Action: [bug_action_pretty $action $resolution] by [conn user_first_names] [conn user_last_name]
     "
         if { ![empty_string_p $comment] } {
             append body "

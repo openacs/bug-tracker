@@ -458,6 +458,10 @@ if { [form is_valid bug] } {
         }
     }
 
+    if { ![info exists resolution] || ![string equal $mode "resolve"] } {
+        set resolution {}
+    }
+
     db_transaction {
         set bug_id [db_string bug_id { select bug_id from bt_bugs where bug_number = :bug_number and project_id = :package_id }]
 
@@ -472,10 +476,6 @@ if { [form is_valid bug] } {
             set $column [element get_value bug $column]
         }
 
-        if { ![info exists resolution] } {
-            set resolution {}
-        }
-
         db_dml bug_action {
             insert into bt_bug_actions
             (action_id, bug_id, action, resolution, actor, comment, comment_format)
@@ -484,10 +484,11 @@ if { [form is_valid bug] } {
         }
     }
 
-    bug_tracker::bug_notify $bug_id $mode $description $desc_format
+    bug_tracker::bug_notify $bug_id $mode $description $desc_format $resolution
 
     ad_returnredirect $return_url
     ad_script_abort
 }
 
 ad_return_template
+
