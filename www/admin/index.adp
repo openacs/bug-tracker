@@ -4,17 +4,17 @@
 
 <table cellspacing="0" cellpadding="4" border="0">
   <tr>
-    <td colspan="2">
+    <td colspan="3">
     </td>
-    <td>
+    <th>
       Edit
-    </td>
-    <td>
+    </th>
+    <th>
       Delete
-    </td>
+    </th>
   </tr>
   <tr bgcolor="#666666">
-    <td colspan="2">
+    <td colspan="3">
       <font color=white><b>@project_name@</b></font>
     </td>
     <td align="center">
@@ -35,6 +35,9 @@
       </else>
     </td>
     <td align="center">
+      &nbsp;
+    </td>
+    <td align="center">
       <a href="@project_maintainer_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="Edit"></a>
     </td>
     <td align="center">
@@ -42,7 +45,7 @@
     </td>
   </tr>
   <tr bgcolor="#cccccc">
-    <td colspan="2">
+    <td colspan="3">
       Project versions
     </td>
     <td align="center">
@@ -53,7 +56,7 @@
     </td>
   </tr>
   <tr bgcolor="#cccccc">
-    <td colspan="2">
+    <td colspan="3">
       Project permissions
     </td>
     <td align="center">
@@ -67,7 +70,7 @@
 
 <!--
   <tr bgcolor="#cccccc">
-    <td colspan="2">
+    <td colspan="3">
       Priority codes
     </td>
     <td align="center">
@@ -91,7 +94,7 @@
 -->
 
   <tr bgcolor="#999999">
-    <td colspan="4" align="center">
+    <td colspan="5" align="center">
       <font color=white><b>Components</b></font>
     </td>
   </tr>
@@ -108,13 +111,16 @@
         <if @components.maintainer@ not nil>
           <a href="@components.maintainer_url@" title="Email: @components.maintainer_email@">@components.maintainer_first_names@ @components.maintainer_last_name@</a>
         </if>
-        <else><i>No maintainer of this component</i></else>
+        <else><i>No maintainer</i></else>
+      </td>
+      <td align="right">
+        <if @components.view_bugs_url@ not nil><a href="@components.view_bugs_url@" title="View the bugs for this component"></if>@components.num_bugs@ <if @components.num_bugs@ eq 1>bug</if><else>bugs</else><if @components.view_bugs_url@ not nil></a></if>
       </td>
       <td align="center">
         <a href="@components.edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="Edit"></a>
       </td>
       <td align="center">
-        <if @componenents.delete_url@ not nil>
+        <if @components.delete_url@ not nil>
           <a href="@components.delete_url@"><img src="../graphics/Delete16.gif" width="16" height="16" border="0" alt="Delete"></a>
         </if>
       </td>
@@ -122,11 +128,11 @@
   </multiple>
   <if @components:rowcount@ eq 0>
     <tr bgcolor="#cccccc">
-      <td colspan="4"><i>No components</i></td>
+      <td colspan="5"><i>No components</i></td>
     </tr>
   </if>
   <tr bgcolor="#bbbbbb">
-    <td colspan="4"><a href="@component_add_url@">Create New Component</a></td>
+    <td colspan="5"><a href="@component_add_url@">Create New Component</a></td>
   </tr>
 </table>
 
