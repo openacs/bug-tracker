@@ -113,6 +113,8 @@ switch -exact -- $orderby {
     }
 }
 
+set truncate_len [ad_parameter "TruncateDescriptionLength" -default 200]
+
 db_multirow -extend { description_short submitter_url status_pretty resolution_pretty bug_type_pretty original_esimate_pretty latest_estimate_pretty elapsed_time_pretty assignee_url bug_url } bugs bugs "
     select b.bug_id,
            b.bug_number,
@@ -170,7 +172,7 @@ db_multirow -extend { description_short submitter_url status_pretty resolution_p
     [ad_decode $where_clauses "" "" "and [join $where_clauses " and "]"]
     order  by $order_by_clause
 " {
-    set description_short [bug_tracker::string_truncate [bug_tracker::bug_convert_comment_to_text -comment $description -format $desc_format]]
+    set description_short [string_truncate -len $truncate_len [bug_tracker::bug_convert_comment_to_text -comment $description -format $desc_format]]
     set submitter_url [acs_community_member_url -user_id $submitter_user_id]
     set status_pretty [bug_tracker::status_pretty $status]
     set resolution_pretty [bug_tracker::resolution_pretty $resolution]
