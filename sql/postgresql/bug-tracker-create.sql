@@ -305,7 +305,7 @@ create table bt_bugs(
   fix_for_version               integer,
   fixed_in_version              integer,
   -- denormalized from acs_objects
-  creation_date                 timestamp,
+  creation_date                 timestamptz,
   creation_user                 integer,
   -- constraint
   constraint bt_bug_parent_id_bug_number_un
@@ -391,7 +391,7 @@ create or replace function bt_bug__new(
     varchar,     -- user_agent
     text,        -- comment_content
     varchar,     -- comment_format
-    timestamp,   -- creation_date
+    timestamptz, -- creation_date
     integer,     -- creation_user
     varchar,     -- creation_ip
     varchar,     -- item_subtype
@@ -532,7 +532,7 @@ create or replace function bt_bug_revision__new(
     varchar,        -- resolution
     varchar,        -- user_agent
     varchar,        -- summary
-    timestamp,      -- creation_date
+    timestamptz,    -- creation_date
     integer,        -- creation_user
     varchar         -- creation_ip
 ) returns int
@@ -557,7 +557,7 @@ begin
     v_revision_id := content_revision__new(
         p_summary,              -- title
         null,                   -- description
-        now(),                  -- publish_date
+        current_timestamp,      -- publish_date
         null,                   -- mime_type
         null,                   -- nls_language        
         null,                   -- new_data
@@ -659,8 +659,8 @@ create table bt_patch_actions (
   actor                    integer not null
                            constraint bt_patch_actions_actor_fk
                            references users(user_id),
-  action_date              timestamp not null
-                           default now(),
+  action_date              timestamptz not null
+                           default current_timestamp,
   comment_text             text,
   comment_format           varchar(30) default 'plain' not null
                            constraint  bt_patch_actions_comment_format_ck
@@ -715,7 +715,7 @@ begin
     v_patch_id := acs_object__new(
         p_patch_id,             -- object_id
         ''bt_patch'',           -- object_type
-        now(),                  -- creation_date
+        current_timestamp,      -- creation_date
         p_creation_user,        -- creation_user
         p_creation_ip,          -- creation_ip
         p_project_id,           -- context_id
