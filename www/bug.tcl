@@ -8,6 +8,7 @@ ad_page_contract {
     mode:optional
     bug_number:integer,notnull
     edit:optional
+    comment:optional
     resolve:optional
     reopen:optional
     cancel:optional
@@ -27,6 +28,8 @@ ad_require_permission [ad_conn package_id] read
 if { ![info exists mode] } {
     if { [exists_and_not_null edit] } {
         set mode "edit"
+    } elseif { [exists_and_not_null comment] } {
+        set mode "comment"
     } elseif { [exists_and_not_null resolve] } {
         set mode "resolve"
     } elseif { [exists_and_not_null reopen] } {
@@ -41,6 +44,9 @@ if { ![info exists mode] } {
 switch -- $mode {
     edit {
         set edit_fields { component_id bug_type summary severity priority found_in_version assignee fix_for_version resolution fixed_in_version }
+    }
+    comment {
+        set edit_fields {}
     }
     resolve {
         set edit_fields { resolution fixed_in_version }
@@ -172,7 +178,7 @@ element create bug fixed_in_version \
         -optional
 
 switch -- $mode {
-    edit - resolve - reopen - close {
+    edit - comment - resolve - reopen - close {
         element create bug description  \
                 -datatype text \
                 -widget comment \
@@ -363,6 +369,7 @@ if { [form is_request bug] } {
         set button_form_export_vars [export_vars -form { bug_number }]
         multirow create button name label
         multirow append button "edit" "Edit"
+        multirow append button "comment" "Comment"
         switch -- $bug(status) {
             open {
                 multirow append button "resolve" "Resolve"
@@ -412,8 +419,9 @@ if { [form is_valid bug] } {
     db_transaction {
         set bug_id [db_string bug_id { select bug_id from bt_bugs where bug_number = :bug_number and project_id = :package_id }]
 
-        db_dml update_bug "update bt_bugs \n set    [join $update_exprs ",\n        "] \n where  bug_id = :bug_id"
-
+        if { [llength $update_exprs] > 0 } {
+            db_dml update_bug "update bt_bugs \n set    [join $update_exprs ",\n        "] \n where  bug_id = :bug_id"
+        }
 
         set action_id [db_nextval "acs_object_id_seq"]
         set user_id [ad_conn user_id]
@@ -437,4 +445,3 @@ if { [form is_valid bug] } {
 }
 
 ad_return_template
-
