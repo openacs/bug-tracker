@@ -13,6 +13,6 @@
                nvl(u.screen_name, '')) like upper('%'||:value||'%')
         order  by name
   </querytext>
-<fullquery>
+</fullquery>
  
 </queryset>

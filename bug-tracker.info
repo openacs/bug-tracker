@@ -8,8 +8,6 @@
     <singleton-p>f</singleton-p>
     
     <version name="1.2d5" url="http://openacs.org/repository/download/apm/bug-tracker-1.2d5.apm">
-    <database-support>
-    </database-support>
         <owner url="mailto:lars@collaboraid.biz">Lars Pind</owner>
         <summary>Tracks bugs and features, versions and maintainers, in software projects. Contains the best of SDM, Bugzilla, FogBUGZ, and bughost.com.</summary>
         <release-date>2003-02-28</release-date>
@@ -22,9 +20,6 @@
         <requires url="notifications" version="0.2d"/>
         <requires url="workflow" version="0.2d2"/>
 
-        <files>
-            <file type="package_spec" path="bug-tracker.info"/>
-        </files>
         <callbacks>
             <callback type="after-install"  proc="bug_tracker::install::package_install"/>
             <callback type="after-instantiate"  proc="bug_tracker::install::package_instantiate"/>
