@@ -21,7 +21,7 @@
         <provides url="bug-tracker" version="1.3d3"/>
         <requires url="acs-content-repository" version="5.2.0d2"/>
         <requires url="acs-kernel" version="5.2.0d2"/>
-        <requires url="acs-tcl" version="5.2.0d2"/>
+        <requires url="acs-tcl" version="5.2.0d1"/>
         <requires url="notifications" version="5.0.0b4"/>
         <requires url="workflow" version="2.0.0b3"/>
 
