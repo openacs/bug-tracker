@@ -91,6 +91,8 @@ ad_proc -public bug_tracker::bug::insert {
     {-ip_address ""}
     {-item_subtype "bt_bug"}
     {-content_type "bt_bug_revision"}
+    {-fix_for_version ""}
+    {-assign_to ""}
 } {
     Inserts a new bug into the content repository.
     You probably don't want to run this yourself - to create a new bug, use bug_tracker::bug::new
@@ -114,7 +116,8 @@ ad_proc -public bug_tracker::bug::insert {
     set extra_vars [ns_set create]
     oacs_util::vars_to_ns_set \
         -ns_set $extra_vars \
-        -var_list { bug_id package_id component_id found_in_version summary user_agent comment_content comment_format creation_date }
+        -var_list { bug_id package_id component_id found_in_version summary user_agent comment_content comment_format creation_date fix_for_version assign_to}
+
 
     set bug_id [package_instantiate_object \
                     -creation_user $user_id \
@@ -142,6 +145,8 @@ ad_proc -public bug_tracker::bug::new {
     {-item_subtype "bt_bug"}
     {-content_type "bt_bug_revision"}
     {-keyword_ids {}}
+    {-fix_for_version {}}
+    {-assign_to ""}
 } {
     Create a new bug, then send out notifications, starts workflow, etc.
 
@@ -150,7 +155,8 @@ ad_proc -public bug_tracker::bug::new {
     @see bug_tracker::bug::insert.
     @return bug_id The same bug_id passed in, just for convenience.
 } {
-    
+   
+
     db_transaction {
 
         set bug_id [bug_tracker::bug::insert \
@@ -166,21 +172,31 @@ ad_proc -public bug_tracker::bug::new {
                 -ip_address $ip_address \
                 -item_subtype $item_subtype \
                 -content_type $content_type \
-                ]
+		-fix_for_version $fix_for_version ]
 
         foreach keyword_id $keyword_ids {
             cr::keyword::item_assign -item_id $bug_id -keyword_id $keyword_id
         }
+	
+	if {![empty_string_p $assign_to]} {
 
-        workflow::case::new \
+	    array set assign_array [list resolver $assign_to]
+	    
+	} else {
+	    array set assign_array ""
+	}
+
+	
+        set case_id [workflow::case::new \
                 -workflow_id [workflow::get_id -object_id $package_id -short_name [workflow_short_name]] \
                 -object_id $bug_id \
                 -comment $description \
                 -comment_mime_type $desc_format \
-                -user_id $user_id
-    }
+		-user_id $user_id \
+		-assignment [array get assign_array]]
     
     return $bug_id
+    }
 }
 
 

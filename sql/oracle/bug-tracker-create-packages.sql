@@ -48,6 +48,7 @@ as
         creation_date   in date default sysdate(),
         creation_user   in integer,
         creation_ip     in varchar2 default null,
+	fix_for_version in integer default null,
         item_subtype    in varchar2 default 'bt_bug',
         content_type    in varchar2 default 'bt_bug_revision'
     ) return integer;
@@ -329,6 +330,7 @@ as
         creation_date   in date default sysdate(),
         creation_user   in integer,
         creation_ip     in varchar2 default null,
+	fix_for_version in integer default null,
         item_subtype    in varchar2 default 'bt_bug',
         content_type    in varchar2 default 'bt_bug_revision'
     ) return integer
@@ -382,7 +384,8 @@ as
              parent_id,
              project_id,
              creation_date,
-             creation_user)
+             creation_user,
+	     fix_for_version)
         values
             (v_bug_id,
              v_bug_number,
@@ -391,7 +394,8 @@ as
              v_folder_id,
              bt_bug.new.package_id,
              bt_bug.new.creation_date,
-             bt_bug.new.creation_user);
+             bt_bug.new.creation_user,
+	     bt_bug.new.fix_for_version);
 
         -- create the initial revision
         v_revision_id := bt_bug_revision.new(
@@ -400,7 +404,7 @@ as
             component_id =>             bt_bug.new.component_id, 
             found_in_version =>         bt_bug.new.found_in_version,
             fix_for_version =>          null,                     
-            fixed_in_version =>         null,                     
+            fixed_in_version =>         bt_bug.new.fix_for_version,                     
             resolution =>               null,                     
             user_agent =>               bt_bug.new.user_agent,    
             summary =>                  bt_bug.new.summary,       

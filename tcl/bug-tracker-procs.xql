@@ -44,6 +44,9 @@
       </querytext>
 </fullquery>
 
+
+
+
  
 <fullquery name="bug_tracker::components_get_options_not_cached.components">      
       <querytext>
@@ -210,5 +213,7 @@
        order by c.component_name
     </querytext>
   </fullquery>
+
+
  
 </queryset>

@@ -28,7 +28,7 @@ set user_id [ad_conn user_id]
 
 permission::require_permission -object_id $package_id -privilege read
 
-set page_title "[bug_tracker::conn Bug] #$bug_number"
+set page_title "[bug_tracker::conn Bug] #$bug_number" 
 
 set context [list [ad_quotehtml $page_title]]
 

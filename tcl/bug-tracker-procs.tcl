@@ -777,6 +777,30 @@ ad_proc bug_tracker::version_get_options {
 }
 
 
+ad_proc bug_tracker::assignee_get_options {
+    -workflow_id
+    -include_unknown:boolean
+    -include_undecided:boolean
+} {
+    Returns an option list containing all users that have submitted or assigned to a bug.
+    Used for the add bug form. Added because the workflow api requires a case_id.  
+    (an item to evaluate is refactoring workflow to provide an assignee widget without a case_id)
+} {
+   
+    set assignee_list [db_list_of_lists assignees {}]
+
+    if { $include_unknown_p } {
+        set assignee_list [concat { { "Unknown" "" } } $assignee_list]
+    } 
+    
+    if { $include_undecided_p } {
+        set assignee_list [concat { { "Undecided" "" } } $assignee_list]
+    } 
+    
+    return $assignee_list
+}
+
+
 ad_proc bug_tracker::versions_p {
     {-package_id ""}
 } { 
@@ -802,6 +826,8 @@ ad_proc bug_tracker::version_get_options_not_cached {
     
     return $versions_list
 }
+
+
 
 ad_proc bug_tracker::version_get_name {
     {-package_id ""}
