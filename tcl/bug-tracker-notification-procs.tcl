@@ -1,8 +1,8 @@
---
--- Procedures of the Bug Tracker application related
--- to notifications.
---
--- @author Peter Marklund (peter@collaboraid.biz)
+#
+# Procedures of the Bug Tracker application related
+# to notifications.
+#
+# @author Peter Marklund (peter@collaboraid.biz)
 
 namespace eval bug_tracker::notification {
 
