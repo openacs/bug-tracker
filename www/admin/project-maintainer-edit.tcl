@@ -6,7 +6,6 @@ ad_page_contract {
     @cvs-id $Id$
 } {
     cancel:optional
-    maintainer:integer,optional
     {return_url ""}
 }
 
@@ -30,6 +29,7 @@ element create project_maintainer return_url -datatype text -widget hidden -valu
 element create project_maintainer maintainer \
         -datatype search \
         -widget search \
+        -result_datatype integer \
         -label "Project Maintainer" \
         -options [bug_tracker::users_get_options] \
         -optional \
@@ -46,6 +46,8 @@ if { [form is_request project_maintainer] } {
 }
 
 if { [form is_valid project_maintainer] } {
+    form get_values project_maintainer maintainer
+
     db_dml project_maintainer_update {
         update bt_projects
         set    maintainer = :maintainer
