@@ -78,7 +78,7 @@ if { ![info exists mode] } {
 switch -- $mode {
     edit {
         if { ![expr $write_p || $user_is_submitter_p] } {
-            ad_return_forbidden "Serurity Violation" "You do not have permission to edit this patch. Only the submitter of the patch and users with write permission on the Bug Tracker project (package instance) may do so."
+            ad_return_forbidden "Permission Denied" "You do not have permission to edit this patch. Only the submitter of the patch and users with write permission on the Bug Tracker project (package instance) may do so."
             ad_script_abort
         }
 
@@ -98,10 +98,10 @@ switch -- $mode {
     reopen {
         # User must have write permission to reopen a refused patch
         if { [string equal $patch_status "refused"] && !$write_p } {
-            ad_return_forbidden "Serurity Violation" "You do not have permission to reopen this refused patch, only users with write permission on the Bug Tracker package instance (project) may do so."
+            ad_return_forbidden "Permission Denied" "You do not have permission to reopen this refused patch, only users with write permission on the Bug Tracker package instance (project) may do so."
             ad_script_abort
         } elseif { [string equal $patch_status "deleted"] && !($user_is_submitter_p || $write_p)} {
-            ad_return_forbidden "Serurity Violation" "You do not have permission to reopen this deleted patch, only users with write permission on the Bug Tracker package instance (project) and the submitter of the patch may do so."
+            ad_return_forbidden "Permission Denied" "You do not have permission to reopen this deleted patch, only users with write permission on the Bug Tracker package instance (project) and the submitter of the patch may do so."
             ad_script_abort            
         } 
 
@@ -110,7 +110,7 @@ switch -- $mode {
     delete {
         # Only the submitter can delete a patch (admins can refuse it)
         if { !$user_is_submitter_p } {
-            ad_return_forbidden "Serurity Violation" "You do not have permission to cancel this patch - only the submitter of the patch may do so. If you are an administrator you can however refuse the patch."
+            ad_return_forbidden "Permission Denied" "You do not have permission to cancel this patch - only the submitter of the patch may do so. If you are an administrator you can however refuse the patch."
             ad_script_abort
         }
         set edit_fields {}
@@ -383,7 +383,7 @@ if { [form is_request patch] } {
     # Check that the user is permitted to change the patch
     if { ![string equal $mode "view"] && !$write_p && !$user_is_submitter_p } {
         ns_log notice "$patch(submitter_user_id) doesn't have write on object $patch(patch_id)"
-        ad_return_forbidden "Security Violation" "<blockquote>
+        ad_return_forbidden "Permission Denied" "<blockquote>
         You don't have permission to edit this patch.
         <br>
         This incident has been logged.

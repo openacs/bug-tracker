@@ -32,7 +32,7 @@ set write_p [ad_permission_p $package_id write]
 set user_is_submitter_p [expr $user_id == [bug_tracker::get_patch_submitter -patch_number $patch_number]]
 
 if { ![expr $user_is_submitter_p || $write_p] } {            
-    ad_return_forbidden "Security Violation" "You do not have permission to map this patch to a bug. Only the submitter of the patch and users with write permission on this Bug Tracker project (package instance) may do so."            
+    ad_return_forbidden "Permission Denied" "You do not have permission to map this patch to a bug. Only the submitter of the patch and users with write permission on this Bug Tracker project (package instance) may do so."            
     ad_script_abort
 }
 

@@ -1504,7 +1504,7 @@ ad_proc bug_tracker::security_violation {
 } {
     ns_log Notice "$user_id doesn't have permission to '$action' on bug $bug_id"
     ad_return_forbidden \
-            "Security Violation" \
+            "Permission Denied" \
             "<blockquote>
     You don't have permission to '$action' on this bug.
     <br>
