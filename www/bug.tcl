@@ -9,7 +9,6 @@ ad_page_contract {
     {user_agent_p:boolean 0}
     {show_patch_status open}
 }]
-set pretty_names_bugs Fooooooooooooo
 
 #####
 #
