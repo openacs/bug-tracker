@@ -112,6 +112,7 @@ ad_proc bug_tracker::get_page_variables {
     ad_page_contract { doc } [bug_tracker::get_page_variables { foo:integer { bar "" } }]
 } {
     set filter_vars {
+        page:optional
         f_state:optional
         f_fix_for_version:optional
         f_component:optional
