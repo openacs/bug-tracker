@@ -198,10 +198,7 @@ namespace eval bug_tracker {
             set user_id [ad_conn user_id]
         }
     
-        # temp hack: don't cache
-        return [get_user_prefs_internal $package_id $user_id]
-    
-        #    return [util_memoize "bt_get_user_prefs_internal $package_id $user_id"]
+        return [util_memoize "bug_tracker::get_user_prefs_internal $package_id $user_id"]
     }
     
     
@@ -535,15 +532,15 @@ namespace eval bug_tracker {
             set package_id [ad_conn package_id]
         }
 
-        # Lars:
-        # This is using acs_permission__permission_p in the where clause of a query
-        # This is a no-no, but I don't know what else to do here
+        # This picks out users who are already assigned to some bug in this
         set sql {
-            select first_names || ' ' || last_name, 
-                   user_id 
-            from   cc_users 
-            where  acs_permission__permission_p(:package_id, user_id, 'write') = 't'
-            order  by first_names, last_name
+            select distinct
+                   u.first_names || ' ' || u.last_name as name,
+                   u.user_id
+            from   bt_bugs b, cc_users u
+            where  b.project_id = :package_id
+            and    u.user_id = b.assignee
+            order  by name
         }
 
         set users_list [db_list_of_lists users $sql]
@@ -551,7 +548,7 @@ namespace eval bug_tracker {
         if { $include_unassigned_p } {
             set users_list [concat { { "Unassigned" "" } } $users_list]
         } 
-        
+
         return $users_list
     }
     
@@ -1068,3 +1065,4 @@ namespace eval bug_tracker {
     }
 
 }
+

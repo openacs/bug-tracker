@@ -9,6 +9,7 @@ ad_page_contract {
     bug_number:integer,notnull
     edit:optional
     comment:optional
+    reassign:optional
     resolve:optional
     reopen:optional
     cancel:optional
@@ -33,6 +34,8 @@ if { ![info exists mode] } {
         set mode "edit"
     } elseif { [exists_and_not_null comment] } {
         set mode "comment"
+    } elseif { [exists_and_not_null reassign] } {
+        set mode "reassign"
     } elseif { [exists_and_not_null resolve] } {
         set mode "resolve"
     } elseif { [exists_and_not_null reopen] } {
@@ -50,6 +53,9 @@ switch -- $mode {
     }
     comment {
         set edit_fields {}
+    }
+    reassign {
+        set edit_fields { assignee }
     }
     resolve {
         set edit_fields { resolution fixed_in_version }
@@ -215,8 +221,8 @@ if { $user_agent_p } {
 }
 
 element create bug assignee \
-        -datatype integer \
-        -widget [ad_decode [info exists field_editable_p(assignee)] 1 select inform] \
+        -datatype user \
+        -widget [ad_decode [info exists field_editable_p(assignee)] 1 user inform] \
         -label "Assigned to" \
         -options [bug_tracker::users_get_options -include_unassigned] \
         -optional
@@ -236,7 +242,7 @@ element create bug fixed_in_version \
         -optional
 
 switch -- $mode {
-    edit - comment - resolve - reopen - close {
+    edit - comment - reassign - resolve - reopen - close {
         element create bug description  \
                 -datatype text \
                 -widget comment \
@@ -280,8 +286,7 @@ set page_title "Bug #$bug_number"
 set show_user_agent_url "bug?[export_vars { bug_number { user_agent_p 1 }}]"
 set hide_user_agent_url "bug?[export_vars { bug_number }]"
 
-if { [form is_request bug] } {
-    
+if { ![form is_valid bug] } {
     db_1row bug {
         select b.bug_id,
                b.bug_number,
@@ -317,13 +322,13 @@ if { [form is_request bug] } {
                coalesce((select version_name 
                          from bt_versions fixed_in_v 
                          where fixed_in_v.version_id = b.fixed_in_version), 'Unknown') as fixed_in_version_name,
-               b.assignee as assignee_user_id,
-               assignee.first_names as assignee_first_names,
-               assignee.last_name as assignee_last_name,
-               assignee.email as assignee_email,
+               b.assignee,
+               asgnu.first_names as assignee_first_names,
+               asgnu.last_name as assignee_last_name,
+               asgnu.email as assignee_email,
                to_char(now(), 'fmMM/DDfm/YYYY') as now_pretty
         from   bt_bugs b left outer join
-               cc_users assignee on (assignee.user_id = b.assignee),
+               cc_users asgnu on (asgnu.user_id = b.assignee),
                acs_objects o,
                bt_components c,
                bt_priority_codes pc,
@@ -347,56 +352,30 @@ if { [form is_request bug] } {
         }
     }
     
-    element set_properties bug bug_number \
-        -value $bug(bug_number)
-    element set_properties bug bug_number_i \
-        -value $bug(bug_number)
-    element set_properties bug component_id \
-        -value [ad_decode [info exists field_editable_p(component_id)] 1 $bug(component_id) $bug(component_name)]
-    element set_properties bug bug_type \
-            -value [ad_decode [info exists field_editable_p(bug_type)] 1 $bug(bug_type) [bug_tracker::bug_type_pretty $bug(bug_type)]]
-    element set_properties bug summary \
-            -value [ad_decode [info exists field_editable_p(summary)] 1 $bug(summary) "<b>$bug(summary)</b>"]
-    element set_properties bug submitter \
-            -value "
-    [acs_community_member_link -user_id $bug(submitter_user_id) \
-            -label "$bug(submitter_first_names) $bug(submitter_last_name)"]
-    (<a href=\"mailto:$bug(submitter_email)\">$bug(submitter_email)</a>)"
-    element set_properties bug status \
-            -value [ad_decode [info exists field_editable_p(status)] 1 $bug(status) [bug_tracker::status_pretty $bug(status)]]
-    element set_properties bug resolution \
-            -value [ad_decode [info exists field_editable_p(resolution)] 1 $bug(resolution) [bug_tracker::resolution_pretty $bug(resolution)]]
-    element set_properties bug severity \
-            -value [ad_decode [info exists field_editable_p(severity)] 1 $bug(severity) $bug(severity_pretty)]
-    element set_properties bug priority \
-            -value [ad_decode [info exists field_editable_p(priority)] 1 $bug(priority) $bug(priority_pretty)]
-    element set_properties bug found_in_version \
-            -value [ad_decode [info exists field_editable_p(found_in_version)] 1 $bug(found_in_version) $bug(found_in_version_name)]
+    set pretty(bug_number) "#$bug(bug_number)"
+    set pretty(component_id) $bug(component_name)
+    set pretty(bug_type) [bug_tracker::bug_type_pretty $bug(bug_type)]
+    set pretty(summary) "<b>$bug(summary)</b>"
+    set pretty(submitter) "[acs_community_member_link -user_id $bug(submitter_user_id) \
+            -label "$bug(submitter_first_names) $bug(submitter_last_name)" \
+            ] (<a href=\"mailto:$bug(submitter_email)\">$bug(submitter_email)</a>)"
+    set pretty(status) [bug_tracker::status_pretty $bug(status)]
+    set pretty(resolution) [bug_tracker::resolution_pretty $bug(resolution)]
+    set pretty(severity) $bug(severity_pretty)
+    set pretty(priority) $bug(priority_pretty)
+    set pretty(found_in_version) $bug(found_in_version_name)
+    set pretty(patches) "[bug_tracker::get_patch_links -bug_id $bug(bug_id) -show_patch_status $show_patch_status] &nbsp; \[ <a href=\"patch-add?bug_number=$bug(bug_number)\">Upload a patch</a> \]"
+    set pretty(user_agent) $bug(user_agent)
+    set pretty(fix_for_version) $bug(fix_for_version_name)
+    set pretty(fixed_in_version) $bug(fixed_in_version_name)
+    set pretty(assignee) [ad_decode $bug(assignee) "" "<i>Unassigned</i>" "
+        [acs_community_member_link -user_id $bug(assignee) \
+                -label "$bug(assignee_first_names) $bug(assignee_last_name)"]
+        (<a href=\"mailto:$bug(assignee_email)\">$bug(assignee_email)</a>)"]
+}
 
-    element set_properties bug patches \
-            -value "[bug_tracker::get_patch_links -bug_id $bug(bug_id) -show_patch_status $show_patch_status] &nbsp; \[ <a href=\"patch-add?bug_number=$bug(bug_number)\">Upload a patch</a> \]"
-
-    if { $user_agent_p } {
-        element set_properties bug user_agent \
-                -value $bug(user_agent)
-    }
-    element set_properties bug fix_for_version \
-            -value [ad_decode [info exists field_editable_p(fix_for_version)] 1 $bug(fix_for_version) $bug(fix_for_version_name)]
-    element set_properties bug fixed_in_version \
-            -value [ad_decode [info exists field_editable_p(fixed_in_version)] 1 $bug(fixed_in_version) $bug(fixed_in_version_name)]
-    element set_properties bug assignee \
-            -value [ad_decode [info exists field_editable_p(assignee)] 1 $bug(assignee_user_id) \
-            [ad_decode $bug(assignee_user_id) "" "<i>Unassigned</i>" "
-    [acs_community_member_link -user_id $bug(assignee_user_id) \
-            -label "$bug(assignee_first_names) $bug(assignee_last_name)"]
-    (<a href=\"mailto:$bug(assignee_email)\">$bug(assignee_email)</a>)"]]
-
-
-    if { ( [string equal $bug(status) open] && ![string equal $mode "resolve"]) \
-            || [string equal $mode "reopen"] } {
-        element set_properties bug resolution -widget hidden
-        element set_properties bug fixed_in_version -widget hidden
-    }
+if { [form is_request bug] } {
+    element set_properties bug bug_number -value $bug(bug_number)
 
     # Description/Actions/History
 
@@ -439,6 +418,9 @@ if { [form is_request bug] } {
 
     # If the user has submitted the bug he gets full write access on the bug
     set write_p [expr $write_p || ($bug(submitter_user_id) == [ad_conn user_id])]
+    if { !$write_p && [info exists bug(assignee)] && $bug(assignee) == [ad_conn user_id] } {
+        set write_p 1
+    }
 
     if { [string equal $mode "view"] && $write_p } {
         set button_form_export_vars [export_vars -form { bug_number filter:array }]
@@ -448,6 +430,7 @@ if { [form is_request bug] } {
 
         switch -- $bug(status) {
             open {
+                multirow append button "reassign" "Reassign"
                 multirow append button "resolve" "Resolve"
             }
             resolved {
@@ -461,20 +444,8 @@ if { [form is_request bug] } {
         }
     }
 
-    # Notifications for a project. Provide a link for logged in users in view mode
-    if { [string equal $mode "view"]  } {
-
-        set notification_link [bug_tracker::get_notification_link \
-                         -type       bug_tracker_project_notif \
-                         -object_id  $bug(bug_id) \
-                         -url        $return_url \
-                         -pretty_name "bug"]
-    } else {
-        set notification_link ""
-    }
-
     if { ![string equal $mode "view"] && !$write_p } {
-        ns_log notice "$bug(submitter_user_id) doesn't have write on object $bug(bug_id)"
+        ns_log notice "[ad_conn user_id] doesn't have write on object $bug(bug_id)"
         ad_return_forbidden "Security Violation" "<blockquote>
         You don't have permission to edit this bug.
         <br>
@@ -482,9 +453,59 @@ if { [form is_request bug] } {
         </blockquote>"
         ad_script_abort
     }
-}
+} 
 
-set context_bar [ad_context_bar $page_title]
+if { ![form is_valid bug] } {
+    # set the values of all the inform widgets
+
+    element set_properties bug bug_number_i -value $pretty(bug_number)
+    
+    foreach element { 
+        component_id bug_type summary submitter status resolution severity 
+        priority found_in_version patches user_agent fix_for_version fixed_in_version assignee 
+    } {
+        # check that the element exists
+        if { [info exists bug:$element] } {
+            if { [info exists field_editable_p($element)] } {
+                if { [form is_request bug] } {
+                    element set_value bug $element $bug($element)
+                }
+            } else { 
+                element set_value bug $element $pretty($element)
+            }
+        }
+    }       
+
+    if { [string equal $bug(status) "open"] && ![string equal $mode "resolve"] || [string equal $mode "reopen"] } {
+        element set_properties bug resolution -widget hidden
+        element set_properties bug fixed_in_version -widget hidden
+    }
+
+}    
+
+
+
+# Notifications for a project. Provide a link for logged in users in view mode
+if { [string equal $mode "view"]  } {
+    set notification_link [bug_tracker::get_notification_link \
+            -type       bug_tracker_project_notif \
+            -object_id  $bug(bug_id) \
+            -url        $return_url \
+            -pretty_name "bug"]
+} else {
+    set notification_link ""
+}
+    
+
+if { [info exists filter] } {
+    if { [array names filter] == [list "actionby"] && $filter(actionby) == [ad_conn user_id] } {
+        set context_bar [bug_tracker::context_bar [list ".?[export_vars { filter:array }]" "My bugs"] $page_title]
+    } else {
+        set context_bar [bug_tracker::context_bar [list ".?[export_vars { filter:array }]" "Filtered bug list"] $page_title]
+    }
+} else {
+    set context_bar [bug_tracker::context_bar $page_title]
+}
 
 if { [form is_valid bug] } {
 
