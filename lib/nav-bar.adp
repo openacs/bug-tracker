@@ -1,29 +1,9 @@
-<table border=0" cellspacing="0" cellpadding="2" bgcolor="#41329c" width="100%">
-  <form action="@form_action_url@" method="get" name="navbar_form_@bt_nav_bar_count@">
-    <tr>
-      <td align="left">
-        <table border="0" cellspacing="0" cellpadding="0">
-          <tr>
-            <td>
-                &nbsp; <a href="@notification_url@" class="bt_navbar" title="@notification_title@">@notification_label@</a>
-            </td>
-          </tr>
-        </table>        
-      </td>
-      <td align="right">
-        <table border="0" cellspacing="0" cellpadding="0">
-          <tr>
-            <td>
-              <multiple name="links">
-                <a href="@links.url@" class="bt_navbar">@links.name@</a><span class="bt_navbar">&nbsp;|&nbsp;</span>
-              </multiple>
-              <input name="bug_number" type="text" size="5" class="bt_navbar" value="@pretty_names.Bug@ #" 
-                onFocus="javascript:document.navbar_form_@bt_nav_bar_count@.bug_number.value='';">
-              <input type="submit" value="Go" class="bt_navbar">
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
+<div class="bt_navbar" style="background: #41329c; text-align: right; padding: 3px;">
+  <div style="float: left; padding: .25em; 1em 0em 1em;"><a href="@notification_url@" class="bt_navbar" title="@notification_title@">@notification_label@</a></div>
+  <multiple name="links"><a href="@links.url@" class="bt_navbar">@links.name@</a>&nbsp;|&nbsp;</multiple>
+  <form style="display: inline" action="@form_action_url@" method="get" name="navbar_form_@bt_nav_bar_count@">
+    <input name="bug_number" type="text" size="5" class="bt_navbar" value="@pretty_names.Bug@ #" 
+      onFocus="javascript:document.navbar_form_@bt_nav_bar_count@.bug_number.value='';">
+      <input type="submit" value="Go" class="bt_navbar">
   </form>
-</table>
+</div>

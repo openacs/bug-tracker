@@ -15,12 +15,5 @@
   </if>
 
 <include src="nav-bar" notification_link="@notification_link;noquote@">
-
-<p>
-
 <slave>
-
-<p>
-
 <include src="nav-bar" notification_link="@notification_link;noquote@">
-
