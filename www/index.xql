@@ -51,6 +51,7 @@
           workflow_case_fsm cfsm
     where cas.object_id = bt_bugs.bug_id
       and cas.case_id = cfsm.case_id
+      and bt_bugs.project_id = :package_id
       and cfsm.current_state = '4'
       and not exists (select 1
                       from workflow_actions a,

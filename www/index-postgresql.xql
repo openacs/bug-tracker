@@ -146,6 +146,7 @@
             from   bt_components com
             where  com.project_id = :package_id) c
      where  c.component_id = b.component_id
+     and    b.project_id = :package_id
      and    cas.object_id = b.bug_id
      and    cas.case_id = cfsm.case_id
      and    cfsm.current_state = :initial_state_id
