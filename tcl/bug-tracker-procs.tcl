@@ -1507,8 +1507,6 @@ ad_proc bug_tracker::security_violation {
             "Permission Denied" \
             "<blockquote>
     You don't have permission to '$action' on this bug.
-    <br>
-    This incident has been logged.
     </blockquote>"
     ad_script_abort
 }

@@ -385,8 +385,6 @@ if { [form is_request patch] } {
         ns_log notice "$patch(submitter_user_id) doesn't have write on object $patch(patch_id)"
         ad_return_forbidden "Permission Denied" "<blockquote>
         You don't have permission to edit this patch.
-        <br>
-        This incident has been logged.
         </blockquote>"
         ad_script_abort
     }    
