@@ -4,7 +4,7 @@
   <style>
   .bt_navbar { font-family: tahoma,verdana,arial,helvetica; font-size: 70%; font-weight: bold; color: #ccccff; text-decoration: none; }
   A.bt_navbar { color: white; }
-  .bt_navbar:hover { color: white; text-decoration: underline;  }
+  A.bt_navbar:hover { color: white; text-decoration: underline;  }
   INPUT.bt_navbar { font-family: tahoma,verdana,arial,helvetica; font-weight: bold; font-size: 70%; color: black; }
   .bt_summary { font-size: 70%; font-family: verdana,arial,helvetica; }
   .bt_summary_bold { font-size: 70%; font-family: verdana,arial,helvetica; font-weight: bold; }
