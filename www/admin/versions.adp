@@ -15,8 +15,8 @@
       <th>#bug-tracker.Planned_Release#</th>
       <th>#bug-tracker.Maintainer_1#</th>
       <th>#bug-tracker.Assign#</th>
-      <th>#acs-kernel.common_Edit#</th>
-      <th>#acs-kernel.common_Delete#</th>
+      <th>#acs-kernel.common_edit#</th>
+      <th>#acs-kernel.common_delete#</th>
       <th>#bug-tracker.Release#</th>
     </tr>
     <multiple name="current_version">
@@ -46,11 +46,11 @@
           @current_version.assignable_p_pretty@
         </td>
         <td class="bt_listing" align="center">
-          <a href="@current_version.edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" alt="#acs-kernel.common_Edit#" border="0"></a>
+          <a href="@current_version.edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" alt="#acs-kernel.common_edit#" border="0"></a>
         </td>
         <td class="bt_listing" align="center">
           <if @current_version.delete_url@ not nil>
-            <a href="@current_version.delete_url@"><img src="../graphics/Delete16.gif" width="16" height="16" alt="#acs-kernel.common_Delete#" border="0"></a>
+            <a href="@current_version.delete_url@"><img src="../graphics/Delete16.gif" width="16" height="16" alt="#acs-kernel.common_delete#" border="0"></a>
           </if>
         </td>
         <td class="bt_listing">
@@ -76,8 +76,8 @@
       <th>#bug-tracker.Planned_Release#</th>
       <th>#bug-tracker.Maintainer#</th>
       <th>#bug-tracker.Assign#</th>
-      <th>#acs-kernel.common_Edit#</th>
-      <th>#acs-kernel.common_Delete#</th>
+      <th>#acs-kernel.common_edit#</th>
+      <th>#acs-kernel.common_delete#</th>
       <th>#bug-tracker.Current#</th>
     </tr>
     <multiple name="future_version">
@@ -107,11 +107,11 @@
           @future_version.assignable_p_pretty@
         </td>
         <td class="bt_listing" align="center">
-          <a href="@future_version.edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" alt="#acs-kernel.common_Edit#" border="0"></a>
+          <a href="@future_version.edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" alt="#acs-kernel.common_edit#" border="0"></a>
         </td>
         <td class="bt_listing" align="center">
           <if @future_version.delete_url@ not nil>
-            <a href="@future_version.delete_url@"><img src="../graphics/Delete16.gif" width="16" height="16" alt="acs-kernel.common_Delete#" border="0"></a>
+            <a href="@future_version.delete_url@"><img src="../graphics/Delete16.gif" width="16" height="16" alt="acs-kernel.common_delete#" border="0"></a>
           </if>
         </td>
         <td class="bt_listing">
@@ -138,8 +138,8 @@
       <th>#bug-tracker.Planned_Release#</th>
       <th>#bug-tracker.Actual_Release#</th>
       <th>#bug-tracker.Maintainer#</th>
-      <th>#acs-kernel.common_Edit#</th>
-      <th>#acs-kernel.common_Delete#</th>
+      <th>#acs-kernel.common_edit#</th>
+      <th>#acs-kernel.common_delete#</th>
     </tr>
     <multiple name="past_version">
       <if @past_version.rownum@ odd>
@@ -165,11 +165,11 @@
           <else><i>#bug-tracker.None#</i></else>
         </td>
         <td class="bt_listing" align="center">
-          <a href="@past_version.edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" alt="#acs-kernel.common_Edit#" border="0"></a>
+          <a href="@past_version.edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" alt="#acs-kernel.common_edit#" border="0"></a>
         </td>
         <td class="bt_listing" align="center">
           <if @past_version.delete_url@ not nil>
-            <a href="@past_version.delete_url@"><img src="../graphics/Delete16.gif" width="16" height="16" alt="acs-kernel.common_Delete#" border="0"></a>
+            <a href="@past_version.delete_url@"><img src="../graphics/Delete16.gif" width="16" height="16" alt="acs-kernel.common_delete#" border="0"></a>
           </if>
         </td>
       </tr>

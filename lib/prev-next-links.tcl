@@ -8,7 +8,7 @@ multirow create links url value rownum
 
 set rownum 0
 
-foreach var { prev_url next_url } pretty { "[_ acs-kernel.common_Prev]" "[_ acs-kernel.common_Next]" } {
+foreach var { prev_url next_url } pretty [list [_ acs-kernel.common_previous] [_ acs-kernel.common_next] ] {
     if { [info exists $var] } {
         multirow append links [set $var] $pretty [incr rownum]
     }

@@ -7,8 +7,8 @@ ad_page_contract {
 } [bug_tracker::get_page_variables {
     bug_number:integer,notnull
     {user_agent_p:boolean 0}
-    {show_patch_status "[_ bug-tracker.open]"}
-%}]
+    {show_patch_status open}
+}]
 
 #####
 #
@@ -328,7 +328,7 @@ if { ![form is_valid bug] } {
     
     # Add empty option to resolution code
     if { ![empty_string_p $enabled_action_id] } {
-        if { [lsearch [workflow::action::get_element -action_id $action_id -element edit_fields] "[_ bug-tracker.resolution]"] == -1 } {
+        if { [lsearch [workflow::action::get_element -action_id $action_id -element edit_fields] "resolution"] == -1 } {
             element set_properties bug resolution -options [concat {{{} {}}} [element get_property bug resolution options]]
         }
     } else {
@@ -417,38 +417,38 @@ if { ![form is_valid bug] } {
             set last_bug_number [lindex $filter_bug_numbers end]
             set last_url [export_vars -base bug -entire_form -override { { bug_number $last_bug_number } }]
         }
-    
-        multirow create navlinks url img alt label 
-        
+
+        multirow create navlinks url img alt label
+
         if { $filter_bug_index != -1 } {
-            
+
             set next_bug_num [expr $filter_bug_index+1]
             set all_bugs [llength $filter_bug_numbers]
             multirow append navlinks \
                 $first_url \
                 "/resources/acs-subsite/stock_first-16.png" \
-                "[_ acs-kernel.common_First]"
-            
+                [_ acs-kernel.common_first]
+
             multirow append navlinks \
                 $prev_url \
                 "/resources/acs-subsite/stock_left-16.png" \
-                "[_ acs-kernel.common_Previous]"
-            
+                [_ acs-kernel.common_previous]
+
             multirow append navlinks \
                 {} \
                 {} \
                 {} \
-                "[_ bug-tracker.No_of_All]"
-            
+                [_ bug-tracker.No_of_All]
+
             multirow append navlinks \
                 $next_url \
                 "/resources/acs-subsite/stock_right-16.png" \
-                "[_ acs-kernel.common_Next]"
+                [_ acs-kernel.common_next]
 
             multirow append navlinks \
                 $last_url \
                 "/resources/acs-subsite/stock_last-16.png" \
-                "[_ acs-kernel.common_Last]"
+                [_ acs-kernel.common_last]
         }
-    }  
+    }
 }

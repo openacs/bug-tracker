@@ -374,7 +374,7 @@ ad_proc -private bug_tracker::bug::workflow_create {} {
                 open {
                     pretty_name "#bug-tracker.action_open#"
                     pretty_past_tense "#bug-tracker.Opened#"
-                    new_state "open"
+                    new_state open
                     initial_action_p t
                 }
                 comment {
@@ -412,10 +412,10 @@ ad_proc -private bug_tracker::bug::workflow_create {} {
                 resolve {
                     pretty_name "#bug-tracker.Resolve#"
                     pretty_past_tense "#bug-tracker.Resolved#"
-                    assigned_role "#bug-tracker.resolver#"
+                    assigned_role resolver
                     enabled_states { resolved }
                     assigned_states { open }
-                    new_state "#bug-tracker.resolved#"
+                    new_state resolved
                     privileges { write }
                     edit_fields { resolution fixed_in_version }
                     callbacks { bug-tracker.CaptureResolutionCode }
@@ -423,9 +423,9 @@ ad_proc -private bug_tracker::bug::workflow_create {} {
                 close {
                     pretty_name "#bug-tracker.Close#"
                     pretty_past_tense "#bug-tracker.Closed#"
-                    assigned_role "#bug-tracker.submitter#"
+                    assigned_role submitter
                     assigned_states { resolved }
-                    new_state "#bug-tracker.closed#"
+                    new_state closed
                     privileges { write }
                 }
                 reopen {
@@ -433,7 +433,7 @@ ad_proc -private bug_tracker::bug::workflow_create {} {
                     pretty_past_tense "#bug-tracker.Reopened#"
                     allowed_roles { submitter }
                     enabled_states { resolved closed }
-                    new_state "#bug-tracker.open#"
+                    new_state open
                     privileges { write }
                 }
             }
@@ -520,7 +520,7 @@ ad_proc -private bug_tracker::bug::capture_resolution_code::do_side_effect {
 } {
     workflow::case::add_log_data \
         -entry_id $entry_id \
-        -key "[_ bug-tracker.resolution]" \
+        -key resolution \
         -value [db_string select_resolution_code {}]
 }
 
@@ -858,7 +858,7 @@ ad_proc bug_tracker::bug::get_list {
 
 ad_proc bug_tracker::bug::get_query {} {
 
-    upvar #[template::adp_level] orderby orderby 
+    upvar \#[template::adp_level] orderby orderby 
 
     # Needed to handle ordering by categories
     set from_bug_clause "bt_bugs b"
@@ -879,7 +879,7 @@ ad_proc bug_tracker::bug::get_query {} {
 ad_proc bug_tracker::bug::get_multirow {} {
     foreach var [bug_tracker::get_export_variables] { 
 #JOEL put this back later
-        upvar #[template::adp_level] $var $var
+        upvar \#[template::adp_level] $var $var
     }
 
     set workflow_id [bug_tracker::bug::get_instance_workflow_id]

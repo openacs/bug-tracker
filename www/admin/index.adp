@@ -20,10 +20,10 @@
     <td colspan="3">
     </td>
     <th>
-      #acs-kernel.common_Edit#
+      #acs-kernel.common_edit#
     </th>
     <th>
-      #acs-kernel.common_Delete#
+      #acs-kernel.common_delete#
     </th>
   </tr>
   <tr bgcolor="#666666">
@@ -31,7 +31,7 @@
       <font color=white><b>@project_name@</b></font>
     </td>
     <td align="center">
-      <a href="@project_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="#acs-kernel.common_Edit#"></a>
+      <a href="@project_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="#acs-kernel.common_edit#"></a>
     </td>
     <td align="center">
       &nbsp;
@@ -51,7 +51,7 @@
       &nbsp;
     </td>
     <td align="center">
-      <a href="@project_maintainer_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="#acs-kernel.common_Edit#"></a>
+      <a href="@project_maintainer_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="#acs-kernel.common_edit#"></a>
     </td>
     <td align="center">
       &nbsp;
@@ -64,7 +64,7 @@
         #bug-tracker.Versions#
       </td>
       <td align="center">
-        <a href="@versions_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="#acs-kernel.common_Edit#"></a>
+        <a href="@versions_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="#acs-kernel.common_edit#"></a>
       </td>
       <td align="center">
         &nbsp;
@@ -77,7 +77,7 @@
       #bug-tracker.Categories#
     </td>
     <td align="center">
-      <a href="@categories_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="#acs-kernel.common_Edit#"></a>
+      <a href="@categories_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="#acs-kernel.common_edit#"></a>
     </td>
     <td align="center">
       &nbsp;
@@ -88,7 +88,7 @@
      #bug-tracker.Permissions#
     </td>
     <td align="center">
-      <a href="@permissions_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="#acs-kernel.common_Edit#"></a>
+      <a href="@permissions_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="#acs-kernel.common_edit#"></a>
     </td>
     <td align="center">
       &nbsp;
@@ -99,7 +99,7 @@
      #bug-tracker.Parameters#
     </td>
     <td align="center">
-      <a href="@parameters_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="#acs-kernel.common_Edit#"></a>
+      <a href="@parameters_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="#acs-kernel.common_edit#"></a>
     </td>
     <td align="center">
       &nbsp;
@@ -113,7 +113,7 @@
      #bug-tracker.Priority_codes#
     </td>
     <td align="center">
-      <a href="@priority_codes_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="#acs-kernel.common_Edit#"></a>
+      <a href="@priority_codes_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="#acs-kernel.common_edit#"></a>
     </td>
     <td align="center">
       &nbsp;
@@ -124,7 +124,7 @@
      #bug-tracker.Severity_Codes#
     </td>
     <td align="center">
-      <a href="@severity_codes_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="#acs-kernel.common_Edit#"></a>
+      <a href="@severity_codes_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="#acs-kernel.common_edit#"></a>
     </td>
     <td align="center">
       &nbsp;
@@ -156,11 +156,11 @@
         <if @components.view_bugs_url@ not nil><a href="@components.view_bugs_url@" title="#bug-tracker.View_the_bug_fo_component#"></if>@components.num_bugs@ <if @components.num_bugs@ eq 1>@pretty_names.bug@</if><else>@pretty_names.bugs@</else><if @components.view_bugs_url@ not nil></a></if>
       </td>
       <td align="center">
-        <a href="@components.edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="#acs-kernel.common_Edit#"></a>
+        <a href="@components.edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="#acs-kernel.common_edit#"></a>
       </td>
       <td align="center">
         <if @components.delete_url@ not nil>
-          <a href="@components.delete_url@"><img src="../graphics/Delete16.gif" width="16" height="16" border="0" alt="#acs-kernel.common_Delete#"></a>
+          <a href="@components.delete_url@"><img src="../graphics/Delete16.gif" width="16" height="16" border="0" alt="#acs-kernel.common_delete#"></a>
         </if>
       </td>
     </tr>

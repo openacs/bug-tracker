@@ -11,8 +11,8 @@
     <th class="bt_listing">#bug-tracker.Category#</th>
     <th class="bt_listing"># @pretty_names.Bugs@</th>
     <th class="bt_listing">#bug-tracker.Default#</th>
-    <th class="bt_listing">#acs-kernel.common_Edit#</th>
-    <th class="bt_listing">#acs-kernel.common_Delete#</th>
+    <th class="bt_listing">#acs-kernel.common_edit#</th>
+    <th class="bt_listing">#acs-kernel.common_delete#</th>
   </tr>
   <if @categories:rowcount@ gt 0>
     <multiple name="categories">

@@ -15,9 +15,9 @@ if { (![info exists keyword_id] && ![info exists parent_id]) || [string equal $t
 }
 
 if { [info exists keyword_id] } {
-    set function [_ acs-kernel.common_Edit]
+    set function [_ acs-kernel.common_edit]
 } else {
-    set function [_ acs-kernel.common_Add]
+    set function [_ acs-kernel.common_add]
 }
 
 set page_title [_ bug-tracker.function]
