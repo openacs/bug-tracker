@@ -437,7 +437,7 @@ begin
 
     -- create the content item
     v_bug_id := content_item__new(
-        v_bug_number,              -- name
+        v_bug_number::varchar,     -- name
         v_folder_id,               -- parent_id
         p_bug_id,                  -- item_id
         null,                      -- locale        
