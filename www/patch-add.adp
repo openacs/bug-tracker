@@ -11,4 +11,4 @@
 </tr>
 </table>
 
-<formtemplate id="patch" style="standard-lars"></formtemplate>
+<formtemplate id="patch"></formtemplate>

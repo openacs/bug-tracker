@@ -3,4 +3,4 @@
 <property name="context">@context@</property>
 <property name="focus">prefs.user_version</property>
 
-<formtemplate id="prefs" style="standard-lars"></formtemplate>
+<formtemplate id="prefs"></formtemplate>

@@ -398,4 +398,3 @@ if { ![form is_valid bug] } {
 }
 
 ad_return_template
-

@@ -11,6 +11,6 @@
 </tr>
 </table>
 
-<formtemplate id="bug" style="standard-lars"></formtemplate>
+<formtemplate id="bug"></formtemplate>
 
 

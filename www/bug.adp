@@ -18,7 +18,7 @@
 </if>
 
 <p>
-  <formtemplate id="bug" style="standard-lars"></formtemplate>
+  <formtemplate id="bug"></formtemplate>
 </p>
 
 <if @user_id@ eq 0>

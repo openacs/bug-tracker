@@ -2,7 +2,7 @@
 <property name="title">@page_title@</property>
 <property name="context">@context@</property>
 
-<formtemplate id="patch" style="standard-lars"></formtemplate>
+<formtemplate id="patch"></formtemplate>
 
 <p>
 <if @button_form_export_vars@ not nil>
