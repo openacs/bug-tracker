@@ -83,6 +83,8 @@
             <file type="content_page" path="www/prefs.adp"/>
             <file type="content_page" path="www/prefs.tcl"/>
             <file type="content_page" path="www/unmap-patch-from-bug.tcl"/>
+            <file type="content_page" path="www/bug-submission-instructions.html"/>
+            <file type="content_page" path="www/patch-submission-instructions.html"/>
         </files>
         <parameters>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="TruncateDescriptionLength"  default="200" description="At what length should bug descriptions be truncated on the bug list pgae." section_name="bug-list"/>
