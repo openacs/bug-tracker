@@ -6,8 +6,6 @@ ad_page_contract {
     @cvs-id $Id$
 } {
     cancel:optional
-    name:optional
-    description:optional
     {return_url ""}
 }
 
@@ -23,35 +21,49 @@ set package_key [ad_conn package_key]
 set page_title "Edit Project"
 set context_bar [ad_context_bar $page_title]
 
-template::form create project_info
+form create project_info
 
-template::element create project_info return_url -datatype text -widget hidden -value $return_url
+element create project_info return_url -datatype text -widget hidden -value $return_url
 
-template::element create project_info name \
+element create project_info name \
         -datatype text \
         -html { size 50 } \
         -label "Project Name"
 
-template::element create project_info description \
+element create project_info description \
         -datatype text \
         -widget textarea \
         -label "Description" \
         -optional \
         -html { cols 50 rows 8 }
 
-if { [template::form is_request project_info] } {
-    template::element set_properties project_info name \
+element create project_info email_subject_name  \
+        -datatype text \
+        -html { size 50 } \
+        -label "Email subject tag" 
+
+if { [form is_request project_info] } {
+    db_1row project_info { 
+        select description, email_subject_name 
+        from   bt_projects 
+        where  project_id = :package_id
+    } -column_array project_info
+
+    form set_values project_info project_info
+
+    element set_properties project_info name \
             -value [bug_tracker::conn project_name]
-    
-    template::element set_properties project_info description \
-            -value [db_string project_description { select description from bt_projects where project_id = :package_id }]
+
 }
 
-if { [template::form is_valid project_info] } {
+if { [form is_valid project_info] } {
+    form get_values project_info description email_subject_name name
+
     db_transaction {
         db_dml project_info_update {
             update bt_projects
-            set    description = :description
+            set    description = :description,
+                   email_subject_name = :email_subject_name
             where  project_id = :package_id
         }
 

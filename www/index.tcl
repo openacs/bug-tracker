@@ -39,7 +39,6 @@ if { $num_bugs == 0 } {
     return
 }
 
-
 #
 # Filter management
 #
@@ -87,6 +86,7 @@ if { [info exists priority] } {
 if { [info exists component_id] } {
     lappend where_clauses "b.component_id = :component_id"
     append human_readable_filter " in [db_string component_name { select component_name from bt_components where component_id = :component_id }]"
+    bug_tracker::conn -set component_id $component_id
 }
 
 if { [info exists fix_for_version] } {
@@ -179,7 +179,7 @@ db_multirow -extend { description_short submitter_url status_pretty resolution_p
     set latest_estimate_pretty [ad_decode $latest_estimate_minutes "" "" 0 "" "$latest_estimate_minutes minutes"]
     set elapsed_time_pretty [ad_decode $elapsed_time_minutes "" "" 0 "" "$elapsed_time_minutes minutes"]
     set assignee_url [acs_community_member_url -user_id $assignee_user_id]
-    set bug_url "bug?[export_vars -url { bug_number }]"
+    set bug_url "[ad_conn package_url]bug?[export_vars -url { bug_number }]"
 }
 
 db_multirow -extend { name name_url } by_status by_status {
@@ -191,7 +191,7 @@ db_multirow -extend { name name_url } by_status by_status {
     order  by bt_bug__status_sort_order(b.status)
 } {
     set name "[bug_tracker::status_pretty $unique_id] Bugs"
-    set name_url "?[export_vars -url { { status $unique_id } }]"
+    set name_url "[ad_conn package_url]?[export_vars -url { { status $unique_id } }]"
 }
 
 db_multirow -extend { name name_url stat_name } stats stats {
@@ -205,7 +205,7 @@ db_multirow -extend { name name_url stat_name } stats stats {
 } {
     set stat_name "Type of bug"
     set name [bug_tracker::bug_type_pretty $unique_id]
-    set name_url "?[export_vars -url { { bug_type $unique_id } }]"
+    set name_url "[ad_conn package_url]?[export_vars -url { { bug_type $unique_id } }]"
 }
 
 db_multirow -extend { name_url stat_name } -append stats stats {
@@ -223,12 +223,12 @@ db_multirow -extend { name_url stat_name } -append stats stats {
     if { [empty_string_p $unique_id] } {
         set name "<i>Undecided</i>"
     }
-    set name_url "?[export_vars -url { { fix_for_version $unique_id } }]"
+    set name_url "[ad_conn package_url]?[export_vars -url { { fix_for_version $unique_id } }]"
 }
 
 set stat_name_val "Severity"
 if { ![string equal $orderby "severity"] } {
-    append stat_name_val " (<a href=\"?[export_vars { { orderby severity } }]\">order</a>)"
+    append stat_name_val " (<a href=\"[ad_conn package_url]?[export_vars { { orderby severity } }]\">order</a>)"
 } else {
     append stat_name_val " (*)"
 }
@@ -245,12 +245,12 @@ db_multirow -extend { name_url stat_name } -append stats stats {
     order  by name
 } {
     set stat_name $stat_name_val
-    set name_url "?[export_vars { { severity $unique_id } }]"
+    set name_url "[ad_conn package_url]?[export_vars { { severity $unique_id } }]"
 }
 
 set stat_name_val "Priority"
 if { ![string equal $orderby "priority"] } {
-    append stat_name_val " (<a href=\"?[export_vars { { orderby priority } }]\">order</a>)"
+    append stat_name_val " (<a href=\"[ad_conn package_url]?[export_vars { { orderby priority } }]\">order</a>)"
 } else {
     append stat_name_val " (*)"
 }
@@ -267,7 +267,7 @@ db_multirow -extend { name_url stat_name } -append stats stats {
     order  by name
 } {
     set stat_name $stat_name_val
-    set name_url "?[export_vars { { priority $unique_id } }]"
+    set name_url "[ad_conn package_url]?[export_vars { { priority $unique_id } }]"
 }
 
 db_multirow -extend { name_url stat_name } -append stats stats {
@@ -285,7 +285,7 @@ db_multirow -extend { name_url stat_name } -append stats stats {
     if { [empty_string_p $unique_id] } {
         set name "<i>Unassigned</i>"
     }
-    set name_url "?[export_vars -url { { assignee $unique_id } }]"
+    set name_url "[ad_conn package_url]?[export_vars -url { { assignee $unique_id } }]"
 }
 
 db_multirow -extend { name_url stat_name } -append stats stats {
@@ -300,7 +300,7 @@ db_multirow -extend { name_url stat_name } -append stats stats {
     order  by name
 } {
     set stat_name "Components"
-    set name_url "?[export_vars -url { { component_id $unique_id } }]"
+    set name_url "[ad_conn package_url]?[export_vars -url { { component_id $unique_id } }]"
 }
 
 ad_return_template

@@ -9,6 +9,8 @@ create table bt_projects (
                                 constraint bt_projects_pk 
                                 primary key,
   description                   text,
+  -- short string will be included in the subject line of emails                                                                
+  email_subject_name            text,
   maintainer                    integer 
                                 constraint bt_projects_maintainer_fk
                                 references users(user_id)
@@ -141,6 +143,8 @@ create table bt_components (
                                 references bt_projects(project_id),
   component_name                varchar(500) not null,
   description                   text,
+  -- This is what the component can be referred to in the URL
+  url_name                      text,
   -- a component can be without maintainer, in which case we just default to the project maintainer
   maintainer                    integer 
                                 constraint bt_components_maintainer_fk

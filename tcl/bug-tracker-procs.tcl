@@ -50,6 +50,9 @@ namespace eval bug_tracker {
                                 return $bt_conn($var)
                             }
                         }
+                        component_id {
+                            return {}
+                        }
                         default {
                             error "Unknown variable $var"
                         }

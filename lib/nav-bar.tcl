@@ -9,6 +9,7 @@ if { ![info exists bt_nav_bar_count] } {
 
 set package_id [ad_conn package_id]
 set package_url [ad_conn package_url]
+set component_id [bug_tracker::conn component_id]
 
 set admin_p [ad_permission_p $package_id admin]
 
@@ -17,7 +18,7 @@ multirow create links name url
 multirow append links "List" "[ad_conn package_url]"
 
 if { [ad_permission_p [ad_conn package_id] create] } {
-    multirow append links "New Bug" "[ad_conn package_url]bug-add"
+    multirow append links "New Bug" "[ad_conn package_url]bug-add[ad_decode $component_id "" "" "?[export_vars { component_id }]"]"
 }
 
 if { [ad_conn user_id] != 0 } {

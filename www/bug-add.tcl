@@ -6,7 +6,15 @@ ad_page_contract {
     @cvs-id $Id$
 } {
     cancel:optional
+    component_id:optional
     {return_url ""}
+}
+
+if { [empty_string_p $return_url] } {
+    set return_url "."
+    if { [info exists component_id] } {
+        append return_url "?[export_vars { component_id }]"
+    }
 }
 
 # If the user hit cancel, ignore everything else
@@ -107,6 +115,10 @@ if { [form is_request bug] } {
     
     element set_properties bug severity -value [bug_tracker::severity_get_default]
     element set_properties bug priority -value [bug_tracker::priority_get_default]
+    
+    if { [info exists component_id] } {
+        element set_properties bug component_id -value $component_id
+    }
 
     element set_properties bug desc_format -value "plain"
 
@@ -117,15 +129,7 @@ if { [form is_valid bug] } {
 
     db_transaction {
 
-        set bug_id [element::get_value bug bug_id]
-        set component_id [element::get_value bug component_id]
-        set bug_type [element::get_value bug bug_type]
-        set severity [element::get_value bug severity]
-        set priority [element::get_value bug priority]
-        set found_in_version [element::get_value bug found_in_version]
-        set summary [element::get_value bug summary]
-        set description [element::get_value bug description]
-        set desc_format [element::get_value bug desc_format]
+        form get_values bug bug_id component_id bug_type severity priority found_in_version summary description desc_format
         
         set ip_address [ns_conn peeraddr]
         set user_agent [ns_set get [ns_conn headers] "User-Agent"]
