@@ -11,11 +11,11 @@ Component: [
 </multiple>
 ]
 </p>
-
 <p>
 Apply to version: [ @version_filter@ ]
 </p>
-
+<p>
+Display states: [ @state_filter@ ]
 <blockquote>
 <table>
 <if @patch_list:rowcount@ not eq 0>

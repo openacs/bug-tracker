@@ -12,7 +12,10 @@
       better, <code>cvs diff -u</code> and in either case you should
       then inspect the resulting patch file to insure that it is what
       you expect and manually remove any changes which should not be
-      part of the submitted patch.
+      part of the submitted patch. <em>For people not using GNU diff,
+        -u and -N may not work, use -c for context diffs, and
+        <code>diff /dev/null filename</diff> to generate a diff to
+          create a file</em>.
     </p>
 
     <h2>The best way: Make changes in a current cvs checkout</h2>
@@ -109,7 +112,7 @@
       <address><a href="mailto:davis@netcomuk.co.uk">Jeff Davis</a></address>
       <!-- Created: Sun Sep 15 12:11:31 EDT 2002 -->
       <!-- hhmts start -->
-Last modified: Tue Sep 17 04:57:41 EDT 2002
+Last modified: Fri Dec 13 06:39:02 EST 2002
 <!-- hhmts end -->
   </body>
 </html>
