@@ -911,6 +911,8 @@ ad_proc bug_tracker::bug::get_multirow {} {
         fixed_in_version_name
     }
 
+    set category_defaults [list]
+
     foreach { parent_id parent_heading } [bug_tracker::category_types] {
         lappend category_defaults $parent_id {}
         lappend extend_list "category_$parent_id" "category_name_$parent_id"
