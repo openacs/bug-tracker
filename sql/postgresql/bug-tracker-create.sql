@@ -122,10 +122,6 @@ begin
          perform bt_patch__delete(rec.patch_id);
     end loop;
 
-    -- delete the content folder
-    raise notice ''about to delete content_folder.'';
-    perform content_folder__delete(v_folder_id);
-
     -- delete the projects keywords
     perform bt_projects__keywords_delete(p_project_id, ''t'');
 
@@ -135,6 +131,10 @@ begin
     delete from bt_user_prefs where project_id = p_project_id;      
 
     delete from bt_projects where project_id = p_project_id;   
+
+    -- delete the content folder
+    raise notice ''about to delete content_folder.'';
+    perform content_folder__delete(v_folder_id);
 
     return 0;
 end;

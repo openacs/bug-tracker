@@ -7,13 +7,13 @@
     <initial-install-p>f</initial-install-p>
     <singleton-p>f</singleton-p>
     
-    <version name="1.2d5" url="http://openacs.org/repository/download/apm/bug-tracker-1.2d5.apm">
+    <version name="1.2d6" url="http://openacs.org/repository/download/apm/bug-tracker-1.2d6.apm">
         <owner url="mailto:lars@collaboraid.biz">Lars Pind</owner>
         <summary>Tracks bugs and features, versions and maintainers, in software projects. Contains the best of SDM, Bugzilla, FogBUGZ, and bughost.com.</summary>
         <release-date>2003-02-28</release-date>
         <vendor url="http://www.museatech.net">Musea Technologies</vendor>
 
-        <provides url="bug-tracker" version="1.2d5"/>
+        <provides url="bug-tracker" version="1.2d6"/>
         <requires url="acs-content-repository" version="4.6d1"/>
         <requires url="acs-kernel" version="4.6.2d"/>
         <requires url="acs-tcl" version="4.6.2d"/>

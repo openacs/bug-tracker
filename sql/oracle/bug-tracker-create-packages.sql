@@ -212,9 +212,6 @@ as
              bt_patch.delete(rec.patch_id);
         end loop;
 
-        -- delete the content folder
-        content_folder.delete(v_folder_id);
-
         -- delete the projects keywords
         bt_project.keywords_delete(
             project_id => project_id,
@@ -227,6 +224,10 @@ as
         delete from bt_user_prefs where project_id = bt_project.delete.project_id;      
 
         delete from bt_projects where project_id = bt_project.delete.project_id;   
+
+        -- delete the content folder
+        content_folder.delete(v_folder_id);
+
     end delete;
 
     procedure keywords_delete (
