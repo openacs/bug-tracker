@@ -320,7 +320,11 @@ if { ![form is_valid bug] } {
         if { [info exists bug:$element] && [info exists bug($element)] } {
             if { [form is_request bug] \
                      || [string equal [element get_property bug $element mode] [_ acs-kernel.common_display]] } { 
-                element set_value bug $element $bug($element)
+                if { [string first "#" $bug($element)] == 0 } {
+                    element set_value bug $element [lang::util::localize $bug($element)]
+                } else {
+                    element set_value bug $element $bug($element)
+                }
             }
         }
     }

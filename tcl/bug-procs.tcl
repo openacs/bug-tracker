@@ -402,7 +402,7 @@ ad_proc -private bug_tracker::bug::workflow_create {} {
                 }
                 reassign {
                     pretty_name "#bug-tracker.Reassign#"
-                    pretty_past_tense "#bug-tracker._Reassigned#"
+                    pretty_past_tense "#bug-tracker.Reassigned#"
                     allowed_roles { submitter resolver }
                     privileges { write }
                     enabled_states { resolved }

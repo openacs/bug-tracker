@@ -170,6 +170,7 @@
   <msg key="Project">Name</msg>
   <msg key="Project_administration">Project administration</msg>
   <msg key="Reassign">Reassign</msg>
+  <msg key="Reassigned">Reassigned</msg>
   <msg key="Refused">Refused</msg>
   <msg key="Refuse">Refuse</msg>
   <msg key="Release">Release</msg>
