@@ -30,73 +30,87 @@ set context_bar [ad_context_bar [list $return_url "Versions"] $page_title]
 # no primary key and you're only inserting, you can just ignore it.  
 # Add handling for any other incoming URL variables that should become part of the form.
 
-template::form create version
+form create version
 
-template::element create version version_id -widget hidden
-template::element create version return_url -datatype text -widget hidden -value $return_url
+element create version version_id -widget hidden
+element create version return_url -datatype text -widget hidden -value $return_url
 
-template::element create version version_name -label "Version name" -widget text -datatype text -html { size 50 }
-template::element create version description -label "Description" -widget textarea -datatype text -optional -html { cols 50 rows 8 }
-template::element create version supported_platforms -label "Supported platforms" -widget text -datatype text \
+element create version version_name -label "Version name" -widget text -datatype text -html { size 50 }
+element create version description -label "Description" -widget textarea -datatype text -optional -html { cols 50 rows 8 }
+element create version supported_platforms -label "Supported platforms" -widget text -datatype text \
         -html { size 50 } -optional  
-template::element create version maintainer -label "Maintainer" -widget select -datatype integer \
-        -options [concat {{ "--None--" "" }} [db_list_of_lists users { select first_names || ' ' || last_name, user_id from cc_users }]] -optional
-template::element create version anticipated_freeze_date -label "Anticipated freeze date" -widget date -datatype date -optional -format "MONTH DD, YYYY" 
-template::element create version anticipated_release_date -label "Anticipated release date" -widget date -datatype date -optional -format "MONTH DD, YYYY" 
-template::element create version assignable_p -label "Assignable?" -widget select -datatype text -optional  -options {{Yes t} {No f}}
 
-template::element create version insert_or_update -widget hidden -datatype text
+element create version maintainer \
+        -widget search \
+        -datatype search \
+        -result_datatype integer \
+        -label "Maintainer" \
+        -options [bug_tracker::users_get_options] \
+        -optional \
+        -search_query {
+    select distinct u.first_names || ' ' || u.last_name || ' (' || u.email || ')' as name, u.user_id
+    from   cc_users u
+    where  upper(coalesce(u.first_names || ' ', '')  || coalesce(u.last_name || ' ', '') || u.email || ' ' || coalesce(u.screen_name, '')) like upper('%'||:value||'%')
+    order  by name
+} 
 
-if { [template::form is_request version] } {
+
+element create version anticipated_freeze_date -label "Anticipated freeze date" -widget date -datatype date -optional -format "MONTH DD, YYYY" 
+element create version anticipated_release_date -label "Anticipated release date" -widget date -datatype date -optional -format "MONTH DD, YYYY" 
+element create version assignable_p -label "Assignable?" -widget select -datatype text -optional  -options {{Yes t} {No f}}
+
+element create version insert_or_update -widget hidden -datatype text
+
+if { [form is_request version] } {
     if {[empty_string_p $version_id]} {    
 	set insert_or_update insert
-	template::element set_properties version insert_or_update -value insert
+	element set_properties version insert_or_update -value insert
 	set version_id [db_nextval "acs_object_id_seq"]
-	template::element set_properties version version_id -value $version_id
+	element set_properties version version_id -value $version_id
     } else {
 	set insert_or_update update
-	template::element set_properties version insert_or_update -value update
+	element set_properties version insert_or_update -value update
 	db_1row get_current_values "
 	    select version_id, version_name, description, to_char(anticipated_freeze_date, 'YYYY MM DD HH24 MI') as anticipated_freeze_date, to_char(anticipated_release_date, 'YYYY MM DD HH24 MI') as anticipated_release_date, maintainer, supported_platforms, assignable_p
 	      from bt_versions
 	     where version_id = :version_id
 	"
-        template::element set_properties version version_id -value $version_id
-        template::element set_properties version version_name -value $version_name
-        template::element set_properties version description -value $description
-        template::element set_properties version anticipated_freeze_date -value $anticipated_freeze_date
-        template::element set_properties version anticipated_release_date -value $anticipated_release_date
-        template::element set_properties version maintainer -value $maintainer
-        template::element set_properties version supported_platforms -value $supported_platforms
-        template::element set_properties version assignable_p -value $assignable_p
+        element set_properties version version_id -value $version_id
+        element set_properties version version_name -value $version_name
+        element set_properties version description -value $description
+        element set_properties version anticipated_freeze_date -value $anticipated_freeze_date
+        element set_properties version anticipated_release_date -value $anticipated_release_date
+        element set_properties version maintainer -value $maintainer
+        element set_properties version supported_platforms -value $supported_platforms
+        element set_properties version assignable_p -value $assignable_p
 
 
     }
 }
 
-set insert_or_update [template::element::get_value version insert_or_update]
+set insert_or_update [element::get_value version insert_or_update]
 
-if { [template::form is_valid version] } {
+if { [form is_valid version] } {
     # valid form submission
-    set version_id [template::element::get_value version version_id]
+    set version_id [element::get_value version version_id]
     set project_id [ad_conn package_id]
-    set version_name [template::element::get_value version version_name]
-    set description [template::element::get_value version description]
-    set anticipated_freeze_date [template::element::get_value version anticipated_freeze_date]
+    set version_name [element::get_value version version_name]
+    set description [element::get_value version description]
+    set anticipated_freeze_date [element::get_value version anticipated_freeze_date]
     if {![empty_string_p $anticipated_freeze_date]} {
-	set anticipated_freeze_date [template::util::date::get_property sql_date $anticipated_freeze_date]
+	set anticipated_freeze_date [util::date::get_property sql_date $anticipated_freeze_date]
     } else {	
 	set anticipated_freeze_date NULL
     }
-    set anticipated_release_date [template::element::get_value version anticipated_release_date]
+    set anticipated_release_date [element::get_value version anticipated_release_date]
     if {![empty_string_p $anticipated_release_date]} {
-	set anticipated_release_date [template::util::date::get_property sql_date $anticipated_release_date]
+	set anticipated_release_date [util::date::get_property sql_date $anticipated_release_date]
     } else {	
 	set anticipated_release_date NULL
     }
-    set maintainer [template::element::get_value version maintainer]
-    set supported_platforms [template::element::get_value version supported_platforms]
-    set assignable_p [template::element::get_value version assignable_p]
+    set maintainer [element::get_value version maintainer]
+    set supported_platforms [element::get_value version supported_platforms]
+    set assignable_p [element::get_value version assignable_p]
 
     if {$insert_or_update == "insert"} {
 	if {[db_0or1row check_exists "

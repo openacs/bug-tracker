@@ -47,10 +47,20 @@ element create component url_name \
         -optional
 
 element create component maintainer \
-        -datatype integer \
-        -widget select \
+        -widget search \
+        -datatype search \
+        -result_datatype integer \
         -label "Maintainer" \
-        -options [concat {{ "--None--" "" }} [db_list_of_lists users { select first_names || ' ' || last_name, user_id from cc_users }]]         -optional
+        -options [bug_tracker::users_get_options] \
+        -optional \
+        -search_query {
+    select distinct u.first_names || ' ' || u.last_name || ' (' || u.email || ')' as name, u.user_id
+    from   cc_users u
+    where  upper(coalesce(u.first_names || ' ', '')  || coalesce(u.last_name || ' ', '') || u.email || ' ' || coalesce(u.screen_name, '')) like upper('%'||:value||'%')
+    order  by name
+} 
+
+
 
 element create component component_id \
         -datatype integer \
