@@ -17,7 +17,7 @@ set user_id [ad_conn user_id]
 set page_title "Patches" 
 set context [list $page_title]
 
-# TODO: Undecided aply to version
+# TODO: Use bug_tracker::patch_status_pretty for pretty state (problem with the filter, but it can be done)
 
 template::list::create \
     -name patches \

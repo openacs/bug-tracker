@@ -4,12 +4,11 @@ ad_page_contract {
     @author Lars Pind (lars@pinds.com)
     @creation-date 2002-03-20
     @cvs-id $Id$
-} {
+} [bug_tracker::get_page_variables {
     bug_number:integer,notnull
     {user_agent_p:boolean 0}
     {show_patch_status "open"}
-    filter:array,optional
-}
+}]
 
 #####
 #
@@ -17,7 +16,7 @@ ad_page_contract {
 #
 #####
 
-set return_url "[ad_conn url]?[export_vars -url { bug_number filter:array }]"
+set return_url [export_vars -base [ad_conn url] [bug_tracker::get_export_variables { bug_number }]]
 
 set project_name [bug_tracker::conn project_name]
 set package_id [ad_conn package_id]
@@ -29,7 +28,7 @@ permission::require_permission -object_id $package_id -privilege read
 
 set page_title "[bug_tracker::conn Bug] #$bug_number"
 
-set context_bar [bug_tracker::context_bar $page_title]
+set context [list $page_title]
 
 # Is this project using multiple versions?
 set versions_p [bug_tracker::versions_p]
@@ -96,7 +95,10 @@ if { [empty_string_p $action_id] } {
 
 
 # set patch label
-set patch_label [ad_decode $show_patch_status "open" "Open Patches (<a href=\"$return_url&show_patch_status=all\">show all</a>)" "all" "All Patches (<a href=\"$return_url&show_patch_status=open\">show only open)" "Patches"]
+set patch_label [ad_decode $show_patch_status \
+                     "open" "Open Patches (<a href=\"[export_vars -base [ad_conn url] -entire_form -override { { show_patch_status all } }]\">show all</a>)" \
+                     "all" "All Patches (<a href=\"[export_vars -base [ad_conn url] -entire_form -override { { show_patch_status open } }]\">show only open)" \
+                     "Patches"]
 
 ad_form -name bug -cancel_url $return_url -mode display -has_edit 1 -actions $actions -form  {
     {bug_number_display:text(inform)
@@ -184,14 +186,14 @@ ad_form -extend -name bug -form {
     {entry_id:integer(hidden),optional}
 }
 
-# Export filters
-if { [llength [array names filter]] > 0 } {
-    set filters [list]
-    foreach name [array names filter] { 
-        lappend filters [list "filter.${name}:text(hidden)" [list value $filter($name)]]
+# TODO: Export filters
+set filters [list]
+foreach name [bug_tracker::get_export_variables] { 
+    if { [info exists $name] } {
+        lappend filters [list "${name}:text(hidden),optional" [list value [set $name]]]
     }
-    ad_form -extend -name bug -form $filters
 }
+ad_form -extend -name bug -form $filters
 
 # Set editable fields
 if { ![empty_string_p $action_id] } {
@@ -232,17 +234,18 @@ ad_form -extend -name bug -on_submit {
             -array row \
             -entry_id [element get_value bug entry_id]    
 
+
     ad_returnredirect $return_url
     ad_script_abort
 
 } -edit_request {
     # Dummy
     # If we don't have this, ad_form complains
-    # Unfortunately, ad_form doesn't let us do what we want, namely have a block that executes
-    # whenever the form is displayed, whether initially or because of a validation error.
 }
 
 # Not-valid block (request or submit error)
+# Unfortunately, ad_form doesn't let us do what we want, namely have a block that executes
+# whenever the form is displayed, whether initially or because of a validation error.
 if { ![form is_valid bug] } {
 
     # Get the bug data
@@ -335,22 +338,14 @@ if { ![form is_valid bug] } {
     set page_title "[bug_tracker::conn Bug] #$bug_number: $bug(summary)"
 
     # Context bar
-    if { [info exists filter] } {
-        if { [array names filter] == [list "assignee"] && $filter(assignee) == $user_id } {
-            set context_bar [bug_tracker::context_bar [list ".?[export_vars { filter:array }]" "My [bug_tracker::conn bugs]"] $page_title]
-        } else {
-            set context_bar [bug_tracker::context_bar [list ".?[export_vars { filter:array }]" "Filtered [bug_tracker::conn bug] list"] $page_title]
-        }
-    } else {
-        set context_bar [bug_tracker::context_bar $page_title]
-    }
+    set context [list [list "[export_vars -base . -entire_form -exclude { bug_number }]" "Filtered [bug_tracker::conn bug] list"] $page_title]
     
     # User agent show/hide URLs
     set show_user_agent_url "bug?[export_vars { bug_number { user_agent_p 1 }}]"
     set hide_user_agent_url "bug?[export_vars { bug_number }]"
     
     # Login
-    set login_url "/register/?[export_vars { return_url }]"
+    set login_url [ad_get_login_url]
     
     # Single-bug notifications 
     if { [empty_string_p $action_id]  } {
@@ -359,45 +354,46 @@ if { ![form is_valid bug] } {
 
 
     # Filter management
-    set filter_parsed [bug_tracker::parse_filters filter]
-    
     if { [empty_string_p $action_id] } {
     
-        set human_readable_filter [bug_tracker::conn filter_human_readable]
-        set where_clauses [bug_tracker::conn filter_where_clauses]
-        set from_bug_clause [bug_tracker::conn filter_from_bug_clause]
-        set order_by_clause [bug_tracker::conn filter_order_by_clause]
-        
-        lappend where_clauses "b.project_id = :package_id"
-
-        set workflow_id [bug_tracker::bug::get_instance_workflow_id]
-        set initial_state [workflow::fsm::get_initial_state -workflow_id $workflow_id]
-
-        set action_role [db_string select_resolve_role {}]
-    
-        set filter_bug_numbers [db_list filter_bug_numbers {}]
-    
+        set filter_bug_numbers [bug_tracker::bug::get_bug_numbers]
         set filter_bug_index [lsearch -exact $filter_bug_numbers $bug_number]
+
+        set prev_url {}
+        set next_url {}
+        
+        if { $filter_bug_index == -1 } {
+            # This bug is not included in the list, get the client property (if it exists)
+            set filter_bug_numbers [ad_get_client_property bug-tracker filter_bug_numbers]
+        } else {
+            # This bug is included in the list
+            ad_set_client_property bug-tracker filter_bug_numbers $filter_bug_numbers 
+        }
+
+        set filter_bug_index [lsearch -exact $filter_bug_numbers $bug_number]
+
+        if { $filter_bug_index > 0 } {
+            set prev_bug_number [lindex $filter_bug_numbers [expr $filter_bug_index -1]]
+            set prev_url [export_vars -base bug -entire_form -override { { bug_number $prev_bug_number } }]
+        }
+        if { $filter_bug_index < [expr [llength $filter_bug_numbers]-1] } {
+            set next_bug_number [lindex $filter_bug_numbers [expr $filter_bug_index +1]]
+            set next_url [export_vars -base bug -entire_form -override { { bug_number $next_bug_number } }]
+        }
     
         multirow create navlinks url label
         
         if { $filter_bug_index != -1 } {
             
-            if { $filter_bug_index > 0 } {
-                multirow append navlinks "bug?[export_vars { { bug_number {[lindex $filter_bug_numbers [expr $filter_bug_index -1]]} } filter:array }]" "<"
-            } else {
-                multirow append navlinks "" "<"
-            }
+            multirow append navlinks \
+                $prev_url \
+                {<img src="/resources/acs-subsite/stock_left-16.png" width="16" height="16" border="0" alt="Previous">}
             
             multirow append navlinks "" "[expr $filter_bug_index+1] of [llength $filter_bug_numbers]"
             
-            if { $filter_bug_index < [expr [llength $filter_bug_numbers]-1] } {
-                multirow append navlinks "bug?[export_vars { { bug_number {[lindex $filter_bug_numbers [expr $filter_bug_index +1]]} } filter:array }]" ">"
-            } else {
-                multirow append navlinks "" ">"
-            }
+            multirow append navlinks \
+                $next_url \
+                {<img src="/resources/acs-subsite/stock_right-16.png" width="16" height="16" border="0" alt="Previous">}
         }
     }  
 }
-
-ad_return_template

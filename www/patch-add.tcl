@@ -150,12 +150,6 @@ if { [form is_valid patch] } {
             set bug_id [bug_tracker::get_bug_id -bug_number $bug_number -project_id $package_id]
             bug_tracker::map_patch_to_bug -patch_id $patch_id -bug_id $bug_id
 
-            # Trigger notifications for the bug that we are mapping to
-            bug_tracker::bug_notify \
-                -bug_id $bug_id \
-                -action "patched" \
-                -patch_summary $summary
-
         } else {
             # No bug id provided so redirect to page for selecting bugs if the
             # user wishes to go there

@@ -143,21 +143,4 @@
   </fullquery>
 
 
-<fullquery name="bug_tracker::bug_delete.delete_bug_case">
-    <querytext> 
-        select workflow_case_pkg__delete(:case_id);
-    </querytext>
-</fullquery>
- 
-<fullquery name="bug_tracker::bug_delete.delete_notification">
-    <querytext>
-        select notification__delete(:notification_id);
-    </querytext>
-</fullquery>
-
-<fullquery name="bug_tracker::bug_delete.delete_cr_item">
-    <querytext>
-        select content_item__delete(:bug_id);
-    </querytext>
-</fullquery>
 </queryset>

@@ -38,30 +38,6 @@
 </fullquery>
 
  
-<fullquery name="bug_tracker::severity_codes_get_options_not_cached.severities">      
-      <querytext>
-      
-        select sort_order || ' - ' || severity_name, severity_id 
-        from   bt_severity_codes 
-        where  project_id = :package_id
-        order  by sort_order
-    
-      </querytext>
-</fullquery>
-
- 
-<fullquery name="bug_tracker::priority_codes_get_options_not_cached.priorities">      
-      <querytext>
-       
-        select sort_order || ' - ' || priority_name, priority_id 
-        from   bt_priority_codes 
-        where  project_id = :package_id
-        order  by sort_order 
-    
-      </querytext>
-</fullquery>
-
- 
 <fullquery name="bug_tracker::version_get_options_not_cached.versions">      
       <querytext>
        select version_name, version_id from bt_versions where project_id = :package_id order by version_name 
@@ -159,28 +135,6 @@
 </fullquery>
 
  
-<fullquery name="bug_tracker::parse_filters.component_name">      
-      <querytext>
-       select component_name from bt_components where component_id = :filter_component_id 
-      </querytext>
-</fullquery>
-
- 
-<fullquery name="bug_tracker::parse_filters.version_name">      
-      <querytext>
-       select version_name from bt_versions where version_id = :filter_fix_for_version 
-      </querytext>
-</fullquery>
-
- 
-<fullquery name="bug_tracker::parse_filters.component_name">      
-      <querytext>
-      
-            select component_name, url_name from bt_components where component_id = :component_id
-        
-      </querytext>
-</fullquery>
-
 <fullquery name="bug_tracker::get_keywords_not_cached.select_package_keywords">
     <querytext>
         
@@ -214,28 +168,5 @@
     </querytext>
 </fullquery>
 
-<fullquery name="bug_tracker::bug_delete.get_case_id">
-    <querytext>
-        select case_id
-        from   workflow_cases
-        where  object_id = :bug_id
-    </querytext>
-</fullquery>
-
-<fullquery name="bug_tracker::bug_delete.get_notifications">
-    <querytext>
-        select notification_id
-        from   notifications
-        where  response_id = :bug_id
-    </querytext>
-</fullquery>
-
-<fullquery name="bug_tracker::bug_delete.unset_revisions">
-    <querytext>
-        update cr_items
-        set live_revision = null, latest_revision = null
-        where item_id = :bug_id
-    </querytext>
-</fullquery>
  
 </queryset>

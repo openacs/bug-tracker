@@ -1,6 +1,6 @@
 <master src="../lib/master">
 <property name="title">@page_title;noquote@</property>
-<property name="context_bar">@context_bar;noquote@</property>
+<property name="context">@context;noquote@</property>
 <if @notification_link;noquote@ not nil><property name="notification_link">@notification_link;noquote@</property></if>
 
 <if @action_id@ nil>
@@ -8,8 +8,8 @@
     <tr>
       <td>
         <multiple name="navlinks">
-          <if @navlinks.url@ not nil><a href="@navlinks.url@">&nbsp;&nbsp;@navlinks.label@&nbsp;&nbsp;</a></if>
-          <else>&nbsp;&nbsp;@navlinks.label@&nbsp;&nbsp;</else>
+          <if @navlinks.url@ not nil><a href="@navlinks.url@">@navlinks.label;noquote@</a></if>
+          <else>@navlinks.label;noquote@</else>
           <if @navlinks.rownum@ lt @navlinks:rowcount@>&nbsp;&nbsp;&nbsp;</if>
         </multiple>
       </td>

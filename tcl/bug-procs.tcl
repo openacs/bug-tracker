@@ -275,6 +275,23 @@ ad_proc -public bug_tracker::bug::edit {
 }
 
 
+ad_proc bug_tracker::bug::delete { bug_id } {
+    Delete a Bug Tracker bug.
+    This should only ever be run when un-instantiating a project!
+
+    @author Mark Aufflick
+} {
+    set case_id [db_string get_case_id {}]
+    db_exec_plsql delete_bug_case {}
+    set notifications [db_list get_notifications {}]
+    foreach notification_id $notifications {
+        db_exec_plsql delete_notification {}
+    }
+    db_dml unset_revisions {}
+    db_exec_plsql delete_cr_item {}
+}
+
+
 ad_proc -public bug_tracker::bug::get_watch_link {
     {-bug_id:required}
 } {
@@ -653,3 +670,302 @@ ad_proc -private bug_tracker::bug::notification_info::get_notification_info {
     return [list $url $one_line $details_list $notification_subject_tag]
 }
     
+
+#####
+# 
+# Bug list
+#
+#####
+
+ad_proc bug_tracker::bug::get_list {
+    {-ulevel 1}
+} {
+    set package_id [ad_conn package_id]
+    set workflow_id [bug_tracker::bug::get_instance_workflow_id]
+    bug_tracker::get_pretty_names -array pretty_names
+
+    set elements {
+        bug_number {
+            label "Bug \#"
+            display_template {\#@bugs.bug_number@}
+            html { align right }
+        }
+        summary {
+            label "Summary"
+            link_url_eval {[export_vars -base bug -entire_form -override { bug_number }]}
+            aggregate_label "Number of $pretty_names(bugs)"
+        }
+        comment {
+            label "Details"
+            display_col comment_short
+            hide_p 1
+        }
+        state {
+            label "State"
+            display_template {@bugs.pretty_state@<if @bugs.resolution@ not nil> (@bugs.resolution_pretty@)</if>}
+            aggregate count
+        }
+        creation_date_pretty {
+            label "Submitted"
+        }
+        submitter {
+            label "Submitter"
+            display_template {<a href="@bugs.submitter_url@">@bugs.submitter_first_names@ @bugs.submitter_last_name@</a>}
+            hide_p 1
+        }
+        fix_for_version {
+            label "Fix for"
+            display_col fix_for_version_name
+        }
+        component {
+            label "Component"
+            display_col component_name
+        }
+    }
+
+    set state_values [db_list_of_lists select_states {}]
+    set state_default_value [lindex [lindex $state_values 0] 1]
+
+    set filters {
+        f_state {
+            label "State"
+            values $state_values
+            where_clause {cfsm.current_state = :f_state}
+            default_value $state_default_value
+        }
+    }
+
+    set orderbys {
+        default_value bug_number,desc
+        bug_number {
+            label "Bug \#"
+            orderby b.bug_number
+            default_direction desc
+        }
+        summary {
+            label "Summary"
+            orderby_asc {upper(b.summary) asc, b.summary asc, b.bug_number asc}
+            orderby_desc {upper(b.summary) desc, b.summary desc, b.bug_number desc}
+        }
+        submitter {
+            label "Submitter"
+            orderby_asc {upper(submitter.first_names) asc, upper(submitter.last_name) asc, b.bug_number asc}
+            orderby_asc {upper(submitter.first_names) desc, upper(submitter.last_name) desc, b.bug_number desc}
+        }
+    }
+
+    set category_defaults [list]
+
+
+    foreach { parent_id parent_heading } [bug_tracker::category_types] {
+        lappend elements category_$parent_id [list label [bug_tracker::category_heading -keyword_id $parent_id] display_col category_name_$parent_id]
+
+        set values [db_list_of_lists select_categories {}]
+
+        set name category_$parent_id
+        
+        set where_clause [db_map category_where_clause]
+
+        lappend filters f_$name \
+            [list \
+                 label $parent_heading \
+                 values $values \
+                 where_clause $where_clause]
+
+        lappend orderbys $name \
+            [list \
+                 label $parent_heading \
+                 orderby_desc {kw_order.heading desc, b.bug_number desc} \
+                 orderby_asc {kw_order.heading asc, b.bug_number asc}]
+    }
+
+    if { [bug_tracker::versions_p] } {
+        lappend filters f_fix_for_version {
+            label "Fix for version"
+            values {[db_list_of_lists select_fix_for_versions {}]}
+            where_clause { b.fix_for_version = :f_fix_for_version }
+            null_where_clause { b.fix_for_version is null }
+            null_label "Undecided"
+        }
+    }
+
+    foreach action_id [workflow::get_actions -workflow_id $workflow_id] {
+        array unset action
+        workflow::action::get -action_id $action_id -array action
+
+        set values [db_list_of_lists select_action_assignees {}]
+        
+        lappend filters f_action_$action_id \
+            [list \
+                 label $action(pretty_name) \
+                 values $values \
+                 null_label "Unassigned" \
+                 where_clause "
+                     exists (select 1
+                             from   workflow_case_assigned_actions aa,
+                                    workflow_case_role_user_map crum
+                             where  aa.case_id = cas.case_id
+                             and    aa.action_id = $action_id
+                             and    crum.case_id = aa.case_id
+                             and    crum.role_id = aa.role_id
+                             and    crum.user_id = :f_action_$action_id
+                            )
+                 " \
+                 null_where_clause "
+                     exists (select 1
+                             from   workflow_case_assigned_actions aa,
+                                    workflow_case_role_user_map crum
+                             where  aa.case_id = cas.case_id
+                             and    aa.action_id = $action_id
+                             and    crum.case_id (+) = aa.case_id
+                             and    crum.role_id (+) = aa.role_id
+                             and    crum.user_id is null
+                            )"]
+    }
+
+    # Stat: By Component
+
+    lappend filters f_component {
+        label "Component"
+        values {[db_list_of_lists select_components {}]}
+        where_clause {b.component_id = :f_component}
+    }
+
+    upvar \#[template::adp_level] format format
+    
+    template::list::create \
+        -ulevel [expr $ulevel + 1] \
+        -name bugs \
+        -multirow bugs \
+        -class "list-tiny" \
+        -sub_class "narrow" \
+        -pass_properties { pretty_names } \
+        -elements $elements \
+        -filters $filters \
+        -orderby $orderbys \
+        -formats {
+            table {
+                label "Table"
+                layout table
+            }
+            list {
+                label "List"
+                layout list
+                template {
+                    <p class="bt">
+                      <span style="font-size: 115%;">
+                        <listelement name="bug_number"><span class="bt_douce">. </span>
+                        <listelement name="summary"><br>
+                      </span>
+                      <listelement name="comment"><br>
+                      <span class="bt_douce">@pretty_names.Component@:</span> <listelement name="component">
+                      <span class="bt_douce">- Opened</span> <listelement name="creation_date_pretty">
+                      <span class="bt_douce">By</span> <listelement name="submitter"><br>
+                      <span class="bt_douce">Status:</span>
+                      <span style="color: #008000;"><b><listelement name="state"></b>
+                    </p>
+                }
+            }
+        } \
+        -selected_format $format
+}
+
+
+
+ad_proc bug_tracker::bug::get_query {} {
+
+    upvar #[template::adp_level] orderby orderby 
+
+    # Needed to handle ordering by categories
+    set from_bug_clause "bt_bugs b"
+    set orderby_category_where_clause {}
+
+    # Lars: This is a little hack because we actually need to alter the query to sort by category
+    # but list builder currently doesn't support that.
+
+    if { [info exists orderby] && [regexp {^category_(.*),.*$} $orderby match orderby_parent_id] } {
+        append from_bug_clause [db_map orderby_category_from_bug_clause]
+        set orderby_category_where_clause [db_map orderby_category_where_clause]
+    }
+
+    return [db_map bugs]
+}
+
+
+ad_proc bug_tracker::bug::get_multirow {} {
+    foreach var [bug_tracker::get_export_variables] { 
+        upvar \#[template::adp_level] $var $var
+    }
+
+    set workflow_id [bug_tracker::bug::get_instance_workflow_id]
+    set truncate_len [parameter::get -parameter "TruncateDescriptionLength" -default 200]
+
+    set extend_list { 
+        comment_short
+        submitter_url 
+        status_pretty
+        resolution_pretty
+        component_name
+        found_in_version_name
+        fix_for_version_name
+        fixed_in_version_name
+    }
+
+    foreach { parent_id parent_heading } [bug_tracker::category_types] {
+        lappend category_defaults $parent_id {}
+        lappend extend_list "category_$parent_id" "category_name_$parent_id"
+    }
+
+    array set row_category $category_defaults
+    array set row_category_names $category_defaults
+
+    db_multirow -extend $extend_list bugs select_bugs [get_query] {
+
+        # parent_id is part of the column name
+        set parent_id [bug_tracker::category_parent_element -keyword_id $keyword_id -element id]
+
+        # Set the keyword_id and heading for the category with this parent
+        set row_category($parent_id) $keyword_id
+        set row_category_name($parent_id) [bug_tracker::category_heading -keyword_id $keyword_id]
+
+        if { [db_multirow_group_last_row_p -column bug_id] } {
+            set component_name [bug_tracker::component_get_name -component_id $component_id]
+            set found_in_version_name [bug_tracker::version_get_name -version_id $found_in_version]
+            set fix_for_version_name [bug_tracker::version_get_name -version_id $fix_for_version]
+            set fixed_in_version_name [bug_tracker::version_get_name -version_id $fixed_in_version]
+            set comment_short [string_truncate -len $truncate_len -format $comment_format $comment_content]
+            set summary [ad_quotehtml $summary]
+            set submitter_url [acs_community_member_url -user_id $submitter_user_id]
+            set resolution_pretty [bug_tracker::resolution_pretty $resolution]
+            
+            # Hide fields in this state
+            foreach element $hide_fields {
+                set $element {}
+            }
+            
+            # Move categories from array to normal variables, then clear the array for next row
+            foreach parent_id [array names row_category] {
+                set category_$parent_id $row_category($parent_id)
+                set category_name_$parent_id $row_category_name($parent_id)
+            }
+
+            array set row_category $category_defaults
+            array set row_category_names $category_defaults
+        } else {
+            continue
+        }
+    }
+
+}
+
+ad_proc bug_tracker::bug::get_bug_numbers {} {
+    bug_tracker::bug::get_list -ulevel 2
+    bug_tracker::bug::get_multirow
+    
+    set filter_bug_numbers [list]
+    template::multirow foreach bugs {
+        lappend filter_bug_numbers $bug_number
+    }
+
+    return $filter_bug_numbers
+}

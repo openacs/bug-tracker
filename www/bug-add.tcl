@@ -24,7 +24,7 @@ set package_key [ad_conn package_key]
 
 set page_title "New [bug_tracker::conn Bug]"
 
-set context_bar [bug_tracker::context_bar $page_title]
+set context [list $page_title]
 
 set user_id [ad_conn user_id]
 

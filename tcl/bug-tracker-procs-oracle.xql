@@ -117,21 +117,6 @@
       </querytext>
   </partialquery>
 
-  <partialquery name="bug_tracker::parse_filters.orderby_filter_from_bug">
-      <querytext>
-         , cr_item_keyword_map km_order,
-         cr_keywords kw_order
-      </querytext>
-  </partialquery>
- 
-  <partialquery name="bug_tracker::parse_filters.orderby_filter_where">
-      <querytext>
-               km_order.item_id (+) = b.bug_id
-           and km_order.keyword_id = kw_order.keyword_id 
-           and kw_order.parent_id = :filter_orderby
-      </querytext>
-  </partialquery>
- 
   <fullquery name="bug_tracker::project_delete.delete_project">
     <querytext>
         begin
@@ -148,28 +133,4 @@
     </querytext>
   </fullquery>
 
-<fullquery name="bug_tracker::bug_delete.delete_bug_case">
-    <querytext> 
-        begin
-             workflow_case_pkg.delete(:case_id);
-        end;
-    </querytext>
-</fullquery>
- 
-<fullquery name="bug_tracker::bug_delete.delete_notification">
-    <querytext>
-        begin
-             notification.delete(:notification_id);
-        end;
-    </querytext>
-</fullquery>
-
-<fullquery name="bug_tracker::bug_delete.delete_cr_item">
-    <querytext>
-        begin
-             content_item.delete(:bug_id);
-        end;
-    </querytext>
-</fullquery>
- 
 </queryset>

@@ -103,6 +103,53 @@ ad_proc bug_tracker::get_bug_id {
     return [db_string bug_id {}]
 }
 
+
+ad_proc bug_tracker::get_page_variables { 
+    {extra_spec ""}
+} {
+    Adds the bug listing filter variables for use in the page contract.
+    
+    ad_page_contract { doc } [bug_tracker::get_page_variables { foo:integer { bar "" } }]
+} {
+    set filter_vars {
+        f_state:optional
+        f_fix_for_version:optional
+        f_component:optional
+        orderby:optional
+        {format "table"}
+    }
+    foreach { parent_id parent_heading } [bug_tracker::category_types] {
+        lappend filter_vars "f_category_$parent_id:optional"
+    }
+    foreach action_id [workflow::get_actions -workflow_id [bug_tracker::bug::get_instance_workflow_id]] {
+        lappend filter_vars "f_action_$action_id:optional"
+    }
+
+    return [concat $filter_vars $extra_spec]
+}
+
+ad_proc bug_tracker::get_export_variables { 
+    {extra_vars ""}
+} {
+    Gets a list of variables to export for the bug list
+} {
+    set export_vars {
+        f_state
+        f_fix_for_version
+        f_component
+        orderby
+        format
+    }
+    foreach { parent_id parent_heading } [bug_tracker::category_types] {
+        lappend export_vars "f_category_$parent_id"
+    }
+    foreach action_id [workflow::get_actions -workflow_id [bug_tracker::bug::get_instance_workflow_id]] {
+        lappend export_vars "f_action_$action_id"
+    }
+
+    return [concat $export_vars $extra_vars]
+}
+
 #####
 #
 # Cached project info procs
@@ -155,7 +202,7 @@ ad_proc bug_tracker::set_project_name {
 
 #####
 #
-# Stats procs (cache eventually)
+# Stats procs
 #
 #####
  
@@ -253,32 +300,6 @@ ad_proc bug_tracker::get_user_prefs_flush {
     
 #####
 #
-# Bug Types
-#
-#####
-
-ad_proc bug_tracker::bug_type_get_options {} {
-    return { { "Bug" bug } { "Suggestion" suggestion } { "Todo" todo } }
-}
-
-ad_proc bug_tracker::bug_type_pretty {
-    bug_type
-} {
-    array set bug_types {
-        bug "Bug"
-        suggestion "Suggestion"
-        todo "Todo"
-    }
-    if { [info exists bug_types($bug_type)] } {
-        return $bug_types($bug_type)
-    } else {
-        return ""
-    }
-}
-    
-    
-#####
-#
 # Status
 #
 #####
@@ -369,99 +390,6 @@ ad_proc bug_tracker::resolution_pretty {
     
     
     
-#####
-#
-# Severity/Priority codes
-#
-#####
-
-ad_proc bug_tracker::severity_codes_get_options {
-} {
-# XXX FIXME obsolete
-    set package_id [ad_conn package_id]
-    return [util_memoize [list bug_tracker::severity_codes_get_options_not_cached $package_id]]
-}
-
-ad_proc bug_tracker::severity_codes_get_options_not_cached {
-    package_id
-} {
-# XXX FIXME obsolete
-    set severity_list [db_list_of_lists severities {
-        select sort_order || ' - ' || severity_name, severity_id 
-        from   bt_severity_codes 
-        where  project_id = :package_id
-        order  by sort_order
-    }]
-        
-    return $severity_list
-}
-
-ad_proc bug_tracker::severity_get_default {
-} {
-# XXX FIXME obsolete
-    set package_id [ad_conn package_id]
-    return [util_memoize [list bug_tracker::severity_get_default_not_cached $package_id]]
-}
-
-ad_proc bug_tracker::severity_get_default_not_cached {
-    package_id
-} {
-# XXX FIXME obsolete
-    set default_severity_id [db_string default_severity {
-        select severity_id
-        from   bt_severity_codes 
-        where  project_id = :package_id
-        and    default_p = 't'
-        order  by sort_order
-        limit 1
-    } -default ""]
-    
-    return $default_severity_id
-}
-
-ad_proc bug_tracker::priority_codes_get_options {
-} {
-# XXX FIXME obsolete
-    set package_id [ad_conn package_id]
-    return [util_memoize [list bug_tracker::priority_codes_get_options_not_cached $package_id]]
-}
-
-ad_proc bug_tracker::priority_codes_get_options_not_cached {
-    package_id
-} {
-# XXX FIXME obsolete
-    set priority_list [db_list_of_lists priorities { 
-        select sort_order || ' - ' || priority_name, priority_id 
-        from   bt_priority_codes 
-        where  project_id = :package_id
-        order  by sort_order 
-    }]
-    
-    return $priority_list
-}
-
-ad_proc bug_tracker::priority_get_default {
-} {
-# XXX FIXME obsolete
-    set package_id [ad_conn package_id]
-    return [util_memoize [list bug_tracker::priority_get_default_not_cached $package_id]]
-}
-
-ad_proc bug_tracker::priority_get_default_not_cached {
-    package_id
-} {
-# XXX FIXME obsolete
-    set default_priority_id [db_string default_priority {
-        select priority_id
-        from   bt_priority_codes 
-        where  project_id = :package_id
-        and    default_p = 't'
-        order  by sort_order
-        limit 1
-    } -default ""]
-    
-    return $default_priority_id
-}
 
 
 #####
@@ -474,14 +402,23 @@ ad_proc bug_tracker::category_parent_heading {
     {-package_id ""}
     -keyword_id:required
 } {
+    return [bug_tracker::category_parent_element -package_id $pcakage_id -keyword_id $keyword_id -element heading]
+}
+
+# TODO: This could be made faster if we do a reverse mapping array from child to parent
+
+ad_proc bug_tracker::category_parent_element {
+    {-package_id ""}
+    -keyword_id:required
+    {-element "heading"}
+} {
     foreach elm [get_keywords -package_id $package_id] {
         set child_id [lindex $elm 0]
-        set child_heading [lindex $elm 1]
-        set parent_id [lindex $elm 2]
-        set parent_heading [lindex $elm 3]
- 
+
         if { $child_id == $keyword_id } {
-            return $parent_heading
+            set parent(id) [lindex $elm 2]
+            set parent(heading) [lindex $elm 3]
+            return $parent($element)
         }
     }
 }
@@ -498,6 +435,8 @@ ad_proc bug_tracker::category_heading {
  
         if { $child_id == $keyword_id } {
             return $child_heading
+        } elseif { $parent_id == $keyword_id } {
+            return $parent_heading
         }
     }
 }
@@ -594,8 +533,6 @@ ad_proc -public bug_tracker::set_default_keyword {
         set package_id [ad_conn package_id]
     }
 
-    # LARS NEW QUERIES
-
     db_dml delete_existing { 
         delete
         from   bt_default_keywords 
@@ -643,8 +580,6 @@ ad_proc -private bug_tracker::get_default_keyword_not_cached {
 } {
     Get the default keyword for a given type (parent), not cached.
 } {
-    # LARS NEW QUERIES
-
     return [db_string default { 
         select keyword_id
         from   bt_default_keywords
@@ -951,7 +886,7 @@ ad_proc bug_tracker::components_get_url_names_not_cached {
 
 #####
 #
-# Description
+# Description (still used by the patch code, to be removed when they've moved to workflow)
 #
 #####
 
@@ -974,37 +909,6 @@ ad_proc bug_tracker::bug_convert_comment_to_text {
 # Actions
 #
 #####
-
-ad_proc bug_tracker::bug_action_pretty {
-    action
-    {resolution ""}
-} {
-    array set action_codes {
-        open "Opened"
-        edit "Edited"
-        reassign "Reassigned"
-        comment "Comment"
-        resolve "Resolved"
-        reopen "Reopened"
-        close "Closed"
-        patched "Patched"
-    }
-    if { [info exists action_codes($action)] } {
-
-        set action_pretty $action_codes($action)
-
-        if { [string equal $action "resolve"] } {
-            set resolution_pretty [resolution_pretty $resolution]
-            if { ![empty_string_p $resolution_pretty] } {
-                append action_pretty " ($resolution_pretty)"
-            }
-        }
-
-        return $action_pretty
-    } else {
-        return ""
-    }
-}    
 
 ad_proc bug_tracker::patch_action_pretty {
     action
@@ -1076,27 +980,7 @@ ad_proc ::bug_tracker::users_get_options {
     return $users_list
 }
 
-ad_proc ::bug_tracker::users_get_searchquery {
-    -package_id
-} {
-
-}
-
-ad_proc -private bug_tracker::get_maintainer_role_id {
-    -package_id
-} {
-    if { ![info exists package_id] } {
-        set package_id [ad_conn package_id]
-    }
-    # We're using the assignee widget for a certain role to assign the version maintainer
-    set workflow_id [bug_tracker::bug::get_instance_workflow_id -package_id [ad_conn package_id]]
-    set role_ids [workflow::get_roles -workflow_id $workflow_id]
-    
-    # LARS HACK:
-    # We'll use the last role in sort order
-    return [lindex $role_ids end]
-}
-    
+   
 
 #####
 #
@@ -1254,249 +1138,6 @@ ad_proc bug_tracker::get_uploaded_patch_file_content {
     return $content
 }
 
-ad_proc bug_tracker::parse_filters { filter_array_name } {
-    Parses the array named in 'filter_array_name', setting local
-    variables for the filter parameters, and constructing a chunk
-    that can be used in a query, plus a human readable
-    string. Sets the result in bug_tracker::conn as
-    'filter_human_readable', 'filter_where_clauses', 'filter_from_bug_clause', 
-    'filter_order_by_clause'.
-} {
-    upvar $filter_array_name filter
-
-    set where_clauses [list]  
-    set from_bug_clause "bt_bugs b"
-
-    set workflow_id [bug_tracker::bug::get_instance_workflow_id]
-    set initial_state_id [workflow::fsm::get_initial_state -workflow_id $workflow_id]
-
-    set valid_filters {
-        {status $initial_state_id}
-        {action_id}
-        fix_for_version:integer
-        assignee:integer
-        enabled_action_assignee:integer
-        action_id:integer
-        component_id:integer
-        keyword:integer,multiple
-        {n_days 7}
-        {orderby ""}
-    }
-
-    foreach name $valid_filters {
-        if { [llength $name] > 1 } {
-            set default [subst [lindex $name 1]]
-            set name [lindex $name 0]
-        } else {
-            if { [info exists default] } {
-                unset default
-            }
-        }
-        if { [llength [split $name ":"]] > 1 } {
-            set filters [split [lindex [split $name ":"] 1] ,]
-            set name [lindex [split $name ":"] 0]
-        } else {
-            set filters [list]
-        }
-
-        # special case for annoying tcl'ism, whereby if you say
-        # lappend foo(bar) {}, your foo(bar) entry will be equal to {{}}, 
-        # which we run into, because the page defines filters as 
-        # :array,multiple
-        if { [info exists filter($name)] && [string equal $filter($name) {{}}] } {
-            if { [lsearch -exact $filters "multiple"] != -1 } {
-                unset filter($name)
-            } else {
-                set filter($name) {}
-            }
-        }
-
-        if { [info exists filter($name)] } {
-            upvar filter_$name var
-            set var $filter($name)
-
-            if { [lsearch -exact $filters "integer"] != -1 && ![empty_string_p $var]} {
-                if { [lsearch -exact $filters "multiple"] != -1 } {
-                    foreach elm $var {
-                        validate_integer $name $elm
-                    }
-                } else {
-                    validate_integer $name $var
-                }
-            }
-            
-        } elseif { [info exists default] } {
-            upvar filter_$name var
-            set var $default
-        }
-        # also upvar it under its real name
-        upvar filter_$name filter_$name
-    }
-
-    if { [info exists filter_status] && ![string equal $filter_status "any"] } {
-        lappend where_clauses "cfsm.current_state = :filter_status"
-        
-        set status_pretty [workflow::state::fsm::get_element \
-                               -state_id $filter_status \
-                               -element pretty_name]
-        
-        set human_readable_filter "All $status_pretty [bug_tracker::conn bugs]"
-    } else {
-        set human_readable_filter "[bug_tracker::conn Bugs] of any status"
-    }
-    
-    if { [info exists filter_bug_type] } {
-        lappend where_clauses "b.bug_type = :filter_bug_type"
-        append human_readable_filter " of type [bug_tracker::bug_type_pretty $filter_bug_type]"
-    }
-    
-    if { [info exists filter_assignee] } {
-        if { [empty_string_p $filter_assignee] } {
-            lappend where_clauses "assignee.party_id is null"
-
-            append human_readable_filter " that are unassigned"
-        } else {            
-
-            lappend where_clauses "assignee.party_id = :filter_assignee"
-
-            if { $filter_assignee == [ad_conn user_id] } {
-                append human_readable_filter " assigned to me"
-            } else {
-                append human_readable_filter " assigned to [db_string assignee_name {}]"
-            }
-        }
-    } 
- 
-    if { [info exists filter_keyword] } {
-        set keyword_human [list]
-        foreach keyword_id $filter_keyword {
-            lappend where_clauses [db_map keyword_filter]
-            set category_name [category_heading -keyword_id $keyword_id]
-
-            # LARS:
-            # This is a hack to be smart about stripping out the "1 - " or "A - " part
-            # if people use that naming style
-            regsub {^[a-zA-Z0-9]\s[-*]*\s} $category_name {} category_name
-
-            lappend keyword_human "[category_parent_heading -keyword_id $keyword_id] is $category_name"
-        }
-        append human_readable_filter " where [join $keyword_human " and "]"
-    }
-
-    if { [info exists filter_enabled_action_assignee] } {
-        lappend where_clauses {
-            exists (
-                select 1 
-                from   workflow_cases cas2,
-                       workflow_case_fsm cfsm2,
-                       workflow_actions a2,
-                       workflow_case_role_party_map crpm2
-                where  cas2.object_id = b.bug_id            
-                  and  (a2.always_enabled_p = 't'
-                        or exists (select 1
-                                   from   workflow_fsm_action_en_in_st aeis
-                                   where  aeis.state_id = cfsm.current_state
-                                     and  aeis.action_id = a2.action_id
-                                     and  aeis.assigned_p = 't'
-                                   )
-                       )
-                  and cfsm2.case_id = cas2.case_id
-                  and crpm2.case_id = cas2.case_id
-                  and crpm2.role_id = a2.assigned_role
-                  and crpm2.party_id = :filter_enabled_action_assignee
-            )
-        }
-        if { $filter_enabled_action_assignee == [ad_conn user_id] } {
-            append human_readable_filter " awaiting action by me"
-        } else {
-            array set person [person::get -person_id $filter_enabled_action_assignee]
-            
-            append human_readable_filter " awaiting action by $person(first_names) $person(last_name)"
-        }
-    }
-    
-    if { ![empty_string_p [conn component_id]] } {
-        set filter_component_id [conn component_id]
-    }
-
-    if { [info exists filter_component_id] } {
-        lappend where_clauses "b.component_id = :filter_component_id"
-        append human_readable_filter " in [component_get_name -component_id $filter_component_id]"
-        conn -set component_id $filter_component_id
-    }
-    
-    if { [info exists filter_fix_for_version] } {
-        if { [empty_string_p $filter_fix_for_version] } {
-            lappend where_clauses "b.fix_for_version is null"
-            append human_readable_filter " where fix for version is undecided"
-        } else {
-            lappend where_clauses "b.fix_for_version = :filter_fix_for_version"
-            append human_readable_filter " to be fixed in version [db_string version_name {}]"
-        }
-    }
-    
-    if { [empty_string_p $filter_orderby] } {
-        set order_by_clause "b.bug_number desc"
-    } else {
-        append from_bug_clause [db_map orderby_filter_from_bug]
-        lappend where_clauses [db_map orderby_filter_where]
-        set order_by_clause "kw_order.heading, bug_number desc "
-    }
-    
-    if { ![empty_string_p $filter_n_days] } {
-        if { ![string equal $filter_n_days "all"] } {
-            lappend where_clauses [db_map n_days_filter]
-            append human_readable_filter " opened in the last $filter_n_days days"
-        }
-    }
-
-    conn -set filter [array get filter]
-    conn -set filter_human_readable $human_readable_filter
-    conn -set filter_where_clauses $where_clauses
-    conn -set filter_order_by_clause $order_by_clause
-    conn -set filter_from_bug_clause $from_bug_clause
-}
-
-ad_proc bug_tracker::filter_url_vars { 
-    {-array:required}
-    {-override:required}
-} {
-    Returns query args for the URL string, overriding the existing filters with the new one given by name and value.
-    Existing orderby and n_days filters are kept, however, unless that's the one you're  replacing
-    @param array the name of the array in the caller's scope holding the current filter values
-    @param override an array list of new values to set instead
-} {
-    upvar $array cur_filters
-    
-    array set filter [list]
-    
-    foreach keeper { orderby n_days } {
-        if { [info exists cur_filters($keeper)] } {
-            set filter($keeper) $cur_filters($keeper)
-        }
-    }
-
-    array set filter $override
-    return [export_vars { filter:array }]
-}
-
-ad_proc bug_tracker::context_bar { args } {
-    Context bar that takes the component information into account
-} {
-    set component_id [conn component_id]
-    if { ![empty_string_p $component_id] } {
-        set component_name [bug_tracker::component_get_name -component_id $component_id]
-        set url_name [bug_tracker::component_get_url_name -component_id $component_id]
-        if { [llength $args] == 0 } {
-            return [eval ad_context_bar [list $component_name]]
-        } else {
-            return [eval ad_context_bar [list [list "[ad_conn package_url]com/$url_name/" $component_name]] $args]
-        }
-    } else {
-        return [eval ad_context_bar $args]
-    }
-}
-
 ad_proc bug_tracker::security_violation {
     -user_id:required
     -bug_id:required
@@ -1510,21 +1151,14 @@ ad_proc bug_tracker::security_violation {
     </blockquote>"
     ad_script_abort
 }
-ad_proc bug_tracker::bug_delete { bug_id } {
-    Delete a Bug Tracker bug.
-    This should only ever be run when un-instantiating a project!
 
-    @author Mark Aufflick
-} {
-    set case_id [db_string get_case_id {}]
-    db_exec_plsql delete_bug_case {}
-    set notifications [db_list get_notifications {}]
-    foreach notification_id $notifications {
-        db_exec_plsql delete_notification {}
-    }
-    db_dml unset_revisions {}
-    db_exec_plsql delete_cr_item {}
-}
+
+#####
+#
+# Projects
+#
+#####
+
 
 ad_proc bug_tracker::project_delete { project_id } {
     Delete a Bug Tracker project and all its data.
@@ -1533,7 +1167,7 @@ ad_proc bug_tracker::project_delete { project_id } {
 } {
     #manually delete all bugs to avoid wierd integrity constraints
     while { [set bug_id [db_string min_bug_id {}]] > 0 } {
-        bug_delete $bug_id
+        bug_tracker::bug::delete $bug_id
     }
     db_exec_plsql delete_project {}
 }
@@ -1545,73 +1179,3 @@ ad_proc bug_tracker::project_new { project_id } {
 } {
     db_exec_plsql create_project {}
 }
-
-ad_proc bug_tracker::bug_notify {
-    {-bug_id:required}
-    {-action ""}        
-    {-comment ""}
-    {-comment_format ""}
-    {-resolution ""}
-    {-patch_summary ""}     
-} {                             
-    set package_id [ad_conn package_id]
-                            
-    db_1row bug {} -column_array bug
-    set bug(found_in_version_name) [version_get_name -version_id $bug(found_in_version)]
-    set bug(fix_for_version_name) [version_get_name -version_id $bug(fix_for_version)]
-    set bug(fixed_in_version_name) [version_get_name -version_id $bug(fixed_in_version)]
-
-    get_pretty_names -array pretty_names
-    
-    set subject "$pretty_names(Bug) #$bug(bug_number). [ad_html_to_text -- [string_truncate -len 30 $bug(summary)]]: [bug_action_pretty $action $resolution] by [conn user_first_names] [conn user_last_name]"
-
-    set body "$pretty_names(Bug) no: #$bug(bug_number)
-Summary: $bug(summary)
-
-$pretty_names(Component): $bug(component_name)
-Status: $bug(status)
-"
-
-foreach {category_id category_name} [bug_tracker::category_types] {
-    append body "$category_name: [cr::keyword::item_get_assigned -item_id $bug(bug_id) -parent_id $category_id]
-"
-}
-
-append body "Found in version: $bug(found_in_version_name)
-
-Action: [bug_action_pretty $action $resolution]
-By user: [conn user_first_names] [conn user_last_name] <[conn user_email]>
-
-"
-
-    if { ![string equal $action "patched"] } {
-        if { ![empty_string_p $comment] } {
-            append body "Comment:\n\n[bug_convert_comment_to_text -comment $comment -format $comment_format]\n\n"
-        }
-
-    } else {
-        append body "\n\nSummary: $patch_summary\n\n"
-    }
-
-
-    append body "--\nTo comment on, edit, resolve, close, or reopen this bug, go to:\n[ad_url][ad_conn package_url]bug?[export_vars -url { { bug_number $bug(bug_number) } }]\n"
-
-    # Use the Notification service to alert (could be immediately, or daily, or weekly)
-    # people who have signed up for notification on this bug
-    notification::new \
-        -type_id [notification::type::get_type_id -short_name bug_tracker_bug_notif] \
-        -object_id $bug(bug_id) \
-        -response_id $bug(bug_id) \
-        -notif_subject $subject \
-        -notif_text $body
-
-    # Use the Notification service to alert people who have signed up for notification
-    # in this bug tracker package instance
-    notification::new \
-        -type_id [notification::type::get_type_id -short_name bug_tracker_project_notif] \
-        -object_id $bug(project_id) \
-        -response_id $bug(bug_id) \
-        -notif_subject $subject \
-        -notif_text $body
-}
-

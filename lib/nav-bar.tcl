@@ -50,14 +50,22 @@ multirow create links name url
 
 array set filter [bug_tracker::conn filter]
 
-multirow append links "[bug_tracker::conn Bugs]" "${url_prefix}."
+set workflow_id [bug_tracker::bug::get_instance_workflow_id]
+set initial_state_id [workflow::fsm::get_initial_state -workflow_id $workflow_id]
+
+multirow append links "[bug_tracker::conn Bugs]" [export_vars -base "${url_prefix}." { { f_fix_for_version {[bug_tracker::conn current_version_id]} } }]
 
 if { $create_p } {
     multirow append links "New [bug_tracker::conn Bug]" "${url_prefix}bug-add"
 }
 
 if { [ad_conn untrusted_user_id] != 0 } {
-    multirow append links "My [bug_tracker::conn Bugs]" "${url_prefix}.?[export_vars -url { { filter.assignee {[ad_conn user_id]} } }]"
+    # Lars: Taken out
+    # Could mean one of
+    # - I submitted
+    # - I'm supposed to resolve
+    # - I'm supposed to verify and close
+    #multirow append links "My [bug_tracker::conn Bugs]" "${url_prefix}.?[export_vars -url { { filter.assignee {[ad_conn user_id]} } }]"
 }
 
 if { $patches_p } {
