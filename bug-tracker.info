@@ -18,7 +18,7 @@
         <vendor url="http://www.museatech.net">Musea Technologies</vendor>
         <description format="text/html">Bug tracking application with notifications, configurable state management, and patch upload.
         Contains the best of SDM, Bugzilla, FogBUGZ, and bughost.com.</description>
-        <provides url="bug-tracker" version="1.3d3"/>
+        <provides url="bug-tracker" version="1.3a1"/>
         <requires url="acs-content-repository" version="5.0d1"/>
         <requires url="acs-kernel" version="5.0d13"/>
         <requires url="acs-tcl" version="4.6.2d"/>
