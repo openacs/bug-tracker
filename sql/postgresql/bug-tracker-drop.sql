@@ -8,7 +8,7 @@ drop function bt_bug__new(
     varchar,     -- user_agent
     text,        -- comment_content
     varchar,     -- comment_format
-    timestamp,   -- creation_date
+    timestamptz, -- creation_date
     integer,     -- creation_user
     varchar,     -- creation_ip
     varchar,     -- item_subtype
