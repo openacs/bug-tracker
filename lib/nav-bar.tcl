@@ -14,6 +14,8 @@ set component_id [bug_tracker::conn component_id]
 set admin_p [permission::permission_p -object_id $package_id -privilege admin]
 set create_p [expr { [ad_conn user_id] == 0 || [permission::permission_p -object_id [ad_conn package_id] -privilege create] }]
 
+bug_tracker::get_pretty_names -array pretty_names
+
 set notification_url [lindex $notification_link 0]
 set notification_label [lindex $notification_link 1]
 set notification_title [lindex $notification_link 2]

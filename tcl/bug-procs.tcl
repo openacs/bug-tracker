@@ -299,12 +299,12 @@ ad_proc -public bug_tracker::bug::get_watch_link {
                      -url $return_url \
                      -user_id $user_id \
                      -pretty_name "this bug"]
-        set label "Watch this bug"
-        set title "Request notifications for all activity on this bug"
+        set label "Watch this [bug_tracker::conn bug]"
+        set title "Request notifications for all activity on this [bug_tracker::conn bug]"
     } else {
         set url [notification::display::unsubscribe_url -request_id $request_id -url $return_url]
-        set label "Stop watching this bug"
-        set title "Unsubscribe to notifications for activity on this bug"
+        set label "Stop watching this [bug_tracker::conn bug]"
+        set title "Unsubscribe to notifications for activity on this [bug_tracker::conn bug]"
     }
     return [list $url $label $title]
 }
