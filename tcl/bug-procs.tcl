@@ -918,7 +918,7 @@ ad_proc bug_tracker::bug::get_multirow {} {
             set found_in_version_name [bug_tracker::version_get_name -version_id $found_in_version]
             set fix_for_version_name [bug_tracker::version_get_name -version_id $fix_for_version]
             set fixed_in_version_name [bug_tracker::version_get_name -version_id $fixed_in_version]
-            set comment_short [string_truncate -len $truncate_len -format $comment_format -- $comment_content]
+            set comment_short [string_truncate -len $truncate_len -- $comment_content]
             set submitter_url [acs_community_member_url -user_id $submitter_user_id]
             set resolution_pretty [bug_tracker::resolution_pretty $resolution]
             
