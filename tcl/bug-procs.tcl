@@ -857,7 +857,6 @@ ad_proc bug_tracker::bug::get_list {
         -filters $filters \
         -orderby $orderbys \
         -page_size 25 \
-        -page_groupsize 1 \
         -page_flush_p 0 \
         -page_query {[bug_tracker::bug::get_query -query_name bugs_pagination]} \
         -formats {
