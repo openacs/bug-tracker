@@ -3,6 +3,6 @@
 <property name="context">@context;noquote@</property>
 <property name="focus">version.actual_release_date</property>
 
-<formtemplate id="version" style="standard-lars"></formtemplate>
+<formtemplate id="version"></formtemplate>
 
 

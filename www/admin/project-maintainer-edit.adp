@@ -3,6 +3,6 @@
 <property name="context">@context;noquote@</property>
 <property name="focus">project_maintainer.maintainer</property>
 
-<formtemplate id="project_maintainer" style="standard-lars"></formtemplate>
+<formtemplate id="project_maintainer"></formtemplate>
 
 

@@ -3,7 +3,7 @@
 <property name="context_bar">@context_bar;noquote@</property>
 <property name="focus">keyword.heading</property>
 
-<formtemplate id="keyword" style="standard-lars"></formtemplate>
+<formtemplate id="keyword"></formtemplate>
 
 
 <blockquote> <b>Note:</b> Categories are sorted by their

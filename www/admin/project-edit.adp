@@ -3,6 +3,6 @@
 <property name="context">@context;noquote@</property>
 <property name="focus">project.name</property>
 
-<formtemplate id="project" style="standard-lars"></formtemplate>
+<formtemplate id="project"></formtemplate>
 
 
