@@ -526,28 +526,33 @@ namespace eval bug_tracker {
     
     ad_proc users_get_options {
         -package_id
-        -include_unassigned:boolean
     } {
         if { ![info exists package_id] } {
             set package_id [ad_conn package_id]
         }
 
+        set user_id [ad_conn user_id]
+
         # This picks out users who are already assigned to some bug in this
         set sql {
-            select distinct
-                   u.first_names || ' ' || u.last_name as name,
-                   u.user_id
-            from   bt_bugs b, cc_users u
-            where  b.project_id = :package_id
-            and    u.user_id = b.assignee
+            select distinct q.*
+            from (
+                select u.first_names || ' ' || u.last_name as name, u.user_id
+                from   bt_bugs b, cc_users u
+                where  b.project_id = :package_id
+                and    u.user_id = b.assignee
+                union
+                select u.first_names || ' ' || u.last_name as name, u.user_id
+                from   cc_users u
+                where  u.user_id = :user_id
+            ) q
             order  by name
         }
 
         set users_list [db_list_of_lists users $sql]
     
-        if { $include_unassigned_p } {
-            set users_list [concat { { "Unassigned" "" } } $users_list]
-        } 
+        set users_list [concat { { "Unassigned" "" } } $users_list]
+        lappend users_list { "Search..." ":search:"}
 
         return $users_list
     }

@@ -221,11 +221,18 @@ if { $user_agent_p } {
 }
 
 element create bug assignee \
-        -datatype user \
-        -widget [ad_decode [info exists field_editable_p(assignee)] 1 user inform] \
-        -label "Assigned to" \
-        -options [bug_tracker::users_get_options -include_unassigned] \
-        -optional
+        -widget [ad_decode [info exists field_editable_p(assignee)] 1 search inform] \
+        -datatype search \
+        -result_datatype integer \
+        -label {Assigned to} \
+        -options [bug_tracker::users_get_options] \
+        -optional \
+        -search_query {
+    select distinct u.first_names || ' ' || u.last_name as name, u.user_id
+    from   cc_users u
+    where  upper(coalesce(u.first_names || ' ', '')  || coalesce(u.last_name || ' ', '') || u.email || ' ' || coalesce(u.screen_name, '')) like upper('%'||:value||'%')
+    order  by name
+} 
 
 element create bug fix_for_version \
         -datatype text \
