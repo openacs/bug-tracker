@@ -218,7 +218,7 @@ if { ![empty_string_p $enabled_action_id] } {
     }
     
     # LARS: Hack! How do we set editing of dynamic fields?
-    if { [string equal [workflow::action::get_element -action_id $action_id -element short_name] "[_ acs-kernel.common_edit]"] } {
+    if { [string equal [workflow::action::get_element -action_id $action_id -element short_name] edit] } {
         foreach { category_id category_name } [bug_tracker::category_types] {
             element set_properties bug $category_id -mode edit
         }
@@ -319,7 +319,7 @@ if { ![form is_valid bug] } {
         # check that the element exists
         if { [info exists bug:$element] && [info exists bug($element)] } {
             if { [form is_request bug] \
-                     || [string equal [element get_property bug $element mode] [_ acs-kernel.common_display]] } { 
+                     || [string equal [element get_property bug $element mode] display] } { 
                 if { [string first "#" $bug($element)] == 0 } {
                     element set_value bug $element [lang::util::localize $bug($element)]
                 } else {
