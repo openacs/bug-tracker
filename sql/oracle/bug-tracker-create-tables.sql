@@ -200,7 +200,7 @@ begin
         'content_revision',
         'Bug Revision',
         'Bug Revisions',
-        'btbug_revisions',
+        'bt_bug_revisions',
         'bug_revision_id',
         'content_revision.revision_name'
     );
