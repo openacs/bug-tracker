@@ -3,14 +3,8 @@ ad_page_contract {
     @creation-date 2002-03-26
     @cvs-id $Id$
 } {
-    cancel:optional
     component_id:integer,optional
-    {return_url ""}
-}
-
-if { [exists_and_not_null cancel] } {
-    ad_returnredirect $return_url
-    ad_script_abort
+    {return_url "."}
 }
 
 set project_name [bug_tracker::conn project_name]
@@ -24,7 +18,7 @@ if { [info exists component_id] } {
 }
 set context_bar [ad_context_bar $page_title]
 
-form create component
+form create component -cancel_url $return_url
 
 element create component return_url -datatype text -widget hidden -value $return_url
 

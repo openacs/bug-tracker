@@ -5,13 +5,7 @@ ad_page_contract {
     @creation-date 2002-03-26
     @cvs-id $Id$
 } {
-    cancel:optional
-    {return_url ""}
-}
-
-if { [exists_and_not_null cancel] } {
-    ad_returnredirect $return_url
-    ad_script_abort
+    {return_url "."}
 }
 
 set project_name [bug_tracker::conn project_name]
@@ -21,7 +15,7 @@ set package_key [ad_conn package_key]
 set page_title "Edit Project"
 set context_bar [ad_context_bar $page_title]
 
-form create project_info
+form create project_info -cancel_url $return_url
 
 element create project_info return_url -datatype text -widget hidden -value $return_url
 
