@@ -13,10 +13,11 @@
         <database>oracle</database>
     </database-support>
         <owner url="mailto:lars@collaboraid.biz">Lars Pind</owner>
-        <summary>Tracks bugs and features, versions and maintainers, in software projects. Contains the best of SDM, Bugzilla, FogBUGZ, and bughost.com.</summary>
+        <summary>Tracks bugs and features, versions and maintainers, in software projects.</summary>
         <release-date>2003-02-28</release-date>
         <vendor url="http://www.museatech.net">Musea Technologies</vendor>
-
+        <description format="text/html">Bug tracking application with notifications, configurable state management, and patch upload.
+        Contains the best of SDM, Bugzilla, FogBUGZ, and bughost.com.</description>
         <provides url="bug-tracker" version="1.3d2"/>
         <requires url="acs-content-repository" version="5.0d1"/>
         <requires url="acs-kernel" version="5.0d13"/>
