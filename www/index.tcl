@@ -22,7 +22,7 @@ set project_root_keyword_id [bug_tracker::conn project_root_keyword_id]
 set versions_p [bug_tracker::versions_p]
 
 if { [info exists filter] } {
-    if { [array names filter] == [list "actionby"] && $filter(actionby) == [ad_conn user_id] } {
+    if { [array names filter] == [list "assignee"] && $filter(assignee) == [ad_conn user_id] } {
         set context_bar [bug_tracker::context_bar "My [bug_tracker::conn bugs]"]
     } else {
         set context_bar [bug_tracker::context_bar "Filtered [bug_tracker::conn bug] list"]

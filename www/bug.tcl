@@ -333,10 +333,10 @@ if { ![form is_valid bug] } {
 
     # Context bar
     if { [info exists filter] } {
-        if { [array names filter] == [list "actionby"] && $filter(actionby) == $user_id } {
-            set context_bar [bug_tracker::context_bar [list ".?[export_vars { filter:array }]" "My bugs"] $page_title]
+        if { [array names filter] == [list "assignee"] && $filter(assignee) == $user_id } {
+            set context_bar [bug_tracker::context_bar [list ".?[export_vars { filter:array }]" "My [bug_tracker::conn bugs]"] $page_title]
         } else {
-            set context_bar [bug_tracker::context_bar [list ".?[export_vars { filter:array }]" "Filtered bug list"] $page_title]
+            set context_bar [bug_tracker::context_bar [list ".?[export_vars { filter:array }]" "Filtered [bug_tracker::conn bug] list"] $page_title]
         }
     } else {
         set context_bar [bug_tracker::context_bar $page_title]
