@@ -5,15 +5,7 @@ ad_page_contract {
     @creation-date 2002-03-20
     @cvs-id $Id$
 } {
-    status:optional
-    bug_type:optional
-    fix_for_version:integer,optional
-    severity:integer,optional
-    priority:integer,optional
-    assignee:integer,optional
-    component_id:integer,optional
-    actionby:integer,optional
-    {orderby ""}
+    filter:optional,array
 }
 
 ad_require_permission [ad_conn package_id] read
@@ -22,9 +14,19 @@ set project_name [bug_tracker::conn project_name]
 set package_id [ad_conn package_id]
 set package_key [ad_conn package_key]
 
-set context_bar [ad_context_bar]
+if { [info exists filter] } {
+    if { [array names filter] == [list "actionby"] && $filter(actionby) == [ad_conn user_id] } {
+        set context_bar [bug_tracker::context_bar "My bugs"]
+    } else {
+        set context_bar [bug_tracker::context_bar "Filtered bug list"]
+    }
+} else {
+    set context_bar [bug_tracker::context_bar]
+}
 
 set admin_p [ad_permission_p [ad_conn package_id] admin]
+
+set return_url "[ad_conn url][ad_decode [ad_conn query] "" "" "?[ad_conn query]"]"
 
 set num_components [db_string num_components { select count(component_id) from bt_components where project_id = :package_id }]
 
@@ -40,92 +42,58 @@ if { $num_bugs == 0 } {
     return
 }
 
+set user_id [ad_conn user_id]
+
+# Notifications for a project. Provide a link for logged in users
+set notification_link [bug_tracker::get_notification_link \
+        -type       bug_tracker_project_notif \
+        -object_id  $package_id \
+        -url        $return_url \
+        -pretty_name "project"]
+
 #
 # Filter management
 #
 
-set where_clauses [list]
+set filter_parsed [bug_tracker::parse_filters filter]
 
-set filter_vars { status fix_for_version assignee component_id }
+set human_readable_filter [bug_tracker::conn filter_human_readable]
+set where_clauses [bug_tracker::conn filter_where_clauses]
+set order_by_clause [bug_tracker::conn filter_order_by_clause]
 
-if { ![info exists status] } {
-    if { [info exists actionby] } {
-        set status ""
+lappend where_clauses "b.project_id = :package_id"
+
+if { [llength [array names filter]] > 0 } {
+    set clear_url [ad_conn package_url]
+}
+
+#
+# Order by
+#
+
+if { [info exists filter(orderby)] } { 
+    set save_orderby $filter(orderby)
+    unset filter(orderby)
+}
+set displaymode_form_export_vars [export_vars -form { filter:array }]
+if { [info exists save_orderby] } {
+    set filter(orderby) $save_orderby
+    unset save_orderby
+}
+
+multirow create orderby value label selected_p
+foreach value { "" severity priority } label { "Bug number" "Severity" "Priority" } {
+    if { [info exists filter(orderby)] && [string equal $filter(orderby) $value] } {
+        set selected_p 1
     } else {
-        set status "open"
+        set selected_p 0
     }
+    multirow append orderby $value $label $selected_p
 }
 
-lappend where_clauses "b.status = :status"
-set human_readable_filter "All $status bugs"
-
-if { [info exists bug_type] } {
-    lappend where_clauses "b.bug_type = :bug_type"
-    append human_readable_filter " of type [bug_tracker::bug_type_pretty $bug_type]"
-}
-
-if { [info exists assignee] } {
-    if { [empty_string_p $assignee] } {
-        lappend where_clauses "b.assignee is null"
-        append human_readable_filter " that are unassigned"
-    } else {
-        lappend where_clauses "b.assignee = :assignee"
-        if { $assignee == [ad_conn user_id] } {
-            append human_readable_filter " assigned to me"
-        } else {
-            append human_readable_filter " assigned to [db_string assignee_name { select first_names || ' ' || last_name from cc_users where user_id = :assignee }]"
-        }
-    }
-}
-
-if { [info exists actionby] } {
-    lappend where_clauses "((b.status = 'open' and b.assignee = :actionby) or (b.status = 'resolved' and o.creation_user = :actionby))"
-    if { $actionby ==  [ad_conn user_id] } {
-        append human_readable_filter " awaiting action by me"
-    } else {
-        append human_readable_filter " awaiting action by [db_string actionby_name { select first_names || ' ' || last_name from cc_users where user_id = :actionby }]"
-    }
-}
-
-if { [info exists severity] } {
-    lappend where_clauses "b.severity = :severity"
-    append human_readable_filter " where severity is [db_string severity_name { select severity_name from bt_severity_codes where severity_id = :severity }]"
-}
-
-if { [info exists priority] } {
-    lappend where_clauses "b.priority = :priority"
-    append human_readable_filter " with a priority of [db_string priority_name { select priority_name from bt_priority_codes where priority_id = :priority }]"
-}
-
-if { [info exists component_id] } {
-    lappend where_clauses "b.component_id = :component_id"
-    append human_readable_filter " in [db_string component_name { select component_name from bt_components where component_id = :component_id }]"
-    bug_tracker::conn -set component_id $component_id
-}
-
-if { [info exists fix_for_version] } {
-    if { [empty_string_p $fix_for_version] } {
-        lappend where_clauses "b.fix_for_version is null"
-        append human_readable_filter " where fix for version is undecided"
-    } else {
-        lappend where_clauses "b.fix_for_version = :fix_for_version"
-        append human_readable_filter " to be fixed in version [db_string version_name { select version_name from bt_versions where version_id = :fix_for_version }]"
-    }
-}
-
-switch -exact -- $orderby {
-    severity {
-        set order_by_clause "sc.sort_order, b.bug_number desc"
-        append human_readable_filter ", most severe bugs first"
-    }
-    priority {
-        set order_by_clause "pc.sort_order, b.bug_number desc"
-        append human_readable_filter ", highest priority bugs first"
-    }
-    default {
-        set order_by_clause "b.bug_number desc"
-    }
-}
+#
+# Get bug list
+#
 
 set truncate_len [ad_parameter "TruncateDescriptionLength" -default 200]
 
@@ -181,9 +149,8 @@ db_multirow -extend { description_short submitter_url status_pretty resolution_p
     and    o.object_id = b.bug_id
     and    pc.priority_id = b.priority
     and    sc.severity_id = b.severity
-    and    b.project_id = :package_id
     and    submitter.user_id = o.creation_user
-    [ad_decode $where_clauses "" "" "and [join $where_clauses " and "]"]
+    and    [join $where_clauses " and "]
     order  by $order_by_clause
 " {
     set description_short [string_truncate -len $truncate_len [bug_tracker::bug_convert_comment_to_text -comment $description -format $desc_format]]
@@ -195,8 +162,12 @@ db_multirow -extend { description_short submitter_url status_pretty resolution_p
     set latest_estimate_pretty [ad_decode $latest_estimate_minutes "" "" 0 "" "$latest_estimate_minutes minutes"]
     set elapsed_time_pretty [ad_decode $elapsed_time_minutes "" "" 0 "" "$elapsed_time_minutes minutes"]
     set assignee_url [acs_community_member_url -user_id $assignee_user_id]
-    set bug_url "[ad_conn package_url]bug?[export_vars -url { bug_number }]"
+    set bug_url "bug?[export_vars { bug_number filter:array }]"
 }
+
+#
+# Get stats
+#
 
 db_multirow -extend { name name_url } by_status by_status {
     select b.status as unique_id,
@@ -207,7 +178,7 @@ db_multirow -extend { name name_url } by_status by_status {
     order  by bt_bug__status_sort_order(b.status)
 } {
     set name "[bug_tracker::status_pretty $unique_id] Bugs"
-    set name_url "[ad_conn package_url]?[export_vars -url { { status $unique_id } }]"
+    set name_url "?[export_vars { { filter.status $unique_id } }]"
 }
 
 db_multirow -extend { name name_url stat_name } stats stats_by_bug_type {
@@ -221,7 +192,7 @@ db_multirow -extend { name name_url stat_name } stats stats_by_bug_type {
 } {
     set stat_name "Type of bug"
     set name [bug_tracker::bug_type_pretty $unique_id]
-    set name_url "[ad_conn package_url]?[export_vars -url { { bug_type $unique_id } }]"
+    set name_url "?[export_vars { { filter.bug_type $unique_id } }]"
 }
 
 db_multirow -extend { name_url stat_name } -append stats stats_by_fix_for_version {
@@ -239,15 +210,10 @@ db_multirow -extend { name_url stat_name } -append stats stats_by_fix_for_versio
     if { [empty_string_p $unique_id] } {
         set name "<i>Undecided</i>"
     }
-    set name_url "[ad_conn package_url]?[export_vars -url { { fix_for_version $unique_id } }]"
+    set name_url "?[export_vars { { filter.fix_for_version $unique_id } }]"
 }
 
 set stat_name_val "Severity"
-if { ![string equal $orderby "severity"] } {
-    append stat_name_val " (<a href=\"[ad_conn package_url]?[export_vars { { orderby severity } }]\">order</a>)"
-} else {
-    append stat_name_val " (*)"
-}
 
 db_multirow -extend { name_url stat_name } -append stats stats_by_severity {
     select b.severity as unique_id,
@@ -261,15 +227,10 @@ db_multirow -extend { name_url stat_name } -append stats stats_by_severity {
     order  by name
 } {
     set stat_name $stat_name_val
-    set name_url "[ad_conn package_url]?[export_vars { { severity $unique_id } }]"
+    set name_url "?[export_vars { { filter.severity $unique_id } }]"
 }
 
 set stat_name_val "Priority"
-if { ![string equal $orderby "priority"] } {
-    append stat_name_val " (<a href=\"[ad_conn package_url]?[export_vars { { orderby priority } }]\">order</a>)"
-} else {
-    append stat_name_val " (*)"
-}
 
 db_multirow -extend { name_url stat_name } -append stats stats_by_priority {
     select b.priority as unique_id,
@@ -283,7 +244,7 @@ db_multirow -extend { name_url stat_name } -append stats stats_by_priority {
     order  by name
 } {
     set stat_name $stat_name_val
-    set name_url "[ad_conn package_url]?[export_vars { { priority $unique_id } }]"
+    set name_url "?[export_vars { { filter.priority $unique_id } }]"
 }
 
 db_multirow -extend { name_url stat_name } -append stats stats_by_assignee {
@@ -301,7 +262,7 @@ db_multirow -extend { name_url stat_name } -append stats stats_by_assignee {
     if { [empty_string_p $unique_id] } {
         set name "<i>Unassigned</i>"
     }
-    set name_url "[ad_conn package_url]?[export_vars -url { { assignee $unique_id } }]"
+    set name_url "?[export_vars -url { { filter.assignee $unique_id } }]"
 }
 
 db_multirow -extend { name_url stat_name } -append stats stats_by_actionby {
@@ -317,11 +278,11 @@ db_multirow -extend { name_url stat_name } -append stats stats_by_actionby {
     order  by name
 } {
     set stat_name "To Be Verified By"
-    set name_url "?[export_vars -url { { status resolved } { actionby $unique_id } }]"
+    set name_url "?[export_vars -url { { filter.status resolved } { filter.actionby $unique_id } }]"
 }
 
 db_multirow -extend { name_url stat_name } -append stats stats_by_component {
-    select b.component_id as unique_id,
+    select coalesce('com/'||c.url_name||'/', to_char(c.component_id,'99999999')) as unique_id,
            c.component_name as name,
            count(b.bug_id) as num_bugs
     from   bt_bugs b left join
@@ -332,7 +293,11 @@ db_multirow -extend { name_url stat_name } -append stats stats_by_component {
     order  by name
 } {
     set stat_name "Components"
-    set name_url "[ad_conn package_url]?[export_vars -url { { component_id $unique_id } }]"
+    if { [string match "com/*" $unique_id] } {
+        set name_url "[ad_conn package_url]$unique_id"
+    } else {
+        set name_url "[ad_conn package_url]?[export_vars -url { { filter.component_id $unique_id } }]"
+    }
 }
 
 ad_return_template

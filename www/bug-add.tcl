@@ -1,20 +1,16 @@
 ad_page_contract {
-    Bug listing page. The most complicated page in the package.
+    Bug add page.
     
     @author Lars Pind (lars@pinds.com)
     @creation-date 2002-03-25
     @cvs-id $Id$
 } {
     cancel:optional
-    component_id:optional
     {return_url ""}
 }
 
 if { [empty_string_p $return_url] } {
     set return_url "."
-    if { [info exists component_id] } {
-        append return_url "?[export_vars { component_id }]"
-    }
 }
 
 # If the user hit cancel, ignore everything else
@@ -35,7 +31,7 @@ set package_key [ad_conn package_key]
 
 set page_title "New Bug"
 
-set context_bar [ad_context_bar $page_title]
+set context_bar [bug_tracker::context_bar $page_title]
 
 set user_id [ad_conn user_id]
 
@@ -116,8 +112,8 @@ if { [form is_request bug] } {
     element set_properties bug severity -value [bug_tracker::severity_get_default]
     element set_properties bug priority -value [bug_tracker::priority_get_default]
     
-    if { [info exists component_id] } {
-        element set_properties bug component_id -value $component_id
+    if { ![empty_string_p [bug_tracker::conn component_id]] } {
+        element set_properties bug component_id -value [bug_tracker::conn component_id]
     }
 
     element set_properties bug desc_format -value "plain"
@@ -154,11 +150,14 @@ if { [form is_valid bug] } {
 
     }
     
-    bug_tracker::bug_notify $bug_id "open" $description $desc_format
+    bug_tracker::bug_notify -bug_id $bug_id -action "open" -comment $description -comment_format $desc_format
+
+    # Sign up the submitter of the bug for instant alerts. We do this after calling
+    # the alert procedure so that the submitter isn't alerted about his own submittal of the bug
+    bug_tracker::add_instant_alert -bug_id $bug_id -user_id $user_id
 
     ad_returnredirect $return_url
     ad_script_abort
 }
 
 ad_return_template
-

@@ -50,7 +50,7 @@ namespace eval bug_tracker {
                                 return $bt_conn($var)
                             }
                         }
-                        component_id {
+                        component_id - filter - filter_human_readable - filter_where_clauses - filter_order_by_clause {
                             return {}
                         }
                         default {
@@ -64,6 +64,13 @@ namespace eval bug_tracker {
                 error "bt_conn: unknown flag $flag"
             }
         }
+    }
+
+    ad_proc get_bug_id {
+        {-bug_number:required}
+        {-project_id:required}
+    } {
+        return [db_string bug_id { select bug_id from bt_bugs where bug_number = :bug_number and project_id = :project_id }]
     }
     
     #####
@@ -249,7 +256,25 @@ namespace eval bug_tracker {
         }
     }
     
-    
+    ad_proc patch_status_get_options {} {
+        return { { "Open" open } { "Accepted" accepted } { "Refused" refused }  { "Deleted" deleted }}
+    }
+
+    ad_proc patch_status_pretty {
+        status
+    } {
+        array set status_codes {
+            open      "Open"
+            accepted  "Accepted"
+            refused   "Refused"
+            deleted   "Deleted"
+        }
+        if { [info exists status_codes($status)] } {
+            return $status_codes($status)
+        } else {
+            return ""
+        }
+    }    
     
     #####
     #
@@ -475,6 +500,27 @@ namespace eval bug_tracker {
         }
     }    
     
+    ad_proc patch_action_pretty {
+        action
+    } {
+
+        array set action_codes {
+            open "Opened"
+            edit "Edited"
+            comment "Comment"
+            accept "Accepted"
+            reopen "Reopened"
+            refuse "Refused"
+            delete "Deleted"
+        }
+
+        if { [info exists action_codes($action)] } {
+            return $action_codes($action)
+        } else {
+            return ""
+        }        
+    }
+
     #####
     #
     # Users (assignee)
@@ -519,20 +565,20 @@ namespace eval bug_tracker {
     #####
     
     ad_proc bug_notify {
-        bug_id
-        action
-        comment
-        comment_format
-        {resolution ""}
+        {-bug_id:required}
+        {-action ""}
+        {-comment ""}
+        {-comment_format ""}
+        {-resolution ""}
+        {-patch_summary ""}
     } {
-        ns_log Notice "bug_id = $bug_id"
-    
         set package_id [ad_conn package_id]
     
         db_1row bug {
             select b.bug_id,
                    b.bug_number,
                    b.summary,
+                   b.project_id,
                    o.creation_user as submitter_user_id,
                    submitter.first_names as submitter_first_names,
                    submitter.last_name as submitter_last_name,
@@ -584,42 +630,441 @@ namespace eval bug_tracker {
             and    sc.severity_id = b.severity
             and    submitter.user_id = o.creation_user
         } -column_array bug
-    
-        set subject "Bug #$bug(bug_number). [string_truncate -len 30 $bug(summary)]: [bug_action_pretty $action $resolution] by [conn user_first_names] [conn user_last_name]"
-    
-        set body "Bug #$bug(bug_number). $bug(summary)
-    
-    Action: [bug_action_pretty $action $resolution] by [conn user_first_names] [conn user_last_name]
-    "
-        if { ![empty_string_p $comment] } {
-            append body "
-    Comment:
-    
-    [bug_convert_comment_to_text -comment $comment -format $comment_format]
-    "
+
+        set subject_start "Bug #$bug(bug_number). [string_truncate -len 30 $bug(summary)]"
+        set body_start "Bug #$bug(bug_number). $bug(summary)"
+
+        if { ![string equal $action "patched"] } {
+            set subject "$subject_start: [bug_action_pretty $action $resolution] by [conn user_first_names] [conn user_last_name]"
+            
+            set body "$body_start
+            
+            Action: [bug_action_pretty $action $resolution] by [conn user_first_names] [conn user_last_name]
+            "
+            if { ![empty_string_p $comment] } {
+                append body "
+                Comment:
+                
+                [bug_convert_comment_to_text -comment $comment -format $comment_format]
+                "
+            }            
+
+        } else {
+            # The bug was patched - we use different text in this case
+            set subject "$subject_start was patched by [conn user_first_names] [conn user_last_name]"
+            
+            set body "$body_start
+
+            A patch with summary \"$patch_summary\" has been entered for this bug."
         }
-    
+            
         append body "
-    [ad_url][ad_conn package_url]bug?[export_vars -url { { bug_number $bug(bug_number) } }]
-    "
-    
-        array set recipient [list]
-        set recipient(${bug(submitter_email)}) 1
-        set recipient(${bug(assignee_email)}) 1
-    
-        # don't spam the current user
-        set recipient([conn user_email]) 0
-    
-        set component_id $bug(component_id)
-        set sender_email [db_string maintainer { select email from cc_users where user_id = bt_component__default_assignee(:component_id) } -default [ad_system_owner] ]
-    
-        foreach email [array names recipient] {
-            if { $recipient($email) && ![empty_string_p $email] } {
-                if {[catch {ns_sendmail $email $sender_email $subject $body} errmsg]} {
-                    # In case we can't send the email
-                    ns_log Notice "\[bug-tracker\] Error sending email: $errmsg"
+            [ad_url][ad_conn package_url]bug?[export_vars -url { { bug_number $bug(bug_number) } }]
+            "
+
+        # Use the Notification service to alert (could be immediately, or daily, or weekly)
+        # people who have signed up for notification on this bug
+        notification::new \
+            -type_id [notification::type::get_type_id -short_name bug_tracker_bug_notif] \
+            -object_id $bug(bug_id) \
+            -response_id $bug(bug_id) \
+            -notif_subject $subject \
+            -notif_text $body
+       
+        # Use the Notification service to alert people who have signed up for notification
+        # in this bug tracker package instance
+        notification::new \
+            -type_id [notification::type::get_type_id -short_name bug_tracker_project_notif] \
+            -object_id $bug(project_id) \
+            -response_id $bug(bug_id) \
+            -notif_subject $subject \
+            -notif_text $body        
+    }        
+
+    ad_proc add_instant_alert { 
+        {-bug_id:required}
+        {-user_id:required}
+    } {
+        notification::request::new \
+                -type_id [notification::type::get_type_id -short_name bug_tracker_bug_notif] \
+                -user_id $user_id \
+                -object_id $bug_id \
+                -interval_id [notification::get_interval_id -name "daily"] \
+                -delivery_method_id [notification::get_delivery_method_id -name "email"]            
+    }    
+
+    ad_proc get_notification_link {
+        {-type:required}
+        {-object_id:required}
+        {-pretty_name:required}
+        {-url:required}
+    } {
+        Returns a list with the url, label, and title for a notifications link (subscribe or unsubscribe).
+    } {
+
+        set user_id [ad_conn user_id]
+
+        set notification_link [list]
+        # Only present the link to logged in users.
+        if { $user_id != "0" } {
+            set type_id [notification::type::get_type_id -short_name $type]
+
+            set request_id [notification::request::get_request_id -type_id $type_id -object_id $object_id -user_id $user_id]
+
+            if { ![empty_string_p $request_id] } {
+                # The user is already subscribed
+                lappend notification_link [notification::display::unsubscribe_url -request_id $request_id -url $url]
+                lappend notification_link "Unsubscribe"
+                lappend notification_link "Unsubscribe from notifications for this $pretty_name"
+            } else {
+                # The user is not subscribed
+                lappend notification_link [notification::display::subscribe_url \
+                        -type       bug_tracker_project_notif \
+                        -object_id  $object_id \
+                        -url        $url \
+                        -user_id    $user_id \
+                        -pretty_name "a $pretty_name"
+                ]
+                lappend notification_link "Subscribe"
+                lappend notification_link "Subscribe to notifications for this $pretty_name"
+            }
+        }
+
+        return $notification_link
+    }
+
+    ad_proc map_patch_to_bug {
+        {-patch_id:required}
+        {-bug_id:required}
+    } {                
+        db_dml map_patch_to_bug {
+            insert into bt_patch_bug_map (patch_id, bug_id) values (:patch_id, :bug_id)
+        }        
+    }
+
+    ad_proc unmap_patch_from_bug {
+        {-patch_number:required}
+        {-bug_number:required}
+    } {
+        set package_id [ad_conn package_id]
+        db_dml unmap_patch_from_bug {
+            delete from bt_patch_bug_map
+              where bug_id = (select bug_id from bt_bugs 
+                              where bug_number = :bug_number
+                                and project_id = :package_id)
+                and patch_id = (select patch_id from bt_patches
+                                where patch_number = :patch_number
+                                and project_id = :package_id)
+        }
+    }
+
+    ad_proc get_mapped_bugs {
+        {-patch_number:required}
+        {-only_open_p "0"}
+    } {
+        Return a list of lists with the bug number in the first element and the bug
+        summary in the second.
+    } {
+        set bug_list [list]
+        set package_id [ad_conn package_id]
+
+        set open_clause [ad_decode $only_open_p "1" "\n        and bt_bugs.status = 'open'" ""]
+
+        db_foreach get_bugs_for_patch "select bt_bugs.bug_number,
+                                              bt_bugs.summary
+                                       from bt_bugs, bt_patch_bug_map
+                                       where bt_bugs.bug_id = bt_patch_bug_map.bug_id
+                                         and bt_patch_bug_map.patch_id = (select patch_id
+                                                                          from bt_patches
+                                                                          where patch_number = :patch_number
+                                                                            and project_id = :package_id
+                                                                         )
+                                         $open_clause" {
+
+            lappend bug_list [list "$summary" "$bug_number"]
+        }
+
+        return $bug_list
+    }
+
+    ad_proc get_bug_links {
+        {-patch_id:required}
+        {-patch_number:required}
+        {-write_or_submitter_p:required}
+    } {
+        set bug_list [get_mapped_bugs -patch_number $patch_number]
+        set bug_link_list [list]
+
+        if { [llength $bug_list] == "0"} {
+            return ""
+        } else {
+            
+            foreach bug_item $bug_list {
+
+                set bug_number [lindex $bug_item 1]
+                set bug_summary [lindex $bug_item 0]
+
+                set unmap_url "unmap-patch-from-bug?[export_vars -url { patch_number bug_number } ]"
+                if { $write_or_submitter_p } {
+                    set unmap_link "(<a href=\"$unmap_url\">unmap</a>)"
+                } else {
+                    set unmap_link ""
+                }
+                lappend bug_link_list "<a href=\"bug?bug_number=$bug_number \">$bug_summary</a> $unmap_link"
+            } 
+
+            if { [llength $bug_link_list] != 0 } {
+                set bugs_string [join $bug_link_list ",&nbsp;"]
+            } else {
+                set bugs_string "No bugs." 
+            }
+
+            return $bugs_string
+        }
+  }
+
+    ad_proc get_patch_links {
+        {-bug_id:required}
+        {-show_patch_status "open"}
+    } {
+        set patch_list [list]
+
+        switch -- $show_patch_status {
+            open {
+                set status_where_clause "and bt_patches.status = :show_patch_status"
+            }
+            all {
+                set status_where_clause ""
+            }
+        }
+
+        db_foreach get_patches_for_bug \
+                "select bt_patches.patch_number,
+        bt_patches.summary,
+        bt_patches.status
+        from bt_patch_bug_map, bt_patches
+        where bt_patch_bug_map.bug_id = :bug_id
+        and bt_patch_bug_map.patch_id = bt_patches.patch_id
+        $status_where_clause
+        " {
+            
+            set status_indicator [ad_decode $show_patch_status "all" "($status)" ""]
+            lappend patch_list "<a href=\"patch?patch_number=$patch_number\">$summary</a> $status_indicator"
+        } if_no_rows { 
+            set patches_string "No patches." 
+        }
+
+        if { [llength $patch_list] != 0 } {
+            set patches_string [join $patch_list ",&nbsp;"]
+        }
+
+        return $patches_string
+    }
+
+    ad_proc get_patch_submitter {
+        {-patch_number:required}
+    } {
+        set package_id [ad_conn package_id]
+        return [db_string patch_submitter_id "select acs_objects.creation_user
+                                                from bt_patches, acs_objects
+                                                where bt_patches.patch_number = :patch_number
+                                                  and bt_patches.project_id = :package_id
+                                                  and bt_patches.patch_id = acs_objects.object_id"]
+    }
+
+    ad_proc update_patch_status {
+        {-patch_number:required}
+        {-new_status:required}
+    } {
+        set package_id [ad_conn package_id]
+        db_dml update_patch_status "update bt_patches 
+                                      set status = :new_status
+                                    where bt_patches.project_id = :package_id
+                                      and bt_patches.patch_number = :patch_number"
+    }
+
+    ad_proc get_uploaded_patch_file_content {
+        
+    } {
+        set patch_file [ns_queryget patch_file]
+       
+        if { [empty_string_p $patch_file] } {
+            # No patch file was uploaded
+            return ""
+        }
+
+        set tmp_file [ns_queryget patch_file.tmpfile]
+        set tmp_file_channel [open $tmp_file r]
+        set content [read $tmp_file_channel]
+
+        return $content
+    }
+
+    ad_proc parse_filters { filter_array_name } {
+        Parses the array named in 'filter_array_name', setting local
+        variables for the filter parameters, and constructing a chunk
+        that can be used in a query, plus a human readable
+        string. Sets the result in bug_tracker::conn as
+        'filter_human_readable', 'filter_where_clauses', and
+        'filter_order_by_clause'.
+    } {
+        upvar $filter_array_name filter
+
+        set where_clauses [list]
+
+        set valid_filters {
+            status
+            bug_type
+            fix_for_version:integer
+            severity:integer
+            priority:integer
+            assignee:integer
+            component_id:integer
+            actionby:integer
+            {orderby ""}
+        }
+        
+        foreach name $valid_filters {
+            if { [llength $name] > 1 } {
+                set default [lindex $name 1]
+                set name [lindex $name 0]
+            } else {
+                if { [info exists default] } {
+                    unset default
+                }
+            }
+            if { [llength [split $name ":"]] > 1 } {
+                set filters [split [lindex [split $name ":"] 1] ,]
+                set name [lindex [split $name ":"] 0]
+            } else {
+                set filters [list]
+            }
+            if { [info exists filter($name)] } {
+                upvar __filter_$name var
+                set var $filter($name)
+
+                if { [lsearch -exact $filters "integer"] != -1 && ![empty_string_p $var]} {
+                    validate_integer $name $var
+                }
+            } elseif { [info exists default] } {
+                upvar __filter_$name var
+                set var $default
+            }
+            # also upvar it under its real name
+            upvar __filter_$name __filter_$name
+        }
+        
+        
+        if { ![info exists __filter_status] } {
+            if { [info exists __filter_actionby] } {
+                set __filter_status ""
+            } else {
+                set __filter_status "open"
+            }
+        }
+        
+        if { ![empty_string_p $__filter_status] } {
+            lappend where_clauses "b.status = :__filter_status"
+            set human_readable_filter "All $__filter_status bugs"
+        } else {
+            lappend where_clauses "b.status != 'closed'"
+            set human_readable_filter "All open and resolved bugs"
+        }
+        
+        if { [info exists __filter_bug_type] } {
+            lappend where_clauses "b.bug_type = :__filter_bug_type"
+            append human_readable_filter " of type [bug_tracker::bug_type_pretty $__filter_bug_type]"
+        }
+        
+        if { [info exists __filter_assignee] } {
+            if { [empty_string_p $__filter_assignee] } {
+                lappend where_clauses "b.assignee is null"
+                append human_readable_filter " that are unassigned"
+            } else {
+                lappend where_clauses "b.assignee = :__filter_assignee"
+                if { $__filter_assignee == [ad_conn user_id] } {
+                    append human_readable_filter " assigned to me"
+                } else {
+                    append human_readable_filter " assigned to [db_string assignee_name { select first_names || ' ' || last_name from cc_users where user_id = :__filter_assignee }]"
                 }
             }
         }
-    }        
+        
+        if { [info exists __filter_actionby] } {
+            lappend where_clauses "((b.status = 'open' and b.assignee = :__filter_actionby) or (b.status = 'resolved' and o.creation_user = :__filter_actionby))"
+            if { $__filter_actionby ==  [ad_conn user_id] } {
+                append human_readable_filter " awaiting action by me"
+            } else {
+                append human_readable_filter " awaiting action by [db_string actionby_name { select first_names || ' ' || last_name from cc_users where user_id = :__filter_actionby }]"
+            }
+        }
+        
+        if { [info exists __filter_severity] } {
+            lappend where_clauses "b.severity = :__filter_severity"
+            append human_readable_filter " where severity is [db_string severity_name { select severity_name from bt_severity_codes where severity_id = :__filter_severity }]"
+        }
+        
+        if { [info exists __filter_priority] } {
+            lappend where_clauses "b.priority = :__filter_priority"
+            append human_readable_filter " with a priority of [db_string priority_name { select priority_name from bt_priority_codes where priority_id = :__filter_priority }]"
+        }
+        
+        if { ![empty_string_p [conn component_id]] } {
+            set __filter_component_id [conn component_id]
+        }
+
+        if { [info exists __filter_component_id] } {
+            lappend where_clauses "b.component_id = :__filter_component_id"
+            append human_readable_filter " in [db_string component_name { select component_name from bt_components where component_id = :__filter_component_id }]"
+            conn -set component_id $__filter_component_id
+        }
+        
+        if { [info exists __filter_fix_for_version] } {
+            if { [empty_string_p $__filter_fix_for_version] } {
+                lappend where_clauses "b.fix_for_version is null"
+                append human_readable_filter " where fix for version is undecided"
+            } else {
+                lappend where_clauses "b.fix_for_version = :__filter_fix_for_version"
+                append human_readable_filter " to be fixed in version [db_string version_name { select version_name from bt_versions where version_id = :__filter_fix_for_version }]"
+            }
+        }
+        
+        switch -exact -- $__filter_orderby {
+            severity {
+                set order_by_clause "sc.sort_order, b.bug_number desc"
+                append human_readable_filter ", most severe bugs first"
+            }
+            priority {
+                set order_by_clause "pc.sort_order, b.bug_number desc"
+                append human_readable_filter ", highest priority bugs first"
+            }
+            default {
+                set order_by_clause "b.bug_number desc"
+            }
+        }
+
+        conn -set filter [array get filter]
+        conn -set filter_human_readable $human_readable_filter
+        conn -set filter_where_clauses $where_clauses
+        conn -set filter_order_by_clause $order_by_clause
+    }
+
+    ad_proc context_bar { args } {
+        Context bar that takes the component information into account
+    } {
+        set component_id [conn component_id]
+        if { ![empty_string_p $component_id] } {
+            db_1row component_name {
+                select component_name, url_name from bt_components where component_id = :component_id
+            }
+            if { [llength $args] == 0 } {
+                return [eval ad_context_bar [list $component_name]]
+            } else {
+                return [eval ad_context_bar [list [list "[ad_conn package_url]com/$url_name/" $component_name]] $args]
+            }
+        } else {
+            return [eval ad_context_bar $args]
+        }
+    }
+
 }

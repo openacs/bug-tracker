@@ -21,7 +21,6 @@ set user_last_name [bug_tracker::conn user_last_name]
 
 set package_url [ad_conn package_url]
 
-set return_url "[ad_conn url][ad_decode [ad_conn query] "" "" "?[ad_conn query]"]"
 set user_version_url "[ad_conn package_url]prefs?[export_vars -url { return_url }]"
 
 ad_return_template

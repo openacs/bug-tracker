@@ -14,9 +14,11 @@ ad_page_contract {
     cancel:optional
     close:optional
     {user_agent_p:boolean 0}
+    {show_patch_status "open"}
+    filter:array,optional
 }
 
-set return_url "bug?[export_vars -url { bug_number }]"
+set return_url "[ad_conn url]?[export_vars -url { bug_number filter:array }]"
 
 # If the user hit cancel, ignore everything else
 if { [exists_and_not_null cancel] } {
@@ -73,6 +75,54 @@ set package_id [ad_conn package_id]
 set package_key [ad_conn package_key]
 
 set user_id [ad_conn user_id]
+
+
+#
+# Filter management
+#
+
+set filter_parsed [bug_tracker::parse_filters filter]
+
+if { [string equal $mode view] } {
+
+    set human_readable_filter [bug_tracker::conn filter_human_readable]
+    set where_clauses [bug_tracker::conn filter_where_clauses]
+    set order_by_clause [bug_tracker::conn filter_order_by_clause]
+    
+    lappend where_clauses "b.project_id = :package_id"
+
+    set filter_bug_numbers [db_list filter_bug_numbers "
+        select bug_number 
+        from   bt_bugs b join 
+               acs_objects o on (object_id = bug_id) join
+               bt_priority_codes pc on (pc.priority_id = b.priority) join
+               bt_severity_codes sc on (sc.severity_id = b.severity)
+        where  [join $where_clauses " and "]
+        order  by $order_by_clause
+    "]
+
+    set filter_bug_index [lsearch -exact $filter_bug_numbers $bug_number]
+
+    multirow create navlinks url label
+    
+    if { $filter_bug_index != -1 } {
+        
+        if { $filter_bug_index > 0 } {
+            multirow append navlinks "bug?[export_vars { { bug_number {[lindex $filter_bug_numbers [expr $filter_bug_index -1]]} } filter:array }]" "&lt;"
+        } else {
+            multirow append navlinks "" "&lt;"
+        }
+        
+        multirow append navlinks "" "[expr $filter_bug_index+1] of [llength $filter_bug_numbers]"
+        
+        if { $filter_bug_index < [expr [llength $filter_bug_numbers]-1] } {
+            multirow append navlinks "bug?[export_vars { { bug_number {[lindex $filter_bug_numbers [expr $filter_bug_index +1]]} } filter:array }]" "&gt;"
+        } else {
+            multirow append navlinks "" "&gt;"
+        }
+    }
+}
+
 
 # Create the form
 
@@ -152,6 +202,11 @@ element create bug found_in_version \
         -options [bug_tracker::version_get_options -include_unknown] \
         -optional
 
+element create bug patches \
+        -datatype text \
+        -widget   inform \
+        -label    [ad_decode $show_patch_status "open" "Open Patches (<a href=\"$return_url&show_patch_status=all\">show all</a>)" "all" "All Patches (<a href=\"$return_url&show_patch_status=open\">show only open)" "Patches"]
+
 if { $user_agent_p } {
     element create bug user_agent \
             -datatype text \
@@ -214,6 +269,10 @@ element create bug mode \
         -datatype text \
         -widget hidden \
         -value $mode
+
+foreach name [array names filter] { 
+    element create bug filter.$name -datatype text -widget hidden -value $filter($name)
+}
 
 # If nothing else ...
 set page_title "Bug #$bug_number"
@@ -313,6 +372,10 @@ if { [form is_request bug] } {
             -value [ad_decode [info exists field_editable_p(priority)] 1 $bug(priority) $bug(priority_pretty)]
     element set_properties bug found_in_version \
             -value [ad_decode [info exists field_editable_p(found_in_version)] 1 $bug(found_in_version) $bug(found_in_version_name)]
+
+    element set_properties bug patches \
+            -value "[bug_tracker::get_patch_links -bug_id $bug(bug_id) -show_patch_status $show_patch_status] &nbsp; \[ <a href=\"patch-add?bug_number=$bug(bug_number)\">Upload a patch</a> \]"
+
     if { $user_agent_p } {
         element set_properties bug user_agent \
                 -value $bug(user_agent)
@@ -378,10 +441,10 @@ if { [form is_request bug] } {
     set write_p [expr $write_p || ($bug(submitter_user_id) == [ad_conn user_id])]
 
     if { [string equal $mode "view"] && $write_p } {
-        set button_form_export_vars [export_vars -form { bug_number }]
+        set button_form_export_vars [export_vars -form { bug_number filter:array }]
         multirow create button name label
-        multirow append button "edit" "Edit"
         multirow append button "comment" "Comment"
+        multirow append button "edit" "Edit"
 
         switch -- $bug(status) {
             open {
@@ -398,6 +461,18 @@ if { [form is_request bug] } {
         }
     }
 
+    # Notifications for a project. Provide a link for logged in users in view mode
+    if { [string equal $mode "view"]  } {
+
+        set notification_link [bug_tracker::get_notification_link \
+                         -type       bug_tracker_project_notif \
+                         -object_id  $bug(bug_id) \
+                         -url        $return_url \
+                         -pretty_name "bug"]
+    } else {
+        set notification_link ""
+    }
+
     if { ![string equal $mode "view"] && !$write_p } {
         ns_log notice "$bug(submitter_user_id) doesn't have write on object $bug(bug_id)"
         ad_return_forbidden "Security Violation" "<blockquote>
@@ -407,7 +482,6 @@ if { [form is_request bug] } {
         </blockquote>"
         ad_script_abort
     }
-
 }
 
 set context_bar [ad_context_bar $page_title]
@@ -471,7 +545,7 @@ if { [form is_valid bug] } {
     }
 
     db_transaction {
-        set bug_id [db_string bug_id { select bug_id from bt_bugs where bug_number = :bug_number and project_id = :package_id }]
+        set bug_id [bug_tracker::get_bug_id -bug_number $bug_number -project_id $package_id]
 
         if { [llength $update_exprs] > 0 } {
             db_dml update_bug "update bt_bugs \n set    [join $update_exprs ",\n        "] \n where  bug_id = :bug_id"
@@ -490,9 +564,18 @@ if { [form is_valid bug] } {
             values
             (:action_id, :bug_id, :mode, :resolution, :user_id, :description, :desc_format)
         }
+
+        # Setup any assignee for alerts on the bug
+        if { [info exists assignee] && ![empty_string_p $assignee] } {
+            bug_tracker::add_instant_alert -bug_id $bug_id -user_id $assignee
+        }
     }
 
-    bug_tracker::bug_notify $bug_id $mode $description $desc_format $resolution
+    bug_tracker::bug_notify -bug_id $bug_id \
+                           -action $mode \
+                           -comment $description \
+                           -comment_format $desc_format \
+                           -resolution $resolution
 
     ad_returnredirect $return_url
     ad_script_abort

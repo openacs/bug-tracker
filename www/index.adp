@@ -1,16 +1,17 @@
 <master src="../lib/master">
 <property name="title">@project_name@</property>
 <property name="context_bar">@context_bar@</property>
+<property name="notification_link">@notification_link@</property>
 
 <table border="0" cellpadding="0" cellspacing="0" width="100%">
   <tr>
     <td valign="top" width="200" style="border: solid 1px gray;" bgcolor="#ccccff" class="bt_summary_bold">
-      <multiple name="by_status">
-        @by_status.num_bugs@ <a href="@by_status.name_url@">@by_status.name@</a><br>
-      </multiple>
-      <p>
-      Open bugs summary:
-      <p>
+      <div style="padding: 4px;">
+        <multiple name="by_status">
+          @by_status.num_bugs@ <a href="@by_status.name_url@">@by_status.name@</a><br>
+        </multiple>
+        <p>Open bugs summary:</p>
+      </div>
       <multiple name="stats">
         <table border="0" width="100%">
           <tr>
@@ -40,12 +41,38 @@
             <table width="100%" style="border: solid 1px gray;" bgcolor="#ccccff" cellspacing="0" cellpadding="4" border="0">
               <tr>
                 <td>
-                  <b>Showing: </b> @human_readable_filter@
+                  <b>Showing:</b> @human_readable_filter@
+                  (<if @bugs:rowcount@ eq 0><i>none</i></if><if @bugs:rowcount@ eq 1>1 bug</if><if @bugs:rowcount@ gt 1>@bugs:rowcount@ bugs</if>)
+                  <if @clear_url@ not nil>(<a href="@clear_url@">clear filters</a>)</if>
                 </td>
               </tr>
             </table>
           </td>
         </tr>
+        <tr>
+          <td colspan="2" height="8">
+            <table cellspacing="0" cellpadding="0" border="0"><tr><td height="8"></td></tr></table>
+          </td>
+        </tr>
+        <form action="." method="get" name="displaymode_form">
+          @displaymode_form_export_vars@
+          <tr>
+            <td colspan="2" align="right">
+              Order by:
+              <select name="filter.orderby" onchange="document.displaymode_form.submit();">
+                <multiple name="orderby">
+                  <if @orderby.selected_p@ true>
+                    <option value="@orderby.value@" selected>@orderby.label@</option>
+                  </if>
+                  <else>
+                    <option value="@orderby.value@">@orderby.label@</option>
+                  </else>
+                </multiple>
+              </select>
+              <input type="submit" value="Go">
+            </td>
+          </tr>
+        </form>
         <tr>
           <td colspan="2" height="16">
             <table cellspacing="0" cellpadding="0" border="0"><tr><td height="16"></td></tr></table>

@@ -12,4 +12,8 @@ if { ![info exists context_bar] } {
     set header $context_bar
 }
 
+if { ![info exists notification_link] } {
+    set notification_link ""
+}
+
 ad_return_template
