@@ -713,14 +713,18 @@ ad_proc bug_tracker::bug::get_list {
             display_template {<a href="@bugs.submitter_url@">@bugs.submitter_first_names@ @bugs.submitter_last_name@</a>}
             hide_p 1
         }
-        fix_for_version {
+    }
+
+    if { [bug_tracker::versions_p] } {
+        lappend elements fix_for_version {
             label "Fix for"
             display_col fix_for_version_name
         }
-        component {
-            label "Component"
-            display_col component_name
-        }
+    }
+    
+    lappend elements component {
+        label "Component"
+        display_col component_name
     }
 
     set state_values [db_list_of_lists select_states {}]
