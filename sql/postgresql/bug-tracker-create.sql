@@ -6,6 +6,7 @@ create table bt_projects (
   project_id                    integer not null
                                 constraint bt_projects_apm_packages_fk
                                 references apm_packages(package_id) 
+                                on delete cascade
                                 constraint bt_projects_pk 
                                 primary key,
   description                   text,
@@ -747,3 +748,5 @@ create table bt_patch_bug_map (
        constraint bt_patch_bug_map_un
        unique (patch_id, bug_id)
 );
+
+\i bug-tracker-notifications-init.sql

@@ -37,11 +37,6 @@ if { $num_components == 0 } {
 
 set num_bugs [db_string num_bugs { select count(bug_id) from bt_bugs where project_id = :package_id }]
 
-if { $num_bugs == 0 } {
-    ad_return_template "no-bugs"
-    return
-}
-
 set user_id [ad_conn user_id]
 
 # Notifications for a project. Provide a link for logged in users
@@ -50,6 +45,11 @@ set notification_link [bug_tracker::get_notification_link \
         -object_id  $package_id \
         -url        $return_url \
         -pretty_name "project"]
+
+if { $num_bugs == 0 } {
+    ad_return_template "no-bugs"
+    return
+}
 
 #
 # Filter management
