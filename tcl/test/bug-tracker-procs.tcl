@@ -37,6 +37,7 @@ aa_register_case -cats {api smoke} project_new {
                 }
 
                 # Create a dummy component
+                bug_tracker::components_flush
                 db_1row new_component_id {}
                 db_dml new_component {}
 
