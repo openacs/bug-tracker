@@ -15,7 +15,7 @@ ad_page_contract {
 if {![empty_string_p $table_name] && ![db_0or1row table_name_check {
     select oid from pg_class where lower(relname) = lower(:table_name)
 }]} {
-    ns_returnredirect "formwizard"
+    ad_returnredirect "formwizard"
 }
 
 set form_name $table_name
