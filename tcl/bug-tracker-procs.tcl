@@ -703,6 +703,7 @@ ad_proc -public bug_tracker::install_keywords_setup {
 
             if { $default_p } {
                 bug_tracker::set_default_keyword \
+                    -package_id $package_id \
                     -parent_id $category_type_id \
                     -keyword_id $category_id
             }
