@@ -14,7 +14,10 @@ ad_page_contract {
 set package_id [ad_conn package_id]
 set user_id [ad_conn user_id]
 
-set page_title "Patches" 
+set Patches_name [bug_tracker::conn Patches]
+set Patch_name [bug_tracker::conn Patch]
+
+set page_title "$Patches_name" 
 set context [list $page_title]
 
 # TODO: Use bug_tracker::patch_status_pretty for pretty state (problem with the filter, but it can be done)
@@ -24,46 +27,46 @@ template::list::create \
     -multirow patches \
     -elements {
         patch_number {
-            label "Patch \#"
+            label "[bug_tracker::conn Patch]"
             display_template {\#@patches.patch_number@}
             html { align right }
         }
         summary {
-            label "Summary"
+            label "[_ bug-tracker.Summary]"
             link_url_eval {[export_vars -base patch { patch_number }]}
         }
         status {
-            label "Status"
+            label "[_ bug-tracker.Status]"
             display_eval {[string totitle $status]}
         }
         apply_to_version_name {
-            label "Apply To"
+            label "[_ bug-tracker.Apply]"
             display_template {
                 <if @patches.apply_to_version_name@ not nil>@patches.apply_to_version_name@</if>
                 <else><i>Undecided</i></else>
             }
         }
         component_name {
-            label "Component"
+            label "[_ bug-tracker.Component]"
         }
         creation_date_pretty {
-            label "Submitted"
+            label "[_ bug-tracker.Submitted]"
         }
     } -filters {
         status {
-            label "Status"
+            label "[_ bug-tracker.Status]"
             values {[db_list_of_lists select_states {}]}
             where_clause {[db_map states_where_clause]}
         }
         apply_to_version {
-            label "Apply to version"
+            label "[_ bug-tracker.Apply_1]"
             values {[db_list_of_lists select_versions {}]}
             where_clause {[db_map apply_to_version_where_clause]}
             null_where_clause {[db_map apply_to_version_null_where_clause]}
             null_label {Undecided}
         }
         component_id {
-            label "Component"
+            label "[_ bug-tracker.Component]"
             values {[db_list_of_lists select_components {
             }]}
             where_clause {[db_map component_where_clause]}

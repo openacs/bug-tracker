@@ -3,16 +3,17 @@
 <property name="context">@context;noquote@</property>
 
 <p>
-  <i>This project is empty.</i>
+  <i>#bug-tracker.This_project_is_empty#</i>
 </p>
 
 <if @admin_p@ true>
   <p>
-    <b>&raquo;</b> <a href="admin/">Project administration</a>
+    <b>&raquo;</b> <a href="admin/">#bug-tracker.Project_administration#</a>
   </p>
 </if>
 
 <p>
-  <b>&raquo;</b> <a href="bug-add">Submit a new @pretty_names.bug@</a>
+  <b>&raquo;</b> <a href="bug-add">#bug-tracker.Submit_a_new_bug#</a>
 </p>
+
 

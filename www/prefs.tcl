@@ -19,7 +19,7 @@ set project_name [bug_tracker::conn project_name]
 set package_id [ad_conn package_id]
 set package_key [ad_conn package_key]
 
-set page_title "Your Preferences"
+set page_title "[_ bug-tracker.Your]"
 
 set context [list $page_title]
 
@@ -27,7 +27,7 @@ set user_id [ad_conn user_id]
 
 ad_form -name prefs -cancel_url $return_url -form {
     {user_version:integer(select),optional
-        {label "Your version"}
+        {label "[_ bug-tracker.Your_1]"}
         {options {[bug_tracker::version_get_options -include_unknown]}}
     }
     {return_url:text(hidden)

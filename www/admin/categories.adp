@@ -7,12 +7,12 @@
 
 <table cellspacing="1" cellpadding="3" class="bt_listing">
   <tr class="bt_listing_header">
-    <th class="bt_listing">Category Type</th>
-    <th class="bt_listing">Category</th>
+    <th class="bt_listing">#bug-tracker.Category_Type#</th>
+    <th class="bt_listing">#bug-tracker.Category#</th>
     <th class="bt_listing"># @pretty_names.Bugs@</th>
-    <th class="bt_listing">Default</th>
-    <th class="bt_listing">Edit</th>
-    <th class="bt_listing">Delete</th>
+    <th class="bt_listing">#bug-tracker.Default#</th>
+    <th class="bt_listing">#acs-kernel.common_Edit#</th>
+    <th class="bt_listing">#acs-kernel.common_Delete#</th>
   </tr>
   <if @categories:rowcount@ gt 0>
     <multiple name="categories">
@@ -66,7 +66,7 @@
             </td>
             <td class="bt_listing" align="center">
               <if @categories.default_p@ true><b>*</b></if>
-              <if @categories.set_default_url@ not nil><a href="@categories.set_default_url@">set</a></if>
+              <if @categories.set_default_url@ not nil><a href="@categories.set_default_url@">#bug-tracker.set#</a></if>
             </td>
             <td class="bt_listing" align="center">
               <if @categories.edit_url@ not nil>
@@ -86,7 +86,7 @@
         <tr class="bt_listing_even">
           <td class="bt_listing">&nbsp;</td>
           <td class="bt_listing" colspan="5">
-            <i>No categories of this type.</i>
+            <i>#bug-tracker.No_categories_of_this_type#</i>
           </td>
         </tr>
       </else>
@@ -95,7 +95,7 @@
         <td class="bt_listing">&nbsp;</td>
         <td class="bt_listing">
           <b>&raquo;</b>
-          <a href="@categories.new_url@">Add category</a>
+          <a href="@categories.new_url@">#bug-tracker.Add_category#</a>
         </td>
           <td class="bt_listing">&nbsp;</td>
         <td class="bt_listing">&nbsp;</td>
@@ -116,7 +116,7 @@
   <tr class="bt_listing_even">
     <td class="bt_listing" colspan="6">
       <b>&raquo;</b>
-      <a href="@type_new_url@">Create new category type</a>
+      <a href="@type_new_url@">#bug-tracker.Create_new_category_type#</a>
     </td>
   </tr>
 
@@ -124,7 +124,8 @@
 
 <p class="bt">
   <b>&raquo;</b>
-  <a href="@default_setup_url@">Use default setup</a>
+  <a href="@default_setup_url@">#bug-tracker.Use_default_setup#</a>
 </p>
 
 </blockquote>
+

@@ -1,4 +1,3 @@
-
 ad_library {
 
     Bug Tracker Bug Library
@@ -49,12 +48,11 @@ ad_proc -public bug_tracker::bug::get {
                      -workflow_short_name [bug_tracker::bug::workflow_short_name]]
     
     # Derived fields
-    set row(bug_number_display) "#$row(bug_number)"
+    set row(bug_number_display) "$row(bug_number)"
     set row(component_name) [bug_tracker::component_get_name -component_id $row(component_id)]
     set row(found_in_version_name) [bug_tracker::version_get_name -version_id $row(found_in_version)]
     set row(fix_for_version_name) [bug_tracker::version_get_name -version_id $row(fix_for_version)]
     set row(fixed_in_version_name) [bug_tracker::version_get_name -version_id $row(fixed_in_version)]
-    
     
     # Get state information
     workflow::case::fsm::get -case_id $case_id -array case -enabled_action_id $enabled_action_id
@@ -303,6 +301,8 @@ ad_proc -public bug_tracker::bug::get_watch_link {
     # Get the type id
     set type "workflow_case"
     set type_id [notification::type::get_type_id -short_name $type]
+    # get some i18n text
+    set bug_name "[bug_tracker::conn bug]"
 
     # Check if subscribed
     set request_id [notification::request::get_request_id \
@@ -318,13 +318,13 @@ ad_proc -public bug_tracker::bug::get_watch_link {
                      -object_id $bug_id \
                      -url $return_url \
                      -user_id $user_id \
-                     -pretty_name "this bug"]
-        set label "Watch this [bug_tracker::conn bug]"
-        set title "Request notifications for all activity on this [bug_tracker::conn bug]"
+                     -pretty_name "[_ bug-tracker.this_bug]"]
+        set label "[_ bug-tracker.watch_this_bug]"
+        set title "[_ bug-tracker.request_notification_for_bug]"
     } else {
         set url [notification::display::unsubscribe_url -request_id $request_id -url $return_url]
-        set label "Stop watching this [bug_tracker::conn bug]"
-        set title "Unsubscribe to notifications for activity on this [bug_tracker::conn bug]"
+        set label "[_ bug-tracker.stop_watching_bug]"
+        set title "[_ bug-tracker.unsubscribe_to_bug]"
     }
     return [list $url $label $title]
 }
@@ -334,7 +334,7 @@ ad_proc -private bug_tracker::bug::workflow_create {} {
 } {
     set spec {
         bug {
-            pretty_name "Bug"
+            pretty_name "#bug-tracker.Bug#"
             package_key "bug-tracker"
             object_type "bt_bug"
             callbacks { 
@@ -343,13 +343,13 @@ ad_proc -private bug_tracker::bug::workflow_create {} {
             }
             roles {
                 submitter {
-                    pretty_name "Submitter"
-                    callbacks { 
+                    pretty_name "#bug-tracker.Submitter#"
+		    callbacks { 
                         workflow.Role_DefaultAssignees_CreationUser
                     }
                 }
                 resolver {
-                    pretty_name "Resolver"
+                    pretty_name "#bug-tracker.Resolver#"
                     callbacks {
                         bug-tracker.ComponentMaintainer
                         bug-tracker.ProjectMaintainer
@@ -360,33 +360,33 @@ ad_proc -private bug_tracker::bug::workflow_create {} {
             }
             states {
                 open {
-                    pretty_name "Open"
+                    pretty_name "#bug-tracker.state_open#"
                     hide_fields { resolution fixed_in_version }
                 }
                 resolved {
-                    pretty_name "Resolved"
+                    pretty_name "#bug-tracker.Resolved#"
                 }
                 closed {
-                    pretty_name "Closed"
+                    pretty_name "#bug-tracker.Closed#"
                 }
             }
             actions {
                 open {
-                    pretty_name "Open"
-                    pretty_past_tense "Opened"
+                    pretty_name "#bug-tracker.action_open#"
+                    pretty_past_tense "#bug-tracker.Opened#"
                     new_state "open"
                     initial_action_p t
                 }
                 comment {
-                    pretty_name "Comment"
-                    pretty_past_tense "Commented"
+                    pretty_name "#bug-tracker.Comment#"
+                    pretty_past_tense "#bug-tracker.Commented#"
                     allowed_roles { submitter resolver }
                     privileges { read write }
                     always_enabled_p t
                 }
                 edit {
-                    pretty_name "Edit"
-                    pretty_past_tense "Edited"
+                    pretty_name "#acs-kernel.common_Edit#"
+                    pretty_past_tense "#bug-tracker.Edited#"
                     allowed_roles { submitter resolver }
                     privileges { write }
                     always_enabled_p t
@@ -401,8 +401,8 @@ ad_proc -private bug_tracker::bug::workflow_create {} {
                     }
                 }
                 reassign {
-                    pretty_name "Reassign"
-                    pretty_past_tense "Reassigned"
+                    pretty_name "#bug-tracker.Reassign#"
+                    pretty_past_tense "#bug-tracker._Reassigned#"
                     allowed_roles { submitter resolver }
                     privileges { write }
                     enabled_states { resolved }
@@ -410,30 +410,30 @@ ad_proc -private bug_tracker::bug::workflow_create {} {
                     edit_fields { role_resolver }
                 }
                 resolve {
-                    pretty_name "Resolve"
-                    pretty_past_tense "Resolved"
-                    assigned_role "resolver"
+                    pretty_name "#bug-tracker.Resolve#"
+                    pretty_past_tense "#bug-tracker.Resolved#"
+                    assigned_role "#bug-tracker.resolver#"
                     enabled_states { resolved }
                     assigned_states { open }
-                    new_state "resolved"
+                    new_state "#bug-tracker.resolved#"
                     privileges { write }
                     edit_fields { resolution fixed_in_version }
                     callbacks { bug-tracker.CaptureResolutionCode }
                 }
                 close {
-                    pretty_name "Close"
-                    pretty_past_tense "Closed"
-                    assigned_role "submitter"
+                    pretty_name "#bug-tracker.Close#"
+                    pretty_past_tense "#bug-tracker.Closed#"
+                    assigned_role "#bug-tracker.submitter#"
                     assigned_states { resolved }
-                    new_state "closed"
+                    new_state "#bug-tracker.closed#"
                     privileges { write }
                 }
                 reopen {
-                    pretty_name "Reopen"
-                    pretty_past_tense "Reopened"
+                    pretty_name "#bug-tracker.Reopen#"
+                    pretty_past_tense "#bug-tracker.Reopened#"
                     allowed_roles { submitter }
                     enabled_states { resolved closed }
-                    new_state "open"
+                    new_state "#bug-tracker.open#"
                     privileges { write }
                 }
             }
@@ -509,7 +509,7 @@ ad_proc -private bug_tracker::bug::instance_workflow_delete {
 #####
 
 ad_proc -private bug_tracker::bug::capture_resolution_code::pretty_name {} {
-    return "Capture resolution code in the case activity log"
+    return "[_ bug-tracker.Capture]"
 }
 
 ad_proc -private bug_tracker::bug::capture_resolution_code::do_side_effect {
@@ -520,7 +520,7 @@ ad_proc -private bug_tracker::bug::capture_resolution_code::do_side_effect {
 } {
     workflow::case::add_log_data \
         -entry_id $entry_id \
-        -key "resolution" \
+        -key "[_ bug-tracker.resolution]" \
         -value [db_string select_resolution_code {}]
 }
 
@@ -531,7 +531,7 @@ ad_proc -private bug_tracker::bug::capture_resolution_code::do_side_effect {
 #####
 
 ad_proc -private bug_tracker::bug::format_log_title::pretty_name {} {
-    return "Add resolution code to log title"
+    return "[_ bug-tracker.Add_3]"
 }
 
 ad_proc -private bug_tracker::bug::format_log_title::format_log_title {
@@ -557,7 +557,7 @@ ad_proc -private bug_tracker::bug::format_log_title::format_log_title {
 #####
 
 ad_proc -private bug_tracker::bug::get_component_maintainer::pretty_name {} {
-    return "Bug-tracker component maintainer"
+    return "[_ bug-tracker.Bug-tracker]"
 }
 
 ad_proc -private bug_tracker::bug::get_component_maintainer::get_assignees {
@@ -575,7 +575,7 @@ ad_proc -private bug_tracker::bug::get_component_maintainer::get_assignees {
 #####
 
 ad_proc -private bug_tracker::bug::get_project_maintainer::pretty_name {} {
-    return "Bug-tracker project maintainer"
+    return "[_ bug-tracker.Bug-tracker_1]"
 }
 
 ad_proc -private bug_tracker::bug::get_project_maintainer::get_assignees {
@@ -593,7 +593,7 @@ ad_proc -private bug_tracker::bug::get_project_maintainer::get_assignees {
 #####
 
 ad_proc -private bug_tracker::bug::notification_info::pretty_name {} {
-    return "Bug-tracker bug info"
+    return "[_ bug-tracker.Bug-tracker_2]"
 }
 
 ad_proc -private bug_tracker::bug::notification_info::get_notification_info {
@@ -608,20 +608,20 @@ ad_proc -private bug_tracker::bug::notification_info::get_notification_info {
 
     set notification_subject_tag [db_string select_notification_tag {} -default {}]
 
-    set one_line "$pretty_names(Bug) #$bug(bug_number): $bug(summary)"
+    set one_line "$pretty_names(Bug) $bug(summary)"
 
     # Build up data structures with the form labels and values
     # (Note, this is something that the metadata system should be able to do for us)
 
     array set label {
-        summary "Summary"
-        status "Status"
-        found_in_version "Found in version"
-        fix_for_version "Fix for version"
-        fixed_in_version "Fixed in version"
+        summary "[_ bug-tracker.Summary]"
+        status "[_ bug-tracker.Status]"
+        found_in_version "[_ bug-tracker.Found]"
+        fix_for_version "[_ bug-tracker.Fix]"
+        fixed_in_version "[_ bug-tracker.Fixed_1]"
     }
 
-    set label(bug_number) "$pretty_names(Bug) #"
+    set label(bug_number) "$pretty_names(Bug) "
     set label(component) "$pretty_names(Component)"
 
     set fields {
@@ -648,9 +648,9 @@ ad_proc -private bug_tracker::bug::notification_info::get_notification_info {
     set value(component)  $bug(component_name)
     set value(summary) $bug(summary)
     set value(status) $bug(pretty_state)
-    set value(found_in_version) [ad_decode $bug(found_in_version_name) "" "Unknown" $bug(found_in_version_name)]
-    set value(fix_for_version) [ad_decode $bug(fix_for_version_name) "" "Undecided" $bug(fix_for_version_name)]
-    set value(fixed_in_version) [ad_decode $bug(fixed_in_version_name) "" "Unknown" $bug(fixed_in_version_name)]
+    set value(found_in_version) [ad_decode $bug(found_in_version_name) "" "[_ bug-tracker.Unknown]" $bug(found_in_version_name)]
+    set value(fix_for_version) [ad_decode $bug(fix_for_version_name) "" "[_ bug-tracker.Undecided]" $bug(fix_for_version_name)]
+    set value(fixed_in_version) [ad_decode $bug(fixed_in_version_name) "" "[_ bug-tracker.Unknown]" $bug(fixed_in_version_name)]
 
     # Remove fields that should be hidden in this state
     foreach field $bug(hide_fields) {
@@ -685,30 +685,30 @@ ad_proc bug_tracker::bug::get_list {
 
     set elements {
         bug_number {
-            label "[bug_tracker::conn Bug] \#"
-            display_template {\#@bugs.bug_number@}
+            label "[bug_tracker::conn Bug] [_ bug-tracker.number_symbol] "
+            display_template {[_ bug-tracker.number_symbol]@bugs.bug_number@}
             html { align right }
         }
         summary {
-            label "Summary"
+            label "[_ bug-tracker.Summary]"
             link_url_eval {[export_vars -base bug -entire_form -override { bug_number }]}
-            aggregate_label "Number of $pretty_names(bugs)"
-        }
-        comment {
-            label "Details"
+            aggregate_label "[_ bug-tracker.Number]"
+	}
+	comment {
+	    label "[_ bug-tracker.Details]"
             display_col comment_short
             hide_p 1
         }
         state {
-            label "State"
+            label "[_ bug-tracker.State]"
             display_template {@bugs.pretty_state@<if @bugs.resolution@ not nil> (@bugs.resolution_pretty@)</if>}
             aggregate count
         }
         creation_date_pretty {
-            label "Submitted"
+            label "[_ bug-tracker.Submitted]"
         }
         submitter {
-            label "Submitter"
+            label "[_ bug-tracker.Submitter]"
             display_template {<a href="@bugs.submitter_url@">@bugs.submitter_first_names@ @bugs.submitter_last_name@</a>}
             hide_p 1
         }
@@ -716,13 +716,13 @@ ad_proc bug_tracker::bug::get_list {
 
     if { [bug_tracker::versions_p] } {
         lappend elements fix_for_version {
-            label "Fix for"
+            label "[_ bug-tracker.Fix_1]"
             display_col fix_for_version_name
         }
     }
     
     lappend elements component {
-        label "Component"
+        label "[_ bug-tracker.Component]"
         display_col component_name
     }
 
@@ -731,7 +731,7 @@ ad_proc bug_tracker::bug::get_list {
 
     set filters {
         f_state {
-            label "State"
+            label "[_ bug-tracker.State]"
             values $state_values
             where_clause {cfsm.current_state = :f_state}
             default_value $state_default_value
@@ -746,12 +746,12 @@ ad_proc bug_tracker::bug::get_list {
             default_direction desc
         }
         summary {
-            label "Summary"
+            label "[_ bug-tracker.Summary]"
             orderby_asc {upper(b.summary) asc, b.summary asc, b.bug_number asc}
             orderby_desc {upper(b.summary) desc, b.summary desc, b.bug_number desc}
         }
         submitter {
-            label "Submitter"
+            label "[_ bug-tracker.Submitter]"
             orderby_asc {upper(submitter.first_names) asc, upper(submitter.last_name) asc, b.bug_number asc}
             orderby_asc {upper(submitter.first_names) desc, upper(submitter.last_name) desc, b.bug_number desc}
         }
@@ -784,11 +784,11 @@ ad_proc bug_tracker::bug::get_list {
 
     if { [bug_tracker::versions_p] } {
         lappend filters f_fix_for_version {
-            label "Fix for version"
+            label "[_ bug-tracker.Fix]"
             values {[db_list_of_lists select_fix_for_versions {}]}
             where_clause { b.fix_for_version = :f_fix_for_version }
             null_where_clause { b.fix_for_version is null }
-            null_label "Undecided"
+            null_label "[_ bug-tracker.Undecided]"
         }
     }
 
@@ -802,7 +802,7 @@ ad_proc bug_tracker::bug::get_list {
             [list \
                  label $action(pretty_name) \
                  values $values \
-                 null_label "Unassigned" \
+                 null_label "[_ bug-tracker.Unassigned]" \
                  where_clause [db_map filter_assignee_where_clause] \
                  null_where_clause [db_map filter_assignee_null_where_clause]]
     }
@@ -810,7 +810,7 @@ ad_proc bug_tracker::bug::get_list {
     # Stat: By Component
 
     lappend filters f_component {
-        label "Component"
+        label "[_ bug-tracker.Component]"
         values {[db_list_of_lists select_components {}]}
         where_clause {b.component_id = :f_component}
     }
@@ -829,11 +829,11 @@ ad_proc bug_tracker::bug::get_list {
         -orderby $orderbys \
         -formats {
             table {
-                label "Table"
+                label "[_ bug-tracker.Table]"
                 layout table
             }
             list {
-                label "List"
+                label "[_ bug-tracker.List]"
                 layout list
                 template {
                     <p class="bt">
@@ -878,7 +878,8 @@ ad_proc bug_tracker::bug::get_query {} {
 
 ad_proc bug_tracker::bug::get_multirow {} {
     foreach var [bug_tracker::get_export_variables] { 
-        upvar \#[template::adp_level] $var $var
+#JOEL put this back later
+        upvar #[template::adp_level] $var $var
     }
 
     set workflow_id [bug_tracker::bug::get_instance_workflow_id]

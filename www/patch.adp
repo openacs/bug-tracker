@@ -21,7 +21,7 @@
 <if @mode@ eq "view" and @deleted_p@ eq 0>
 <center>
 <p>
-<a href="patch?patch_number=@patch_number@&download=1">Download patch content</a>
+<a href="patch?patch_number=@patch_number@&download=1">#bug-tracker.Download_patch_content#</a>
 </p>
 </center>
 <p>
@@ -35,10 +35,11 @@
 </p>
 <center>
 <p>
-<a href="patch?patch_number=@patch_number@&download=1">Download patch content</a>
+<a href="patch?patch_number=@patch_number@&download=1">#bug-tracker.Download_patch_content#</a>
 </p>
 </center>
 </if>
+
 
 
 

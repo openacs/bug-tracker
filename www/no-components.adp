@@ -2,13 +2,13 @@
 <property name="title">@page_title;noquote@</property>
 <property name="context">@context;noquote@</property>
 
-Before you can get started using the bug-tracker, you need to create at least one component.
+#bug-tracker.Before_getting_started#
 
 <p>
 
 <if @admin_p@>
-  Please visit the <a href="admin/">project administration</a> pages to define software components.
+  #bug-tracker.Please_visit_admin_page#
 </if>
 <else>
-  Please contact a project administrator to get the components set up.
+  #bug-tracker.Please_contact_admin#
 </else>

@@ -3,15 +3,15 @@
 <property name="context">@context;noquote@</property>
 
 <if @open_bugs:rowcount@ not eq 0>
-Select one or more of the following @pretty_names.bugs@ for patch "@patch_summary@" (you may select more @pretty_names.bugs@ later):
+#bug-tracker.Select_one_or_more_of#
 </if>
 
 <p>
-Components: @component_filter;noquote@
+#bug-tracker.Components_component_filter#
 </p>
 
 <p>
-Bug status: [ @open_filter;noquote@ ]
+#bug-tracker.Bug_status_open_filter#
 </p>
 
 <p>
@@ -26,9 +26,9 @@ Bug status: [ @open_filter;noquote@ ]
     <if @open_bugs:rowcount@ not eq 0>
       <tr>
         <th>&nbsp;</th>
-        <th>Bug Number</th>
-        <th>Summary</th>
-        <th>Creation Date</th>
+        <th>#bug-tracker.Bug_Number#</th>
+        <th>#bug-tracker.Summary#</th>
+        <th>#bug-tracker.Creation_Date#</th>
       </tr>
     </if>
 
@@ -43,7 +43,7 @@ Bug status: [ @open_filter;noquote@ ]
   </table>
 
    <if @open_bugs:rowcount@ eq 0>
-     <i>There are no open @pretty_names.bugs@ to map the patch to. Try changing the component filter above.</i>
+     <i>#bug-tracker.There_are_no_open_to_map#</i>
 
      <p>
      <center>
@@ -61,3 +61,4 @@ Bug status: [ @open_filter;noquote@ ]
    </else>
 </form>
 </blockquote>
+

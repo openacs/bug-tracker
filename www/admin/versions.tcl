@@ -11,7 +11,7 @@ set project_name [bug_tracker::conn project_name]
 set package_id [ad_conn package_id]
 set package_key [ad_conn package_key]
 
-set context_bar [ad_context_bar "Versions"]
+set context_bar [ad_context_bar "[_ bug-tracker.Versions]"]
 
 set version_add_url "version-ae?[export_vars -url { { return_url "versions" } }]"
 

@@ -71,14 +71,14 @@ ad_proc bug_tracker::conn { args } {
                         return {}
                     }
                     default {
-                        error "Unknown variable $var"
+                        error "[_ bug-tracker.Unknown_variable]"
                     }
                 }
             }
         }
 
         default {
-            error "bt_conn: unknown flag $flag"
+            error "[_ bug-tracker.Unknown_flag]"
         }
     }
 }
@@ -268,7 +268,7 @@ ad_proc bug_tracker::get_user_prefs_internal {
             # we call ourselves again, so we'll get the info this time
             return [get_user_prefs_internal $package_id $user_id]
         } else {
-            error "Couldn't find user in database"
+            error "[_ bug-tracker.No_user_in_database]"
         }
     } else {
         return [array get result]
@@ -345,17 +345,17 @@ ad_proc bug_tracker::status_pretty {
 }
 
 ad_proc bug_tracker::patch_status_get_options {} {
-    return { { "Open" open } { "Accepted" accepted } { "Refused" refused }  { "Deleted" deleted }}
+    return { { "[_ bug-tracker.Open]" open } { "[_ bug-tracker.Accepted]" accepted } { "[_ bug-tracker.Refused]" refused }  { "[_ bug-tracker.Deleted]" deleted }}
 }
 
 ad_proc bug_tracker::patch_status_pretty {
     status
 } {
     array set status_codes {
-        open      "Open"
-        accepted  "Accepted"
-        refused   "Refused"
-        deleted   "Deleted"
+        open      "[_ bug-tracker.Open]"
+        accepted  "[_ bug-tracker.Accepted]"
+        refused   "[_ bug-tracker.Refused]"
+        deleted   "[_ bug-tracker.Deleted]"
     }
     if { [info exists status_codes($status)] } {
         return $status_codes($status)
@@ -372,8 +372,8 @@ ad_proc bug_tracker::patch_status_pretty {
 
 ad_proc bug_tracker::resolution_get_options {} {
     return { 
-        { "Fixed" fixed } { "By Design" bydesign } { "Won't Fix" wontfix } { "Postponed" postponed } 
-        { "Duplicate" duplicate } { "Not Reproducable" norepro } { "Need Info" needinfo } 
+        { "[_ bug-tracker.Fixed]" fixed } { "[_ bug-tracker.By_Design]" bydesign } { "[_ bug-tracker.Wont_Fix]" wontfix } { "[_ bug-tracker.Postponed]" postponed } 
+        { "[_ bug-tracker.Duplicate]" duplicate } { "[_ bug-tracker.Not_Reproducable]" norepro } { "[_ bug-tracker.Need_Info]" needinfo } 
     }
 }
 
@@ -381,13 +381,13 @@ ad_proc bug_tracker::resolution_pretty {
     resolution
 } {
     array set resolution_codes {
-        fixed "Fixed"
-        bydesign "By Design" 
-        wontfix "Won't Fix" 
-        postponed "Postponed"
-        duplicate "Duplicate"
-        norepro "Not Reproducable"
-        needinfo "Need Info"
+        fixed "[_ bug-tracker.Fixed]"
+        bydesign "[_ bug-tracker.By_Design]" 
+        wontfix "[_ bug-tracker.Wont_Fix]" 
+        postponed "[_ bug-tracker.Postponed]"
+        duplicate "[_ bug-tracker.Duplicate]"
+        norepro "[_ bug-tracker.Not_Reproducable]"
+        needinfo "[_ bug-tracker.Need_Info]" 
     }
     if { [info exists resolution_codes($resolution)] } {
         return $resolution_codes($resolution)
@@ -396,10 +396,6 @@ ad_proc bug_tracker::resolution_pretty {
     }
 }
     
-    
-    
-
-
 #####
 #
 # Categories/Keywords
@@ -604,25 +600,22 @@ ad_proc -public bug_tracker::get_default_configurations {} {
     Get the package's default configurations for categories and parameters.
 } {
     return {
-        "Bug-Tracker" {
+        "[_ bug-tracker.Bug_Tracker]" {
             categories {
-                "Bug Type" {
-                    "*Bug"
-                    "Suggestion"
-                    "Todo"
+                "[_ bug-tracker.Bug_Type]" {
+                    "[_ bug-tracker.Bug_Bug_cat]"
+                    "[_ bug-tracker.Bug_Sug_Cat]"
                 }
-                "Priority" {
-                    "1 - High"
-                    "*2 - Normal"
-                    "3 - Low"
+                "[_ bug-tracker.Priority]" {
+                    "[_ bug-tracker.Prio_High_Cat]"
+                    "[_ bug-tracker.Prio_Norm_Cat]"
+                    "[_ bug-tracker.Prio_Low_Cat]"
                 }
-                "Severity" {
-                    "1 - Critical"
-                    "2 - Major"
-                    "*3 - Normal"
-                    "4 - Minor"
-                    "5 - Trivial"
-                    "6 - Enhancement"
+		"[_ bug-tracker.Severity]" {
+                    "[_ bug-tracker.Sev_Critical_Cat]"
+                    "[_ bug-tracker.Sev_Major_Cat]"
+                    "[_ bug-tracker.Sev_Normal_Cat]"
+                    "[_ bug-tracker.Sev_Minor_Cat]"
                 }
             }
             parameters {
@@ -634,16 +627,16 @@ ad_proc -public bug_tracker::get_default_configurations {} {
                 VersionsP "1"
             }
         }
-        "Ticket-Tracker" {
+        "[_ bug-tracker.Ticket_Tracker]" {
             categories {
-                "Ticket Type" {
-                    "*Todo"
-                    "Suggestion"
+                "[_ bug-tracker.Ticket_Type]" {
+                    "[_ bug-tracker.Ticket_Todo_Cat]"
+                    "[_ bug-tracker.Ticket_Sugg_Cat]"
                 }
-                "Priority" {
-                    "1 - High"
-                    "*2 - Normal"
-                    "3 - Low"
+                "[_ bug-tracker.Priority]" {
+                    "[_ bug-tracker.Prio_High_Cat]"
+                    "[_ bug-tracker.Prio_Norm_Cat]"
+                    "[_ bug-tracker.Prio_Low_Cat]"
                 }
             }
             parameters {
@@ -655,6 +648,16 @@ ad_proc -public bug_tracker::get_default_configurations {} {
                 VersionsP "0"
             }
         }
+        "[_ bug-tracker.Support_Center]" {
+	    categories {
+		"[_ bug-tracker.Support_Type]" {
+                 "[_ bug-tracker.Support_Question]"
+                 "[_ bug-tracker.Support_Suggestion]"
+                 "[_ bug-tracker.Support_Problem]"
+
+		}
+	    }
+	}
     }
 }
 
@@ -750,11 +753,11 @@ ad_proc bug_tracker::version_get_options {
     set versions_list [util_memoize [list bug_tracker::version_get_options_not_cached $package_id]]
 
     if { $include_unknown_p } {
-        set versions_list [concat { { "Unknown" "" } } $versions_list]
+        set versions_list [concat { { "[_ bug-tracker.Unknown]" "" } } $versions_list]
     } 
     
     if { $include_undecided_p } {
-        set versions_list [concat { { "Undecided" "" } } $versions_list]
+        set versions_list [concat { { "[_ bug-tracker.Undecided]" "" } } $versions_list]
     } 
     
     return $versions_list
@@ -801,7 +804,7 @@ ad_proc bug_tracker::version_get_name {
             return $name
         }
     }
-    error "Version_id $version_id not found"
+    error "[_ bug-tracker.Version_id]"
 }
 
 
@@ -822,7 +825,7 @@ ad_proc bug_tracker::components_get_options {
     set components_list [util_memoize [list bug_tracker::components_get_options_not_cached $package_id]]
 
     if { $include_unknown_p } {
-        set components_list [concat { { "Unknown" "" } } $components_list]
+        set components_list [concat { { "[_ bug-tracker.Unknown]" "" } } $components_list]
     } 
     
     return $components_list
@@ -855,7 +858,7 @@ ad_proc bug_tracker::component_get_name {
             return [lindex $elm 0]
         }
     }
-    error "Component_id $component_id not found"
+    error "[_ bug-tracker.Component_id_not_found]"
 }
 
 ad_proc bug_tracker::component_get_url_name {
@@ -923,13 +926,13 @@ ad_proc bug_tracker::patch_action_pretty {
 } {
 
     array set action_codes {
-        open "Opened"
-        edit "Edited"
-        comment "Comment"
-        accept "Accepted"
-        reopen "Reopened"
-        refuse "Refused"
-        delete "Deleted"
+        open "[_ bug-tracker.Opened]"
+        edit "[_ bug-tracker.Edited]"
+        comment "[_ bug-tracker.Comment]"
+        accept "[_ bug-tracker.Accepted]"
+        reopen "[_ bug-tracker.Reopened]"
+        refuse "[_ bug-tracker.Refused]"
+        delete "[_ bug-tracker.Deleted]"
     }
 
     if { [info exists action_codes($action)] } {
@@ -982,8 +985,8 @@ ad_proc ::bug_tracker::users_get_options {
     
     set users_list [db_list_of_lists users $sql]
     
-    set users_list [concat { { "Unassigned" "" } } $users_list]
-    lappend users_list { "Search..." ":search:"}
+    set users_list [concat { { "[_ bug-tracker.Unassigned]" "" } } $users_list]
+    lappend users_list { "[_ bug-tracker.Search]" ":search:"}
     
     return $users_list
 }
@@ -1067,7 +1070,7 @@ ad_proc bug_tracker::get_bug_links {
 
             set unmap_url "unmap-patch-from-bug?[export_vars -url { patch_number bug_number } ]"
             if { $write_or_submitter_p } {
-                set unmap_link "(<a href=\"$unmap_url\">unmap</a>)"
+                set unmap_link "(<a href=\"$unmap_url\">[_ bug-tracker.unmap]</a>)"
             } else {
                 set unmap_link ""
             }
@@ -1077,7 +1080,8 @@ ad_proc bug_tracker::get_bug_links {
         if { [llength $bug_link_list] != 0 } {
             set bugs_string [join $bug_link_list "<br>"]
         } else {
-            set bugs_string "No bugs." 
+	    set bugs_name [bug_tracker::conn bugs]
+            set bugs_string "[_ bug-tracker.No_Bugs]" 
         }
 
         return $bugs_string
@@ -1086,7 +1090,7 @@ ad_proc bug_tracker::get_bug_links {
 
 ad_proc bug_tracker::get_patch_links {
     {-bug_id:required}
-    {-show_patch_status "open"}
+    {-show_patch_status "[_ bug-tracker.open]"}
 } {
     set patch_list [list]
 
@@ -1101,10 +1105,11 @@ ad_proc bug_tracker::get_patch_links {
 
     db_foreach get_patches_for_bug "" {
         
-        set status_indicator [ad_decode $show_patch_status "all" "($status)" ""]
+        set status_indicator [ad_decode $show_patch_status "[_ bug-tracker.all]" "($status)" ""]
         lappend patch_list "<a href=\"patch?patch_number=$patch_number\" title=\"patch $patch_number\">[ad_quotehtml $summary]</a> $status_indicator"
     } if_no_rows { 
-        set patches_string "No patches." 
+	set patches_name [bug_tracker::conn patches]
+        set patches_string "[_ bug-tracker.No_patches]" 
     }
 
     if { [llength $patch_list] != 0 } {
@@ -1156,9 +1161,9 @@ ad_proc bug_tracker::security_violation {
 
     ns_log notice "bug_tracker::security_violation: $user_id doesn't have permission to '$action(pretty_name)' on bug $bug(summary)"
     ad_return_forbidden \
-            "Permission Denied" \
+            "[_ bug-tracker.Permission_Denied]" \
             "<blockquote>
-    You don't have permission to '$action(pretty_name)' on bug #$bug_id (\"$bug(summary)\").
+    [_ bug-tracker.No_Permission_to_do_action]
     </blockquote>"
     ad_script_abort
 }

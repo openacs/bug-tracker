@@ -11,19 +11,19 @@ ad_page_contract {
 set project_name [bug_tracker::conn project_name]
 set package_id [ad_conn package_id]
 
-set page_title "Edit Project"
+set page_title [_ bug-tracker.Edit_2]
 set context [list $page_title]
 
 ad_form -name project -cancel_url $return_url -form {
     package_id:key
     {return_url:text(hidden) {value $return_url}}
-    {name:text {html { size 50 }} {label "Project Name"}
+    {name:text {html { size 50 }} {label "[_ bug-tracker.Project]"}
         {help_text {This is also the name of this package in the site map}}
     }
-    {description:text(hidden),optional {label "Description"} {html { cols 50 rows 8 }}
+    {description:text(hidden),optional {label "[_ bug-tracker.Description]"} {html { cols 50 rows 8 }}
         {help_text {This isn't actually used anywhere at this point. Sorry.}}
     }
-    {email_subject_name:text,optional {html { size 50 }} {label "Notification tag"}
+    {email_subject_name:text,optional {html { size 50 }} {label "[_ bug-tracker.Notification]"}
         {help_text {This text will be included in square brackets at the beginning of all notifications, for example \[OpenACS Bugs\]}}
     }
     {maintainer:search,optional

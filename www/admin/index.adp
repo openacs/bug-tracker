@@ -7,10 +7,10 @@
 <if @bugs_exist_p@ false>
   <div style="background-color: #ccccff; padding: 12px; border: dashed 1px #6666ff;">
     <p>
-      <b>This is a new project.</b>
+      <b>#bug-tracker.This_is_a_new_project#</b>
     </p>
     <p>  
-      <b>&raquo;</b> <a href="initial-setup">Initial project configuration</a>
+      <b>&raquo;</b> <a href="initial-setup">#bug-tracker.Initial_project_config#</a>
     </p>
   </div>
 </if>
@@ -20,10 +20,10 @@
     <td colspan="3">
     </td>
     <th>
-      Edit
+      #acs-kernel.common_Edit#
     </th>
     <th>
-      Delete
+      #acs-kernel.common_Delete#
     </th>
   </tr>
   <tr bgcolor="#666666">
@@ -31,7 +31,7 @@
       <font color=white><b>@project_name@</b></font>
     </td>
     <td align="center">
-      <a href="@project_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="Edit"></a>
+      <a href="@project_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="#acs-kernel.common_Edit#"></a>
     </td>
     <td align="center">
       &nbsp;
@@ -39,19 +39,19 @@
   </tr>
   <tr bgcolor="#cccccc">
     <td colspan="2">
-      Maintainer:
+      #bug-tracker.Maintainer#
       <if @project.maintainer@ not nil>
         <a href="@project.maintainer_url@" title="Email: @project.maintainer_email@">@project.maintainer_first_names@ @project.maintainer_last_name@</a>
       </if>
       <else>
-        <i>No Maintainer</i> 
+        <i>#bug-tracker.No_Maintainer#</i> 
       </else>
     </td>
     <td align="center">
       &nbsp;
     </td>
     <td align="center">
-      <a href="@project_maintainer_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="Edit"></a>
+      <a href="@project_maintainer_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="#acs-kernel.common_Edit#"></a>
     </td>
     <td align="center">
       &nbsp;
@@ -61,10 +61,10 @@
   <if @versions_p@ true>
     <tr bgcolor="#cccccc">
       <td colspan="3">
-        Versions
+        #bug-tracker.Versions#
       </td>
       <td align="center">
-        <a href="@versions_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="Edit"></a>
+        <a href="@versions_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="#acs-kernel.common_Edit#"></a>
       </td>
       <td align="center">
         &nbsp;
@@ -74,21 +74,10 @@
 
   <tr bgcolor="#cccccc">
     <td colspan="3">
-      Categories
+      #bug-tracker.Categories#
     </td>
     <td align="center">
-      <a href="@categories_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="Edit"></a>
-    </td>
-    <td align="center">
-      &nbsp;
-    </td>
-  </tr>
-  <tr bgcolor="#cccccc">
-    <td colspan="3">
-      Permissions
-    </td>
-    <td align="center">
-      <a href="@permissions_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="Edit"></a>
+      <a href="@categories_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="#acs-kernel.common_Edit#"></a>
     </td>
     <td align="center">
       &nbsp;
@@ -96,10 +85,21 @@
   </tr>
   <tr bgcolor="#cccccc">
     <td colspan="3">
-      Parameters
+     #bug-tracker.Permissions#
     </td>
     <td align="center">
-      <a href="@parameters_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="Edit"></a>
+      <a href="@permissions_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="#acs-kernel.common_Edit#"></a>
+    </td>
+    <td align="center">
+      &nbsp;
+    </td>
+  </tr>
+  <tr bgcolor="#cccccc">
+    <td colspan="3">
+     #bug-tracker.Parameters#
+    </td>
+    <td align="center">
+      <a href="@parameters_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="#acs-kernel.common_Edit#"></a>
     </td>
     <td align="center">
       &nbsp;
@@ -110,10 +110,10 @@
 <!--
   <tr bgcolor="#cccccc">
     <td colspan="3">
-      Priority codes
+     #bug-tracker.Priority_codes#
     </td>
     <td align="center">
-      <a href="@priority_codes_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="Edit"></a>
+      <a href="@priority_codes_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="#acs-kernel.common_Edit#"></a>
     </td>
     <td align="center">
       &nbsp;
@@ -121,10 +121,10 @@
   </tr>
   <tr bgcolor="#cccccc">
     <td colspan="2">
-      Severity codes
+     #bug-tracker.Severity_Codes#
     </td>
     <td align="center">
-      <a href="@severity_codes_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="Edit"></a>
+      <a href="@severity_codes_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="#acs-kernel.common_Edit#"></a>
     </td>
     <td align="center">
       &nbsp;
@@ -148,31 +148,32 @@
       <td>@components.component_name@</td>
       <td>
         <if @components.maintainer@ not nil>
-          <a href="@components.maintainer_url@" title="Email: @components.maintainer_email@">@components.maintainer_first_names@ @components.maintainer_last_name@</a>
+          <a href="@components.maintainer_url@" title="#bug-tracker.Email# @components.maintainer_email@">@components.maintainer_first_names@ @components.maintainer_last_name@</a>
         </if>
-        <else><i>No maintainer</i></else>
+        <else><i>#bug-tracker.No_Maintainer#</i></else>
       </td>
       <td align="right">
-        <if @components.view_bugs_url@ not nil><a href="@components.view_bugs_url@" title="View the @pretty_names.bugs@ for this component"></if>@components.num_bugs@ <if @components.num_bugs@ eq 1>@pretty_names.bug@</if><else>@pretty_names.bugs@</else><if @components.view_bugs_url@ not nil></a></if>
+        <if @components.view_bugs_url@ not nil><a href="@components.view_bugs_url@" title="#bug-tracker.View_the_bug_fo_component#"></if>@components.num_bugs@ <if @components.num_bugs@ eq 1>@pretty_names.bug@</if><else>@pretty_names.bugs@</else><if @components.view_bugs_url@ not nil></a></if>
       </td>
       <td align="center">
-        <a href="@components.edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="Edit"></a>
+        <a href="@components.edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="#acs-kernel.common_Edit#"></a>
       </td>
       <td align="center">
         <if @components.delete_url@ not nil>
-          <a href="@components.delete_url@"><img src="../graphics/Delete16.gif" width="16" height="16" border="0" alt="Delete"></a>
+          <a href="@components.delete_url@"><img src="../graphics/Delete16.gif" width="16" height="16" border="0" alt="#acs-kernel.common_Delete#"></a>
         </if>
       </td>
     </tr>
   </multiple>
   <if @components:rowcount@ eq 0>
     <tr bgcolor="#cccccc">
-      <td colspan="5"><i>No components</i></td>
+      <td colspan="5"><i>#bug-tracker.No_components#</i></td>
     </tr>
   </if>
   <tr bgcolor="#bbbbbb">
-    <td colspan="5"><b>&raquo;</b> <a href="@component_add_url@">Create new @pretty_names.component@</a></td>
+    <td colspan="5"><b>&raquo;</b> <a href="@component_add_url@">#bug-tracker.Create_new# @pretty_names.component@</a></td>
   </tr>
 </table>
 </blockquote>
+
 

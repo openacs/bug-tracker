@@ -3,7 +3,7 @@ ad_page_contract {
 }
 
 set project_name [bug_tracker::conn project_name]
-set page_title "Manage Categories"
+set page_title "[_ bug-tracker.Manage_Categories]"
 set context_bar [ad_context_bar $page_title]
 
 set package_id [ad_conn package_id]

@@ -5,5 +5,6 @@
 <include src="/packages/acs-subsite/www/permissions/perm-include" object_id="@object_id@" user_add_url="permissions-user-add">
 
 <p>
-  <b>&raquo;</b> <a href=".">Return</a>
+  <b>&raquo;</b> <a href=".">#bug-tracker.Return#</a>
 </p>
+

@@ -7,8 +7,8 @@ ad_page_contract {
 } [bug_tracker::get_page_variables {
     bug_number:integer,notnull
     {user_agent_p:boolean 0}
-    {show_patch_status "open"}
-}]
+    {show_patch_status "[_ bug-tracker.open]"}
+%}]
 
 #####
 #
@@ -25,8 +25,8 @@ set package_key [ad_conn package_key]
 set user_id [ad_conn user_id]
 
 permission::require_permission -object_id $package_id -privilege read
-
-set page_title "[bug_tracker::conn Bug] #$bug_number"
+set Bug_name [bug_tracker::conn Bug]
+set page_title "[_ bug-tracker.%Bug_name% %bug_number%]"
 
 set context [list [ad_quotehtml $page_title]]
 
@@ -45,7 +45,9 @@ set patches_p [bug_tracker::patches_p]
 
 # Get the bug_id
 if { ![db_0or1row permission_info {} -column_array bug] } {
-    ad_return_complaint 1 "Could not find bug \#$bug_number"
+    set Bug_name [bug_tracker::conn Bug]
+    set could_not_be_found [_ bug-tracker.Could_not_find]
+    ad_return_complaint 1 "[_ bug-tracker.%Bug_name% %bug_number% %could_not_be_found%]"
     return
 }
 
@@ -105,14 +107,14 @@ if { [empty_string_p $enabled_action_id] } {
 
 if { [empty_string_p $enabled_action_id] } {
     set patch_label [ad_decode $show_patch_status \
-                         "open" "Open Patches (<a href=\"[string map {+ %20} [export_vars -base [ad_conn url] -entire_form -override { { show_patch_status all } }]]\">show all</a>)" \
-                         "all" "All Patches (<a href=\"[string map {+ %20} [export_vars -base [ad_conn url] -entire_form -override { { show_patch_status open } }]]\">show only open)" \
-                         "Patches"]
+                         "open" "[_ bug-tracker.Open] [bug_tracker::conn Patches] (<a href=\"[string map {+ %20} [export_vars -base [ad_conn url] -entire_form -override { { show_patch_status all } }]]\">[_ bug-tracker.show_all]</a>)" \
+                         "all" "[_ bug-tracker.All] [bug_tracker::conn Patches] (<a href=\"[string map {+ %20} [export_vars -base [ad_conn url] -entire_form -override { { show_patch_status open } }]]\">[_ bug-tracker.show_only_open])" \
+                         "[bug_tracker::conn Patches]"]
 } else {
     set patch_label [ad_decode $show_patch_status \
-                         "open" "Open Patches" \
-                         "all" "All Patches" \
-                         "Patches"]
+                         "open" "[_ bug-tracker.Open] [bug_tracker::conn Patches]" \
+                         "all" "[_ bug-tracker.All] [bug_tracker::conn Patches]" \
+                         "[bug_tracker::conn Patches]"]
 }
 
 ad_form -name bug -cancel_url $return_url -mode display -has_edit 1 -actions $actions -form  {
@@ -126,7 +128,7 @@ ad_form -name bug -cancel_url $return_url -mode display -has_edit 1 -actions $ac
 	{mode display}
     }
     {summary:text(text)
-	{label "Summary"}
+	{label "[_ bug-tracker.Summary]"}
 	{before_html "<b>"}
 	{after_html "</b>"}
 	{mode display}
@@ -137,13 +139,13 @@ ad_form -name bug -cancel_url $return_url -mode display -has_edit 1 -actions $ac
 
 ad_form -extend -name bug -form {
     {pretty_state:text(inform)
-	{label "Status"}
+	{label "[_ bug-tracker.Status]"}
 	{before_html "<b>"}
 	{after_html  "</b>"}
 	{mode display}
     }
     {resolution:text(select),optional
-	{label "Resolution"}
+	{label "[_ bug-tracker.Resolution]"}
 	{options {[bug_tracker::resolution_get_options]}}
 	{mode display}
     }
@@ -162,7 +164,7 @@ foreach {category_id category_name} [bug_tracker::category_types] {
 
 ad_form -extend -name bug -form {
     {found_in_version:text(select),optional
-	{label "Found in Version"}
+	{label "[_ bug-tracker.Found_in_Version]"}
 	{options {[bug_tracker::version_get_options -include_unknown]}}
 	{mode display}
     }
@@ -178,21 +180,21 @@ ad_form -extend -name bug -form {
 	{mode display}
     }
     {user_agent:text(inform)
-	{label "User Agent"}
+	{label "[_ bug-tracker.User_Agent]"}
 	{mode display}
     }
     {fix_for_version:text(select),optional
-	{label "Fix for Version"}
+	{label "[_ bug-tracker.Fix_for_Version]"}
 	{options {[bug_tracker::version_get_options -include_undecided]}}
 	{mode display}
     }
     {fixed_in_version:text(select),optional
-	{label "Fixed in Version"}
+	{label "[_ bug-tracker.Fixed_in_Version]"}
 	{options {[bug_tracker::version_get_options -include_undecided]}}
 	{mode display}
     }
     {description:richtext(richtext),optional
-	{label "Description"} 
+	{label "[_ bug-tracker.Description]"} 
 	{html {cols 60 rows 13}} 
     }
     {return_url:text(hidden) 
@@ -218,7 +220,7 @@ if { ![empty_string_p $enabled_action_id] } {
     }
     
     # LARS: Hack! How do we set editing of dynamic fields?
-    if { [string equal [workflow::action::get_element -action_id $action_id -element short_name] "edit"] } {
+    if { [string equal [workflow::action::get_element -action_id $action_id -element short_name] "[_ acs-kernel.common_edit]"] } {
         foreach { category_id category_name } [bug_tracker::category_types] {
             element set_properties bug $category_id -mode edit
         }
@@ -285,7 +287,7 @@ if { ![form is_valid bug] } {
     }
     
     # Display value for patches
-    set bug(patches_display) "[bug_tracker::get_patch_links -bug_id $bug(bug_id) -show_patch_status $show_patch_status] &nbsp; \[ <a href=\"patch-add?[export_vars { { bug_number $bug(bug_number) } { component_id $bug(component_id) } }]\">Upload a patch</a> \]"
+    set bug(patches_display) "[bug_tracker::get_patch_links -bug_id $bug(bug_id) -show_patch_status $show_patch_status] &nbsp; \[ <a href=\"patch-add?[export_vars { { bug_number $bug(bug_number) } { component_id $bug(component_id) } }]\">[_ bug-tracker.Upload_Patch]</a> \]"
 
     # Hide elements that should be hidden depending on the bug status
     foreach element $bug(hide_fields) {
@@ -318,7 +320,7 @@ if { ![form is_valid bug] } {
 
         # check that the element exists
         if { [info exists bug:$element] && [info exists bug($element)] } {
-            if { [form is_request bug] || [string equal [element get_property bug $element mode] "display"] } {
+            if { [form is_request bug] || [string equal [element get_property bug $element mode] "[_ acs-kernel.common_display]" } {
                 element set_value bug $element $bug($element)
             }
         }
@@ -326,7 +328,7 @@ if { ![form is_valid bug] } {
     
     # Add empty option to resolution code
     if { ![empty_string_p $enabled_action_id] } {
-        if { [lsearch [workflow::action::get_element -action_id $action_id -element edit_fields] "resolution"] == -1 } {
+        if { [lsearch [workflow::action::get_element -action_id $action_id -element edit_fields] "[_ bug-tracker.resolution]"] == -1 } {
             element set_properties bug resolution -options [concat {{{} {}}} [element get_property bug resolution options]]
         }
     } else {
@@ -357,10 +359,11 @@ if { ![form is_valid bug] } {
     # TODO: Make real
     set filtered_p 1
     if { $filtered_p } {
+        set bug_name [bug_tracker::conn bug]
         set context [list \
                          [list \
                               [export_vars -base . [bug_tracker::get_export_variables]] \
-                              "Filtered [bug_tracker::conn bug] list"] \
+                              "[_ bug-tracker.Filtered]"] \
                          [ad_quotehtml $page_title]]
     } else {
         set context [list [ad_quotehtml $page_title]]
@@ -419,31 +422,33 @@ if { ![form is_valid bug] } {
         
         if { $filter_bug_index != -1 } {
             
+            set next_bug_num [expr $filter_bug_index+1]
+            set all_bugs [llength $filter_bug_numbers]
             multirow append navlinks \
                 $first_url \
                 "/resources/acs-subsite/stock_first-16.png" \
-                "First"
+                "[_ acs-kernel.common_First]"
             
             multirow append navlinks \
                 $prev_url \
                 "/resources/acs-subsite/stock_left-16.png" \
-                "Previous"
+                "[_ acs-kernel.common_Previous]"
             
             multirow append navlinks \
                 {} \
                 {} \
                 {} \
-                "[expr $filter_bug_index+1] of [llength $filter_bug_numbers]"
+                "[_ bug-tracker.No_of_All]"
             
             multirow append navlinks \
                 $next_url \
                 "/resources/acs-subsite/stock_right-16.png" \
-                "Next"
+                "[_ acs-kernel.common_Next]"
 
             multirow append navlinks \
                 $last_url \
                 "/resources/acs-subsite/stock_last-16.png" \
-                Last
+                "[_ acs-kernel.common_Last]"
         }
     }  
 }

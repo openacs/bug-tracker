@@ -9,19 +9,19 @@ ad_page_contract {
 set project_name [bug_tracker::conn project_name]
 
 if { (![info exists keyword_id] && ![info exists parent_id]) || [string equal $type_p "t"] } {
-    set object_type_name "Category Type"
+    set object_type_name [_ bug-tracker.Category_Type]
 } else {
-    set object_type_name "Category"
+    set object_type_name [_ bug-tracker.Category]
 }
 
 if { [info exists keyword_id] } {
-    set function "Edit"
+    set function [_ acs-kernel.common_Edit]
 } else {
-    set function "Add"
+    set function [_ acs-kernel.common_Add]
 }
 
-set page_title "$function $object_type_name"
-set context_bar [ad_context_bar [list categories "Manage Categories"] $page_title]
+set page_title [_ bug-tracker.function]
+set context_bar [ad_context_bar [list categories [_ bug-tracker.Manage_Categories]] $page_title]
 
 
 ad_form -name keyword -cancel_url categories -form {

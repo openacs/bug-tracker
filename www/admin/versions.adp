@@ -2,22 +2,22 @@
 <property name="title">@project_name;noquote@ Versions</property>
 <property name="context_bar">@context_bar;noquote@</property>
 
-<h3>In Development</h3>
+<h3>#bug-tracker.In_Development#</h3>
 
 <if @current_version:rowcount@ eq 0>
-  <i>None</i>
+  <i>#bug-tracker.None#</i>
 </if>
 <else>
   <table cellspacing="1" cellpadding="3" class="bt_listing">
     <tr class="bt_listing_header">
-      <th>Version</th>
-      <th>Planned Freeze</th>
-      <th>Planned Release</th>
-      <th>Maintainer</th>
-      <th>Assign</th>
-      <th>Edit</th>
-      <th>Delete</th>
-      <th>Release</th>
+      <th>#bug-tracker.Version#</th>
+      <th>#bug-tracker.Planned_Freeze#</th>
+      <th>#bug-tracker.Planned_Release#</th>
+      <th>#bug-tracker.Maintainer_1#</th>
+      <th>#bug-tracker.Assign#</th>
+      <th>#acs-kernel.common_Edit#</th>
+      <th>#acs-kernel.common_Delete#</th>
+      <th>#bug-tracker.Release#</th>
     </tr>
     <multiple name="current_version">
       <if @current_version.rownum@ odd>
@@ -40,21 +40,21 @@
             <a href="@current_version.maintainer_url@" title="Email: @current_version.maintainer_email@">@current_version.maintainer_first_names@ 
             @current_version.maintainer_last_name@</a>
           </if>
-          <else><i>None</i></else>
+          <else><i>#bug-tracker.None#</i></else>
         </td>
         <td class="bt_listing">
           @current_version.assignable_p_pretty@
         </td>
         <td class="bt_listing" align="center">
-          <a href="@current_version.edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" alt="Edit" border="0"></a>
+          <a href="@current_version.edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" alt="#acs-kernel.common_Edit#" border="0"></a>
         </td>
         <td class="bt_listing" align="center">
           <if @current_version.delete_url@ not nil>
-            <a href="@current_version.delete_url@"><img src="../graphics/Delete16.gif" width="16" height="16" alt="Delete" border="0"></a>
+            <a href="@current_version.delete_url@"><img src="../graphics/Delete16.gif" width="16" height="16" alt="#acs-kernel.common_Delete#" border="0"></a>
           </if>
         </td>
         <td class="bt_listing">
-          <a href="@current_version.release_url@">Release this version</a>
+          <a href="@current_version.release_url@">#bug-tracker.Release_this_version#</a>
         </td>
       </tr>
     </multiple>
@@ -63,22 +63,22 @@
 
 
 
-<h3>Future Versions</h3>
+<h3>#bug-tracker.Future_Versions#</h3>
 
 <if @future_version:rowcount@ eq 0>
-  <i>None</i>
+  <i>#bug-tracker.None#</i>
 </if>
 <else>
   <table cellspacing="1" cellpadding="3" class="bt_listing">
     <tr class="bt_listing_header">
-      <th>Version</th>
-      <th>Planned Freeze</th>
-      <th>Planned Release</th>
-      <th>Maintainer</th>
-      <th>Assign</th>
-      <th>Edit</th>
-      <th>Delete</th>
-      <th>Current</th>
+      <th>#bug-tracker.Version#</th>
+      <th>#bug-tracker.Planned_Freeze#</th>
+      <th>#bug-tracker.Planned_Release#</th>
+      <th>#bug-tracker.Maintainer#</th>
+      <th>#bug-tracker.Assign#</th>
+      <th>#acs-kernel.common_Edit#</th>
+      <th>#acs-kernel.common_Delete#</th>
+      <th>#bug-tracker.Current#</th>
     </tr>
     <multiple name="future_version">
       <if @future_version.rownum@ odd>
@@ -98,24 +98,24 @@
         </td>
         <td class="bt_listing">
           <if @future_version.maintainer@ not nil>
-            <a href="@future_version.maintainer_url@" title="Email: @future_version.maintainer_email@">@future_version.maintainer_first_names@ 
+            <a href="@future_version.maintainer_url@" title="#bug-tracker.Email# @future_version.maintainer_email@">@future_version.maintainer_first_names@ 
             @future_version.maintainer_last_name@</a>
           </if>
-          <else><i>None</i></else>
+          <else><i>#bug-tracker.None#</i></else>
         </td>
         <td class="bt_listing">
           @future_version.assignable_p_pretty@
         </td>
         <td class="bt_listing" align="center">
-          <a href="@future_version.edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" alt="Edit" border="0"></a>
+          <a href="@future_version.edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" alt="#acs-kernel.common_Edit#" border="0"></a>
         </td>
         <td class="bt_listing" align="center">
           <if @future_version.delete_url@ not nil>
-            <a href="@future_version.delete_url@"><img src="../graphics/Delete16.gif" width="16" height="16" alt="@bug-tracker.Delete#" border="0"></a>
+            <a href="@future_version.delete_url@"><img src="../graphics/Delete16.gif" width="16" height="16" alt="acs-kernel.common_Delete#" border="0"></a>
           </if>
         </td>
         <td class="bt_listing">
-          <a href="@future_version.set_active_url@">Set to current</a>
+          <a href="@future_version.set_active_url@">#bug-tracker.Set_to_current#</a>
         </td>
       </tr>
     </multiple>
@@ -124,22 +124,22 @@
 
 <p>
 
-<a href="@version_add_url@">Add new version</a>
+<a href="@version_add_url@">#bug-tracker.Add_new_version#</a>
 
-<h3>Already Released Versions</h3>
+<h3>#bug-tracker.Already_released_versions#</h3>
 
 <if @past_version:rowcount@ eq 0>
-  <i>None</i>
+  <i>#bug-tracker.None#</i>
 </if>
 <else>
   <table cellspacing="1" cellpadding="3" class="bt_listing">
     <tr class="bt_listing_header">
-      <th>Version</th>
-      <th>Planned Release</th>
-      <th>Actual Release</th>
-      <th>Maintainer</th>
-      <th>Edit</th>
-      <th>Delete</th>
+      <th>#bug-tracker.Version#</th>
+      <th>#bug-tracker.Planned_Release#</th>
+      <th>#bug-tracker.Actual_Release#</th>
+      <th>#bug-tracker.Maintainer#</th>
+      <th>#acs-kernel.common_Edit#</th>
+      <th>#acs-kernel.common_Delete#</th>
     </tr>
     <multiple name="past_version">
       <if @past_version.rownum@ odd>
@@ -159,17 +159,17 @@
         </td>
         <td class="bt_listing">
           <if @past_version.maintainer@ not nil>
-            <a href="@past_version.maintainer_url@" title="Email: @past_version.maintainer_email@">@past_version.maintainer_first_names@ 
+            <a href="@past_version.maintainer_url@" title="#bug-tracker.Email# @past_version.maintainer_email@">@past_version.maintainer_first_names@ 
             @past_version.maintainer_last_name@</a>
           </if>
-          <else><i>None</i></else>
+          <else><i>#bug-tracker.None#</i></else>
         </td>
         <td class="bt_listing" align="center">
-          <a href="@past_version.edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" alt="Edit" border="0"></a>
+          <a href="@past_version.edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" alt="#acs-kernel.common_Edit#" border="0"></a>
         </td>
         <td class="bt_listing" align="center">
           <if @past_version.delete_url@ not nil>
-            <a href="@past_version.delete_url@"><img src="../graphics/Delete16.gif" width="16" height="16" alt="@bug-tracker.Delete#" border="0"></a>
+            <a href="@past_version.delete_url@"><img src="../graphics/Delete16.gif" width="16" height="16" alt="acs-kernel.common_Delete#" border="0"></a>
           </if>
         </td>
       </tr>

@@ -8,7 +8,7 @@ ad_page_contract {
 
 set object_id [ad_conn package_id]
 
-set page_title "Permissions"
+set page_title [_ bug-tracker.Permissions]
 
 set context [list $page_title]
 

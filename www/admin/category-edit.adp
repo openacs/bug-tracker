@@ -6,7 +6,4 @@
 <formtemplate id="keyword"></formtemplate>
 
 
-<blockquote> <b>Note:</b> Categories are sorted by their
-names. Therefore, it's a good idea to use names of ths form &quot;1 -
-High&quot;, &quot;2 - Normal&quot;, etc., or &quot;A - Critical&quot;,
-&quot;B - Major&quot;, etc., thus making the order obvious. </blockquote>
+<blockquote> #bug-tracker.Sort_Order_Note# </blockquote>

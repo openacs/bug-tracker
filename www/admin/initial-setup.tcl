@@ -3,7 +3,7 @@ ad_page_contract {
 }
 
 set project_name [bug_tracker::conn project_name]
-set page_title "Initial Setup"
+set page_title [_ bug-tracker.Initial]
 set context_bar [ad_context_bar $page_title]
 
 array set default_configs [bug_tracker::get_default_configurations]
@@ -13,10 +13,10 @@ set options [list]
 foreach name [lsort -ascii [array names default_configs]] {
     lappend options [list $name $name]
 }
-lappend options [list "Custom" "custom"]
+lappend options [list "[_ bug-tracker.Custom]" "custom"]
 
 ad_form -name setup -cancel_url . -form {
-    {setup:text(select) {label "Choose setup"} {options $options}}
+    {setup:text(select) {label "[_ bug-tracker.Choose]"} {options $options}}
 } -on_submit {
     if { [info exists default_configs($setup)] } {
         array set config $default_configs($setup)

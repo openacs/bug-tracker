@@ -56,7 +56,7 @@ set initial_state_id [workflow::fsm::get_initial_state -workflow_id $workflow_id
 multirow append links "[bug_tracker::conn Bugs]" [export_vars -base "${url_prefix}." { { f_fix_for_version {[bug_tracker::conn current_version_id]} } }]
 
 if { $create_p } {
-    multirow append links "New [bug_tracker::conn Bug]" "${url_prefix}bug-add"
+    multirow append links "[_ bug-tracker.New] [bug_tracker::conn Bug]" "${url_prefix}bug-add"
 }
 
 if { [ad_conn untrusted_user_id] != 0 } {
@@ -69,21 +69,21 @@ if { [ad_conn untrusted_user_id] != 0 } {
 }
 
 if { $patches_p } {
-    multirow append links "Patches" [export_vars -no_empty -base "[ad_conn package_url]patch-list" { { status open } { apply_to_version {[bug_tracker::conn current_version_id]} } }]
+    multirow append links "[bug_tracker::conn Patches]" [export_vars -no_empty -base "[ad_conn package_url]patch-list" { { status open } { apply_to_version {[bug_tracker::conn current_version_id]} } }]
 
     if { $create_p } {
-        multirow append links "New Patch" "[ad_conn package_url]patch-add"
+        multirow append links "[_ bug-tracker.New] [bug_tracker::conn Patches]" "[ad_conn package_url]patch-add"
     }
 }
 
 multirow append links [_ bug-tracker.Notifications] "[ad_conn package_url]notifications"
 
 if { $versions_p } {
-    multirow append links "Prefs" "[ad_conn package_url]prefs"
+    multirow append links "[_ bug-tracker.Prefs]" "[ad_conn package_url]prefs"
 }
 
 if { $admin_p } {
-    multirow append links "Admin" "[ad_conn package_url]admin/"
+    multirow append links "[_ bug-tracker.Admin]" "[ad_conn package_url]admin/"
 }
 
 set form_action_url "[ad_conn package_url]bug"

@@ -8,7 +8,7 @@ ad_page_contract {
 
 set object_id [ad_conn package_id]
 
-set page_title "Add User"
+set page_title [_ bug-tracker.Add_1]
 
-set context [list [list "permissions" "Permissions"] $page_title]
+set context [list [list "permissions" "[_ bug-tracker.Permissions]"] $page_title]
 

@@ -30,7 +30,7 @@ ad_maybe_redirect_for_registration
 set project_name [bug_tracker::conn project_name]
 set package_id [ad_conn package_id]
 set package_key [ad_conn package_key]
-set page_title "New Patch"
+set page_title [_ bug-tracker.New_2]
 set context [list $page_title]
 set user_id [ad_conn user_id]
 
@@ -47,38 +47,38 @@ element create patch patch_id \
 element create patch component_id \
         -datatype integer \
         -widget select \
-        -label "Component" \
+        -label "[_ bug-tracker.Component]" \
         -options [bug_tracker::components_get_options]
 
 element create patch summary  \
         -datatype text \
-        -label "Summary" \
+        -label "[_ bug-tracker.Summary]" \
         -html { size 50 }
 
 element create patch description  \
         -datatype text \
         -widget textarea \
-        -label "Description" \
+        -label "[_ bug-tracker.Description]" \
         -html { cols 50 rows 10 } \
         -optional
 
 element create patch description_format \
                 -datatype text \
                 -widget select \
-                -label "Description format" \
-                -options { { "Plain" plain } { "HTML" html } { "Preformatted" pre } }
+                -label "[_ bug-tracker.Description_1]" \
+    -options { { "[_ bug-tracker.Plain]" plain } { "[_ bug-tracker.HTML]" html } { "[_ bug-tracker.Preformatted]" pre } }
 
 element create patch version_id \
         -datatype text \
         -widget select \
-        -label "Generated from Version" \
+        -label "[_ bug-tracker.Generated]" \
         -options [bug_tracker::version_get_options -include_unknown] \
         -optional
     
 element create patch patch_file \
         -datatype file \
         -widget file \
-        -label "Patch file" \
+        -label "[_ bug-tracker.Patch]" \
 
 if { [exists_and_not_null bug_number] } {
     # Export the bug number
@@ -93,7 +93,7 @@ if { [exists_and_not_null bug_number] } {
     element create patch select_bugs_p \
             -datatype text \
             -widget radio \
-            -label "Choose Bugs for this Patch" \
+            -label "[_ bug-tracker.Choose_1]" \
             -options { {Yes 1} {No 0} } \
             -values { 1 }
 }

@@ -10,7 +10,7 @@ ad_page_contract {
 set project_name [bug_tracker::conn project_name]
 set package_id [ad_conn package_id]
 set package_key [ad_conn package_key]
-set page_title "Administration"
+set page_title [_ bug-tracker.Administration]
 
 set bugs_exist_p [bug_tracker::bugs_exist_p]
 

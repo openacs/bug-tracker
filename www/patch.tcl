@@ -57,19 +57,19 @@ if { [exists_and_not_null download] } {
 # We are in view mode per default
 if { ![info exists mode] } {
     if { [exists_and_not_null edit] } {
-        set mode "edit"
+        set mode "[_ bug-tracker.edit]"
     } elseif { [exists_and_not_null accept] } {        
-        set mode "accept"
+        set mode "[_ bug-tracker.accept]"
     } elseif { [exists_and_not_null refuse] } {
-        set mode "refuse"
+        set mode "[_ bug-tracker.refuse]"
     } elseif { [exists_and_not_null delete] } {
-        set mode "delete"
+        set mode "[_ bug-tracker.delete]"
     } elseif { [exists_and_not_null reopen] } {
-        set mode "reopen"
+        set mode "[_ bug-tracker.reopen]"
     } elseif { [exists_and_not_null comment] } {
-        set mode "comment"
+        set mode "[_ bug-tracker.comment]"
     } else {
-        set mode "view"
+        set mode "[_ bug-tracker.view]"
     }
 }
 
@@ -78,7 +78,7 @@ if { ![info exists mode] } {
 switch -- $mode {
     edit {
         if { ![expr $write_p || $user_is_submitter_p] } {
-            ad_return_forbidden "Permission Denied" "You do not have permission to edit this patch. Only the submitter of the patch and users with write permission on the Bug Tracker project (package instance) may do so."
+            ad_return_forbidden "[_ bug-tracker.Permission]" "[_ bug-tracker.You_2]"
             ad_script_abort
         }
 
@@ -97,11 +97,11 @@ switch -- $mode {
     }
     reopen {
         # User must have write permission to reopen a refused patch
-        if { [string equal $patch_status "refused"] && !$write_p } {
-            ad_return_forbidden "Permission Denied" "You do not have permission to reopen this refused patch, only users with write permission on the Bug Tracker package instance (project) may do so."
+        if { [string equal $patch_status "[_ bug-tracker.refused]"] && !$write_p } {
+            ad_return_forbidden "[_ bug-tracker.Permission]" "[_ bug-tracker.You_3]"
             ad_script_abort
-        } elseif { [string equal $patch_status "deleted"] && !($user_is_submitter_p || $write_p)} {
-            ad_return_forbidden "Permission Denied" "You do not have permission to reopen this deleted patch, only users with write permission on the Bug Tracker package instance (project) and the submitter of the patch may do so."
+        } elseif { [string equal $patch_status "[_ bug-tracker.deleted]"] && !($user_is_submitter_p || $write_p)} {
+            ad_return_forbidden "[_ bug-tracker.Permission]" "[_ bug-tracker.You_4]"
             ad_script_abort            
         } 
 
@@ -110,7 +110,7 @@ switch -- $mode {
     delete {
         # Only the submitter can delete a patch (admins can refuse it)
         if { !$user_is_submitter_p } {
-            ad_return_forbidden "Permission Denied" "You do not have permission to cancel this patch - only the submitter of the patch may do so. If you are an administrator you can however refuse the patch."
+            ad_return_forbidden "[_ bug-tracker.Permission]" "[_ bug-tracker.You_5]"
             ad_script_abort
         }
         set edit_fields {}
@@ -127,7 +127,7 @@ foreach field $edit_fields {
     set field_editable_p($field) 1
 }
 
-if { ![string equal $mode "view"] } {
+if { ![string equal $mode "[_ bug-tracker.view]"] } {
     ad_maybe_redirect_for_registration
 }    
 
@@ -151,55 +151,55 @@ element create patch patch_number \
 element create patch patch_number_i \
         -datatype integer \
         -widget   inform \
-        -label    "Patch #"
+        -label    "[_ bug-tracker.Patch_1]"
 
 element create patch component_id \
         -datatype text \
         -widget [ad_decode [info exists field_editable_p(component_id)] 1 select inform] \
-        -label "Component" \
+        -label "[_ bug-tracker.Component]" \
         -options [bug_tracker::components_get_options]
 
-if { [string equal $mode "view"] } {
+if { [string equal $mode "[_ bug-tracker.view]"] } {
     element create patch fixes_bugs \
         -datatype text \
         -widget inform \
-        -label "Fix for Bugs"
+        -label "[_ bug-tracker.Fix_2]"
 }
 
 element create patch summary  \
         -datatype text \
         -widget [ad_decode [info exists field_editable_p(summary)] 1 text inform] \
-        -label "Summary" \
+        -label "[_ bug-tracker.Summary]" \
         -html { size 50 }
 
 element create patch submitter \
         -datatype text \
         -widget inform \
-        -label "Submitted by"
+        -label "[_ bug-tracker.Submitted]"
 
 element create patch status \
         -widget inform \
         -datatype text \
-        -label "Status"
+        -label "[_ bug-tracker.Status]"
 
 element create patch generated_from_version \
         -datatype text \
         -widget [ad_decode [info exists field_editable_p(generated_from_version)] 1 select inform] \
-        -label "Generated from Version" \
+        -label "[_ bug-tracker.Generated]" \
         -options [bug_tracker::version_get_options -include_unknown] \
         -optional
 
 element create patch apply_to_version \
         -datatype text \
         -widget [ad_decode [info exists field_editable_p(apply_to_version)] 1 select inform] \
-        -label "Apply to Version" \
+        -label "[_ bug-tracker.Apply_2]" \
         -options [bug_tracker::version_get_options -include_undecided] \
         -optional
 
 element create patch applied_to_version \
         -datatype text \
         -widget [ad_decode [info exists field_editable_p(applied_to_version)] 1 select inform] \
-        -label "Applied to Version" \
+        -label "[_ bug-tracker.Applied]" \
         -options [bug_tracker::version_get_options -include_undecided] \
         -optional
 
@@ -208,15 +208,15 @@ switch -- $mode {
         element create patch description  \
                 -datatype text \
                 -widget comment \
-                -label "Description" \
+                -label "[_ bug-tracker.Description]" \
                 -html { cols 60 rows 13 } \
                 -optional
         
         element create patch desc_format \
                 -datatype text \
                 -widget select \
-                -label "Description format" \
-                -options { { "Plain" plain } { "HTML" html } { "Preformatted" pre } }
+                -label "[_ bug-tracker.Description_1]" \
+	    -options { { "[_ bug-tracker.Plain]" plain } { "[_ bug-tracker.HTML]" html } { "[_ bug-tracker.Preformatted]" pre } }
 
     }
     default {
@@ -224,28 +224,28 @@ switch -- $mode {
         element create patch description \
                 -datatype text \
                 -widget inform \
-                -label "Description"
+                -label "[_ bug-tracker.Description]"
     }
 }
 
 # In accept mode - give the user the ability to select associated
 # bugs to be resolved
-if { [string equal $mode "accept"] } {
+if { [string equal $mode "[_ bug-tracker.accept]"] } {
 
     element create patch resolve_bugs \
             -datatype integer \
             -widget checkbox \
-            -label "Resolve Bugs" \
+            -label "[_ bug-tracker.Resolve_1]" \
             -options [bug_tracker::get_mapped_bugs -patch_number $patch_number -only_open_p 1] \
             -optional
 }
 
-if { [string equal $mode "edit"] } {
+if { [string equal $mode "[_ bug-tracker.edit]"] } {
     # Edit mode - display the file upload widget for patch content
     element create patch patch_file \
           -datatype file \
           -widget file \
-          -label "Patch file (leave blank to keep current file):" \
+          -label "[_ bug-tracker.Patch_2]" \
           -optional
 } 
 
@@ -254,15 +254,16 @@ element create patch mode \
         -widget hidden \
         -value $mode
 
-set page_title "Patch #$patch_number"
-set context [list [list "patch-list" "Patches"] $page_title]
+set page_title [_ bug-tracker.Patch_3]
+set Patches_name [bug_tracker::conn Patches]
+set context [list [list "patch-list" "$Patches_name"] $page_title]
 
 if { [form is_request patch] } {
     # The form was requested
 
     db_1row patch {} -column_array patch
-    set patch(generated_from_version_name) [ad_decode $patch(generated_from_version) "" "Unknown" [bug_tracker::version_get_name -version_id $patch(generated_from_version)]]
-    set patch(apply_to_version_name) [ad_decode $patch(apply_to_version) "" "Undecided" [bug_tracker::version_get_name -version_id $patch(apply_to_version)]]
+    set patch(generated_from_version_name) [ad_decode $patch(generated_from_version) "" "[_ bug-tracker.Unknown]" [bug_tracker::version_get_name -version_id $patch(generated_from_version)]]
+    set patch(apply_to_version_name) [ad_decode $patch(apply_to_version) "" "[_ bug-tracker.Undecided]" [bug_tracker::version_get_name -version_id $patch(apply_to_version)]]
     set patch(applied_to_version_name) [bug_tracker::version_get_name -version_id $patch(applied_to_version)]
 
     if {$user_id != 0} {
@@ -275,16 +276,16 @@ if { [form is_request patch] } {
     # - update the status (the new status will show up in the form)
     switch -- $mode {
         accept {
-            set patch(status) "accepted"
+            set patch(status) "[_ bug-tracker.accepted]"
         }
         refuse {
-            set patch(status) "refused"
+            set patch(status) "[_ bug-tracker.refused]"
         }
         delete {
-            set patch(status) "deleted"
+            set patch(status) "[_ bug-tracker.deleted]"
         }
         reopen {
-            set patch(status) "open"
+            set patch(status) "[_ bug-tracker.open]"
         }
     }
 
@@ -294,8 +295,10 @@ if { [form is_request patch] } {
             -value $patch(patch_number)
     element set_properties patch component_id \
             -value [ad_decode [info exists field_editable_p(component_id)] 1 $patch(component_id) $patch(component_name)]
-    if { [string equal $mode "view"] } {
-        set map_new_bug_link [ad_decode $write_or_submitter_p "1" "\[ <a href=\"map-patch-to-bugs?patch_number=$patch(patch_number)\">Map to bugs</a> \]" ""]
+    if { [string equal $mode "[_ bug-tracker.view]"] } {
+        set bugs_name [bug_tracker::conn bugs]
+	set map_to_bugs [_ bug-tracker.Map] 
+        set map_new_bug_link [ad_decode $write_or_submitter_p "1" "\[ <a href=\"map-patch-to-bugs?patch_number=$patch(patch_number)\">$map_to_bugs</a> \]" ""]
         element set_properties patch fixes_bugs \
             -value "[bug_tracker::get_bug_links -patch_id $patch(patch_id) -patch_number $patch(patch_number) -write_or_submitter_p $write_or_submitter_p] <br>$map_new_bug_link"
     }
@@ -317,7 +320,7 @@ if { [form is_request patch] } {
 
     set deleted_p [string equal $patch(status) deleted]
 
-    if { ( [string equal $patch(status) open] && ![string equal $mode "accept"]) || [string equal $patch(status) "refused"] } {
+    if { ( [string equal $patch(status) open] && ![string equal $mode [_ bug-tracker.accept]]) || [string equal $patch(status) [_ bug-tracker.refused]] } {
         element set_properties patch applied_to_version -widget hidden
     }
 
@@ -330,65 +333,73 @@ if { [form is_request patch] } {
         <blockquote>[bug_tracker::bug_convert_comment_to_html -comment $comment -format $comment_format]</blockquote>"
     }
 
-    if { [string equal $mode "view"] } {
+    if { [string equal $mode "[_ bug-tracker.view]"] } {
         element set_properties patch description -value $action_html
     } else {
+
+	set patch_pretty_name "$patch(now_pretty)"
+	set patch_action_pretty_mode [bug_tracker::patch_action_pretty $mode]
+	set bt_user_first_names [bug_tracker::conn user_first_names]
+	set bt_user_last_name [bug_tracker::conn user_last_name]
+
         element set_properties patch description \
                 -history $action_html \
-                -header "$patch(now_pretty) [bug_tracker::patch_action_pretty $mode] by [bug_tracker::conn user_first_names] [bug_tracker::conn user_last_name]" \
+                -header "[_ bug-tracker.%patch_pretty_name% %patch_action_pretty_mode%  by %bt_user_first_names% %bt_user_last_name%]" \
                 -value ""
     }    
     
     # Now that we have the patch summary we can make the page title more informative
-    set page_title "Patch #$patch_number: $patch(summary)"
+
+    set Patch_name [bug_tracker::conn Patch]
+    set page_title "[_ bug-tracker.Patch_4]"
 
     # Create the buttons
     # If the user has submitted the patch he gets full write access on the patch
     set user_is_submitter_p [expr $patch(submitter_user_id) == [ad_conn user_id]]
-    if { [string equal $mode "view"] } {
+    if { [string equal $mode "[_ bug-tracker.view]"] } {
         set button_form_export_vars [export_vars -form { patch_number }]
         multirow create button name label
 
         if { $write_p || $user_is_submitter_p } {
-            multirow append button "comment" "Comment"
-            multirow append button "edit" "Edit"
+            multirow append button "comment" "[_ bug-tracker.Comment]"
+            multirow append button "edit" "[_ bug-tracker.Edit]"
         }
 
         switch -- $patch(status) {
             open {
                 if { $write_p } {
-                    multirow append button "accept" "Accept"
-                    multirow append button "refuse" "Refuse"
+                    multirow append button "accept" "[_ bug-tracker.Accept]"
+                    multirow append button "refuse" "[_ bug-tracker.Refuse]"
                 }
 
                 # Only the submitter can cancel the patch
                 if { $user_is_submitter_p } {
-                    multirow append button "delete" "Delete"
+                    multirow append button "delete" "[_ bug-tracker.Delete]"
                 }
             }
             accepted {
                 if { $write_p } {
-                    multirow append button "reopen" "Reopen"
+                    multirow append button "reopen" "[_ bug-tracker.Reopen]"
                 }
             }
             refused {
                 if { $write_p } {
-                    multirow append button "reopen" "Reopen"    
+                    multirow append button "reopen" "[_ bug-tracker.Reopen]"    
                 }
             }
             deleted {
                 if { $write_p || $user_is_submitter_p } {
-                    multirow append button "reopen" "Reopen"
+                    multirow append button "reopen" "[_ bug-tracker.Reopen]"
                 }
             }
         }
     }    
 
     # Check that the user is permitted to change the patch
-    if { ![string equal $mode "view"] && !$write_p && !$user_is_submitter_p } {
+    if { ![string equal $mode "[_ bug-tracker.view]"] && !$write_p && !$user_is_submitter_p } {
         ns_log notice "$patch(submitter_user_id) doesn't have write on object $patch(patch_id)"
-        ad_return_forbidden "Permission Denied" "<blockquote>
-        You don't have permission to edit this patch.
+        ad_return_forbidden "[_ bug-tracker.Permission]" "<blockquote>
+        [_ bug-tracker.You_6]
         </blockquote>"
         ad_script_abort
     }    
@@ -415,15 +426,15 @@ if { [form is_valid patch] } {
     
     switch -- $mode {
         accept {
-            set status "accepted"
+            set status "[_ bug-tracker.accepted]"
             lappend update_exprs "status = :status"
         }
         refuse {
-            set status "refused"
+            set status "[_ bug-tracker.refused]"
             lappend update_exprs "status = :status"            
         }
         reopen {
-            set status "open"
+            set status "[_ bug-tracker.open]"
             lappend update_exprs "status = :status"
         }
         edit {
@@ -435,7 +446,7 @@ if { [form is_valid patch] } {
             } 
         }
         delete {
-            set status "deleted"
+            set status "[_ bug-tracker.deleted]"
             lappend update_exprs "status = :status"            
         }
     }
@@ -458,17 +469,16 @@ if { [form is_valid patch] } {
         set action $mode
         db_dml patch_action {}
 
-        if { [string equal $mode "accept"] } {
+        if { [string equal $mode "[_ bug-tracker.accept]"] } {
             # Resolve any bugs that the user selected
             set resolve_bugs [element get_values patch resolve_bugs]
 
             foreach bug_number $resolve_bugs {
 
-                set resolve_description "Fixed by <a href=\"patch?patch_number=$patch_number\">patch #$patch_number</a>"
-                
+                set resolve_description "[_ bug-tracker.Fixed_2]"                
                 set workflow_id [bug_tracker::bug::get_instance_workflow_id]
                 set bug_id [bug_tracker::get_bug_id -bug_number $bug_number -project_id $package_id]
-                set action_id [workflow::action::get_id -workflow_id $workflow_id -short_name "resolve"]
+                set action_id [workflow::action::get_id -workflow_id $workflow_id -short_name "[_ bug-tracker.resolve]"]
                 
                 bug_tracker::bug::edit \
                     -bug_id $bug_id \

@@ -16,7 +16,7 @@ set write_p [ad_permission_p $package_id write]
 set user_is_submitter_p [expr $user_id == [bug_tracker::get_patch_submitter -patch_number $patch_number]]
 
 if { ![expr $user_is_submitter_p || $write_p] } {            
-    ad_return_forbidden "Permission Denied" "You do not have permission to unmap a bug from this patch. Only the submitter of the patch and users with write permission on the Bug Tracker package instance (project) may do so."            
+    ad_return_forbidden "[_ bug-tracker.Permission]" "[_ bug-tracker.You_7]"            
     ad_script_abort
 }
 

@@ -10,7 +10,7 @@ ad_page_contract {
 
 set package_id [ad_conn package_id]
 
-set page_title "Edit Project Maintainer"
+set page_title [_ bug-tracker.Edit_3]
 
 set context [list $page_title]
 

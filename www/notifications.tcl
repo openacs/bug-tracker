@@ -4,7 +4,7 @@ ad_page_contract {
     bug_number:integer,optional
 }
 
-set page_title "Notifications"
+set page_title [_ bug-tracker.Notifications]
 set context [list $page_title]
 
 set workflow_id [bug_tracker::bug::get_instance_workflow_id]
@@ -25,6 +25,8 @@ set return_url [ad_return_url]
 
 multirow create notifications url label title subscribed_p
 
+set bugs_name [bug_tracker::conn bugs]
+
 foreach type { 
     workflow_assignee workflow_my_cases workflow
 } {
@@ -36,16 +38,16 @@ foreach type {
     if { ![empty_string_p $object_id] } {
         switch $type {
             workflow_assignee {
-                set pretty_name "all [bug_tracker::conn bugs] you're assigned to"
+                set pretty_name [_ bug-tracker.All_2]
             }
             workflow_my_cases {
-                set pretty_name "all [bug_tracker::conn bugs] you're participating in"
+                set pretty_name [_ bug-tracker.All_3]
             }
             workflow {
-                set pretty_name "all [bug_tracker::conn bugs] in this project"
+                set pretty_name [_ bug-tracker.All_4]
             }
             default {
-                error "Unknown type"
+                error "[_ bug-tracker.Unknown_1]"
             }
         }
 
@@ -75,7 +77,7 @@ foreach type {
             multirow append notifications \
                 $url \
                 [string totitle $pretty_name] \
-                [ad_decode $subscribed_p 1 "Unsubscribe from $pretty_name" "Subscribe to $pretty_name"] \
+                [ad_decode $subscribed_p 1 "[_ bug-tracker.Unsubscribe_1]" "[_ bug-tracker.Subscribe_1]"] \
                 $subscribed_p
         }
     }

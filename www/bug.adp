@@ -20,17 +20,17 @@
 
 <if @user_id@ eq 0>
   <p>
-    You're not logged in. For more options, <a href="@login_url@">log in now</a>.
+    #bug-tracker.Not_logged_in#
   </p>
 </if>
 
 <if @enabled_action_id@ nil>
   <div style="font-size: 75%;" align="right">
     <if @user_agent_p@ false>
-      (<a href="@show_user_agent_url@">show user agent</a>)
+      (<a href="@show_user_agent_url@">#bug-tracker.show_user_agent#</a>)
     </if>
     <else>
-      (<a href="@hide_user_agent_url@">hide user agent</a>)
+      (<a href="@hide_user_agent_url@">#bug-tracker.hide_user_agent#</a>)
     </else>
   </div>
 </if>

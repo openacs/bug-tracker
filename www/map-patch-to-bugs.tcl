@@ -32,7 +32,7 @@ set write_p [ad_permission_p $package_id write]
 set user_is_submitter_p [expr $user_id == [bug_tracker::get_patch_submitter -patch_number $patch_number]]
 
 if { ![expr $user_is_submitter_p || $write_p] } {            
-    ad_return_forbidden "Permission Denied" "You do not have permission to map this patch to a bug. Only the submitter of the patch and users with write permission on this Bug Tracker project (package instance) may do so."            
+    ad_return_forbidden "[_ bug-tracker.Permission]" "[_ bug-tracker.You_1]"            
     ad_script_abort
 }
 
@@ -51,7 +51,7 @@ if { [exists_and_not_null bug_number] } {
 }
 
 set patch_summary [db_string get_patch_summary {}]
-set page_title "Mapping Patch #$patch_number \"$patch_summary\" to a Bug"
+set page_title "[_ bug-tracker.Mapping]"
 set context [list "$page_title"]
 
 # Build the component filter
@@ -60,15 +60,19 @@ if { ![exists_and_not_null component_id] } {
 }
 set component_where_clause ""
 set component_filter ""
+
+set Component_name [bug_tracker::conn Component]
+set Components_name [bug_tracker::conn Components]
+
 if { ![empty_string_p $component_id] } {
     set component_name [bug_tracker::component_get_name -component_id $component_id]
     set component_filter_url "map-patch-to-bugs?[export_vars -url {patch_number component_id return_url offset show_only_open_p interval_size}]"
     if { $show_all_components_p } {
-        set component_filter "\[ <a href=\"$component_filter_url&show_all_components_p=0\">Only Component \"$component_name\"</a> | All Components \]"
+        set component_filter "\[ <a href=\"$component_filter_url&show_all_components_p=0\">[_ bug-tracker.Only]"</a> | [_ bug-tracker.All_1] \]"
     } else {
         set component_where_clause "\n     and bt_bugs.component_id = :component_id"
     
-        set component_filter "\[ Only Component \"$component_name\" | <a href=\"$component_filter_url&show_all_components_p=1\">All Components</a> \]"
+        set component_filter "\[ [_ bug-tracker.Only_1] | <a href=\"$component_filter_url&show_all_components_p=1\">[_ bug-tracker.All_1]</a> \]"
     }
 }
 
@@ -77,8 +81,8 @@ set workflow_id [bug_tracker::bug::get_instance_workflow_id]
 set initial_state_id [workflow::fsm::get_initial_state -workflow_id $workflow_id]
 
 set open_filter_url "map-patch-to-bugs?[export_vars -url {patch_number component_id return_url offset show_all_components_p interval_size}]"
-set only_open_label "Only Open Bugs"
-set any_status_label "Bugs of any Status"
+set only_open_label [_ bug-tracker.Only_2]
+set any_status_label [_ bug-tracker.Bugs]
 if { $show_only_open_p } {
     set open_where_clause "and cfsm.current_state = :initial_state_id"
     set open_filter "$only_open_label | <a href=\"$open_filter_url&show_only_open_p=0\">$any_status_label</a>"
