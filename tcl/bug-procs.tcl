@@ -22,10 +22,12 @@ namespace eval bug_tracker::bug::notification_info {}
 ad_proc -public bug_tracker::bug::cache_flush {
     -bug_id:required
 } {
-    Flush all list builder instances for the given bug-tracker
+    Flush all list builder instances and other appropriate things for the given bug-tracker
     package instance.
 } {
-    cache flush "bugs,project_id=[db_string get_project_id {}],*"
+    set project_id [db_string get_project_id {}]
+    cache flush "bugs,project_id=$project_id,*"
+    util_memoize_flush_regexp -log "^bug_tracker::.*_get_filter_data_not_cached -package_id $project_id"
 }
 
 ad_proc -public bug_tracker::bug::workflow_short_name {} {
@@ -750,7 +752,9 @@ ad_proc bug_tracker::bug::get_list {
         display_col component_name
     }
 
-    set state_values [db_list_of_lists select_states {}]
+    set state_values [bug_tracker::state_get_filter_data \
+                         -package_id $package_id \
+                         -workflow_id $workflow_id]
     set state_default_value [lindex [lindex $state_values 0] 1]
 
     set filters {
@@ -788,7 +792,9 @@ ad_proc bug_tracker::bug::get_list {
     foreach { parent_id parent_heading } [bug_tracker::category_types] {
         lappend elements category_$parent_id [list label [bug_tracker::category_heading -keyword_id $parent_id] display_col category_name_$parent_id]
 
-        set values [db_list_of_lists select_categories {}]
+        set values [bug_tracker::category_get_filter_data \
+                       -package_id $package_id \
+                       -parent_id $parent_id]
 
         set name category_$parent_id
         
@@ -810,7 +816,7 @@ ad_proc bug_tracker::bug::get_list {
     if { [bug_tracker::versions_p] } {
         lappend filters f_fix_for_version {
             label "Fix for version"
-            values {[db_list_of_lists select_fix_for_versions {}]}
+            values {[bug_tracker::version_get_filter_data -package_id $package_id]}
             where_clause { b.fix_for_version = :f_fix_for_version }
             null_where_clause { b.fix_for_version is null }
             null_label "Undecided"
@@ -821,7 +827,10 @@ ad_proc bug_tracker::bug::get_list {
         array unset action
         workflow::action::get -action_id $action_id -array action
 
-        set values [db_list_of_lists select_action_assignees {}]
+        set values [bug_tracker::assignee_get_filter_data \
+                       -package_id $package_id \
+                       -workflow_id $workflow_id \
+                       -action_id $action_id]
         
         lappend filters f_action_$action_id \
             [list \
@@ -836,7 +845,7 @@ ad_proc bug_tracker::bug::get_list {
 
     lappend filters f_component {
         label "Component"
-        values {[db_list_of_lists select_components {}]}
+        values {[bug_tracker::component_get_filter_data -package_id $package_id]}
         where_clause {b.component_id = :f_component}
     }
 

@@ -142,5 +142,48 @@
     </querytext>
   </fullquery>
 
+  <fullquery name="bug_tracker::category_get_filter_data_not_cached.select">
+    <querytext>
+        select kw.heading,
+               km.keyword_id,
+               count(b.bug_id)
+        from   cr_keywords kw join
+               cr_item_keyword_map km using (keyword_id) left outer join
+               bt_bugs b on (b.bug_id = km.item_id)
+        where  kw.parent_id = :parent_id
+        and    b.project_id = :package_id
+        group  by kw.heading, km.keyword_id
+        order  by kw.heading
+    </querytext>
+  </fullquery>
+
+  <fullquery name="bug_tracker::version_get_filter_data_not_cached.select">
+    <querytext>
+        select v.version_name,
+               b.fix_for_version,
+               count(b.bug_id) as num_bugs
+        from   bt_bugs b left outer join 
+               bt_versions v on (v.version_id = b.fix_for_version)
+        where  b.project_id = :package_id
+        group  by b.fix_for_version, v.anticipated_freeze_date, v.version_name
+        order  by v.anticipated_freeze_date, v.version_name
+    </querytext>
+  </fullquery>
+
+  <fullquery name="bug_tracker::assignee_get_filter_data_not_cached.select">
+    <querytext>
+      select p.first_names || ' ' || p.last_name as name,
+             crum.user_id,
+             count(b.bug_id) as num_bugs
+      from   bt_bugs b,
+             workflow_case_assigned_actions aa left outer join
+             workflow_case_role_user_map crum on (crum.case_id = aa.case_id and crum.role_id = aa.role_id) left outer join
+             persons p on (p.person_id = crum.user_id)
+      where  aa.workflow_id = :workflow_id
+      and    aa.action_id = :action_id
+      and    aa.object_id = b.bug_id
+      group  by p.first_names, p.last_name, crum.user_id
+    </querytext>
+  </fullquery>
 
 </queryset>
