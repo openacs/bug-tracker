@@ -56,6 +56,10 @@ as
         bug_id          in integer
     );
 
+    function name (
+        bug_id        in integer
+    ) return varchar2;
+
 end bt_bug;
 /
 show errors
@@ -428,6 +432,20 @@ as
         
         return;
     end delete;
+
+    function name (
+        bug_id         in integer
+    ) return varchar2
+    is
+        v_name          bt_bugs.summary%TYPE;
+    begin
+        select summary
+        into   v_name
+        from   bt_bugs
+        where  bug_id = name.bug_id;
+
+        return v_name;
+    end name;
 
 end bt_bug;
 /
