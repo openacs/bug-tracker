@@ -522,7 +522,8 @@ if { [form is_valid bug] } {
         # No write permission, is this the submitter?
         db_1row submitter { 
             select o.creation_user as submitter_user_id,
-                   o.object_id
+                   b.bug_id,
+                   b.assignee
             from   bt_bugs b,
                    acs_objects o
             where  o.object_id = b.bug_id
@@ -531,11 +532,17 @@ if { [form is_valid bug] } {
         } -column_array bug
     
         # If the user has submitted the bug he gets full write access on the bug
-        set write_p [expr $write_p || ($bug(submitter_user_id) == [ad_conn user_id])]
+        if { [info exists bug(submitter_user_id)] && ($bug(submitter_user_id) == [ad_conn user_id]) } { 
+            set write_p 1
+        }
+        
+        if { [info exists bug(assignee)] && ($bug(assignee) == [ad_conn user_id]) } { 
+            set write_p 1
+        }
     }
 
     if { !$write_p } {
-        ns_log notice "$bug(submitter_user_id) doesn't have write on object $bug(object_id)"
+        ns_log notice "$bug(submitter_user_id) doesn't have write on object $bug(bug_id)"
         ad_return_forbidden \
                 "Security Violation" \
                 "<blockquote>
