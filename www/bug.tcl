@@ -13,6 +13,7 @@ ad_page_contract {
     reopen:optional
     cancel:optional
     close:optional
+    {user_agent_p:boolean 0}
 }
 
 set return_url "bug?[export_vars -url { bug_number }]"
@@ -151,10 +152,12 @@ element create bug found_in_version \
         -options [bug_tracker::version_get_options -include_unknown] \
         -optional
 
-element create bug user_agent \
-        -datatype text \
-        -widget inform \
-        -label "User Agent"
+if { $user_agent_p } {
+    element create bug user_agent \
+            -datatype text \
+            -widget inform \
+            -label "User Agent"
+}
 
 element create bug assignee \
         -datatype integer \
@@ -214,6 +217,9 @@ element create bug mode \
 
 # If nothing else ...
 set page_title "Bug #$bug_number"
+
+set show_user_agent_url "bug?[export_vars { bug_number { user_agent_p 1 }}]"
+set hide_user_agent_url "bug?[export_vars { bug_number }]"
 
 if { [form is_request bug] } {
     
@@ -307,8 +313,10 @@ if { [form is_request bug] } {
             -value [ad_decode [info exists field_editable_p(priority)] 1 $bug(priority) $bug(priority_pretty)]
     element set_properties bug found_in_version \
             -value [ad_decode [info exists field_editable_p(found_in_version)] 1 $bug(found_in_version) $bug(found_in_version_name)]
-    element set_properties bug user_agent \
-            -value $bug(user_agent)
+    if { $user_agent_p } {
+        element set_properties bug user_agent \
+                -value $bug(user_agent)
+    }
     element set_properties bug fix_for_version \
             -value [ad_decode [info exists field_editable_p(fix_for_version)] 1 $bug(fix_for_version) $bug(fix_for_version_name)]
     element set_properties bug fixed_in_version \
