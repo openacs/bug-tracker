@@ -553,7 +553,7 @@ namespace eval bug_tracker {
         set sql {
             select distinct q.*
             from (
-                select u.first_names || ' ' || u.last_name as name, u.user_id
+                select u.first_names || ' ' || u.last_name || ' (' || u.email || ')'  as name, u.user_id
                 from   bt_bugs b, cc_users u
                 where  b.project_id = :package_id
                 and    u.user_id = b.assignee
