@@ -265,6 +265,11 @@ if { [form is_request patch] } {
     set patch(apply_to_version_name) [ad_decode $patch(apply_to_version) "" "Undecided" [bug_tracker::version_get_name -version_id $patch(apply_to_version)]]
     set patch(applied_to_version_name) [bug_tracker::version_get_name -version_id $patch(applied_to_version)]
 
+    if {$user_id != 0} {
+	set submitter_email_display "(<a href=\"mailto:$patch(submitter_email)\">$patch(submitter_email)</a>)"
+    } else {
+	set submitter_email_display ""
+    }
 
     # When the user is taking an action that should change the status of the patch
     # - update the status (the new status will show up in the form)
@@ -299,8 +304,7 @@ if { [form is_request patch] } {
     element set_properties patch submitter \
             -value "
     [acs_community_member_link -user_id $patch(submitter_user_id) \
-            -label "$patch(submitter_first_names) $patch(submitter_last_name)"]
-    (<a href=\"mailto:$patch(submitter_email)\">$patch(submitter_email)</a>)"
+            -label "$patch(submitter_first_names) $patch(submitter_last_name)"] $submitter_email_display"
 
     element set_properties patch status \
             -value [ad_decode [info exists field_editable_p(status)] 1 $patch(status) [bug_tracker::patch_status_pretty $patch(status)]]
