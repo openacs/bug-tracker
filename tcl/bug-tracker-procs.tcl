@@ -478,10 +478,25 @@ namespace eval bug_tracker {
     #####
     
     ad_proc users_get_options {
+        -package_id
         -include_unassigned:boolean
     } {
-        set users_list [db_list_of_lists users \
-                { select first_names || ' ' || last_name, user_id from cc_users order by first_names, last_name }]
+        if { ![info exists package_id] } {
+            set package_id [ad_conn package_id]
+        }
+
+        # Lars:
+        # This is using acs_permission__permission_p in the where clause of a query
+        # This is a no-no, but I don't know what else to do here
+        set sql {
+            select first_names || ' ' || last_name, 
+                   user_id 
+            from   cc_users 
+            where  acs_permission__permission_p(:package_id, user_id, 'write') = 't'
+            order  by first_names, last_name
+        }
+
+        set users_list [db_list_of_lists users $sql]
     
         if { $include_unassigned_p } {
             set users_list [concat { { "Unassigned" "" } } $users_list]
