@@ -1,7 +1,5 @@
 /* Delete all bugs */
 
-drop function inline_0 ();
-
 create function inline_0 ()
 returns integer as '
 declare
