@@ -16,7 +16,7 @@ if { [exists_and_not_null cancel] } {
     ad_script_abort
 }
 
-set project_name [bt_conn project_name]
+set project_name [bug_tracker::conn project_name]
 set package_id [ad_conn package_id]
 set package_key [ad_conn package_key]
 
@@ -41,7 +41,7 @@ template::element create project_info description \
 
 if { [template::form is_request project_info] } {
     template::element set_properties project_info name \
-            -value [bt_conn project_name]
+            -value [bug_tracker::conn project_name]
     
     template::element set_properties project_info description \
             -value [db_string project_description { select description from bt_projects where project_id = :package_id }]
@@ -55,7 +55,7 @@ if { [template::form is_valid project_info] } {
             where  project_id = :package_id
         }
 
-        bt_set_project_name $name
+        bug_tracker::set_project_name $name
     }
     
     ad_returnredirect $return_url

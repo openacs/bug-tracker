@@ -16,7 +16,7 @@ ad_page_contract {
 
 ad_require_permission [ad_conn package_id] read
 
-set project_name [bt_conn project_name]
+set project_name [bug_tracker::conn project_name]
 set package_id [ad_conn package_id]
 set package_key [ad_conn package_key]
 
@@ -56,7 +56,7 @@ if { [info exists status] } {
 
 if { [info exists bug_type] } {
     lappend where_clauses "b.bug_type = :bug_type"
-    append human_readable_filter " of type [bt_bug_type_pretty $bug_type]"
+    append human_readable_filter " of type [bug_tracker::bug_type_pretty $bug_type]"
 }
 
 if { [info exists assignee] } {
@@ -157,16 +157,16 @@ db_multirow -extend { description_short submitter_url status_pretty resolution_p
     [ad_decode $where_clauses "" "" "and [join $where_clauses " and "]"]
     order  by b.bug_number desc
 " {
-    set desc_as_text [bt_bug_convert_comment_to_text -comment $description -format $desc_format]
+    set desc_as_text [bug_tracker::bug_convert_comment_to_text -comment $description -format $desc_format]
     if { [string length $desc_as_text] > $truncate_len } {
         set description_short "[util_close_html_tags [string range $desc_as_text 0 $truncate_len]]..."
     } else {
         set description_short [util_close_html_tags $desc_as_text]
     }
     set submitter_url [acs_community_member_url -user_id $submitter_user_id]
-    set status_pretty [bt_status_pretty $status]
-    set resolution_pretty [bt_resolution_pretty $resolution]
-    set bug_type_pretty [bt_bug_type_pretty $bug_type]
+    set status_pretty [bug_tracker::status_pretty $status]
+    set resolution_pretty [bug_tracker::resolution_pretty $resolution]
+    set bug_type_pretty [bug_tracker::bug_type_pretty $bug_type]
     set original_estimate_pretty [ad_decode $original_estimate_minutes "" "" 0 "" "$original_estimate_minutes minutes"]
     set latest_estimate_pretty [ad_decode $latest_estimate_minutes "" "" 0 "" "$latest_estimate_minutes minutes"]
     set elapsed_time_pretty [ad_decode $elapsed_time_minutes "" "" 0 "" "$elapsed_time_minutes minutes"]
@@ -182,7 +182,7 @@ db_multirow -extend { name name_url } by_status by_status {
     group  by unique_id
     order  by bt_bug__status_sort_order(b.status)
 } {
-    set name "[bt_status_pretty $unique_id] Bugs"
+    set name "[bug_tracker::status_pretty $unique_id] Bugs"
     set name_url "?[export_vars -url { { status $unique_id } }]"
 }
 
@@ -196,7 +196,7 @@ db_multirow -extend { name name_url stat_name } stats stats {
     order  by bt_bug__bug_type_sort_order(b.bug_type) 
 } {
     set stat_name "Type of bug"
-    set name [bt_bug_type_pretty $unique_id]
+    set name [bug_tracker::bug_type_pretty $unique_id]
     set name_url "?[export_vars -url { { bug_type $unique_id } }]"
 }
 

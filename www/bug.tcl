@@ -67,7 +67,7 @@ if { ![string equal $mode "view"] } {
 
 set write_p [ad_permission_p [ad_conn package_id] write]
 
-set project_name [bt_conn project_name]
+set project_name [bug_tracker::conn project_name]
 set package_id [ad_conn package_id]
 set package_key [ad_conn package_key]
 
@@ -97,13 +97,13 @@ element create bug component_id \
         -datatype integer \
         -widget [ad_decode [info exists field_editable_p(component_id)] 1 select inform] \
         -label "Component" \
-        -options [bt_components_get_options]
+        -options [bug_tracker::components_get_options]
 
 element create bug bug_type \
         -datatype text \
         -widget [ad_decode [info exists field_editable_p(bug_type)] 1 select inform] \
         -label "Type of bug" \
-        -options [bt_bug_type_get_options] \
+        -options [bug_tracker::bug_type_get_options] \
         -optional
 
 element create bug summary  \
@@ -120,35 +120,35 @@ element create bug submitter \
 element create bug status \
         -widget [ad_decode [info exists field_editable_p(status)] 1 select inform] \
         -datatype text \
-        -options [bt_status_get_options] \
+        -options [bug_tracker::status_get_options] \
         -label "Status"
 
 element create bug resolution \
         -widget [ad_decode [info exists field_editable_p(resolution)] 1 select inform] \
         -datatype text \
         -label "Resolution" \
-        -options [ad_decode $mode resolve [bt_resolution_get_options] [concat {{"" ""}} [bt_resolution_get_options]]] \
+        -options [ad_decode $mode resolve [bug_tracker::resolution_get_options] [concat {{"" ""}} [bug_tracker::resolution_get_options]]] \
         -optional
 
 element create bug severity \
         -datatype integer \
         -widget [ad_decode [info exists field_editable_p(severity)] 1 select inform] \
         -label "Severity" \
-        -options [bt_severity_codes_get_options] \
+        -options [bug_tracker::severity_codes_get_options] \
         -optional
 
 element create bug priority \
         -datatype integer \
         -widget [ad_decode [info exists field_editable_p(priority)] 1 select inform] \
         -label "Priority" \
-        -options [bt_priority_codes_get_options] \
+        -options [bug_tracker::priority_codes_get_options] \
         -optional
 
 element create bug found_in_version \
         -datatype text \
         -widget [ad_decode [info exists field_editable_p(found_in_version)] 1 select inform] \
         -label "Found in Version" \
-        -options [bt_version_get_options -include_unknown] \
+        -options [bug_tracker::version_get_options -include_unknown] \
         -optional
 
 element create bug user_agent \
@@ -160,21 +160,21 @@ element create bug assignee \
         -datatype integer \
         -widget [ad_decode [info exists field_editable_p(assignee)] 1 select inform] \
         -label "Assigned to" \
-        -options [bt_users_get_options -include_unassigned] \
+        -options [bug_tracker::users_get_options -include_unassigned] \
         -optional
 
 element create bug fix_for_version \
         -datatype text \
         -widget [ad_decode [info exists field_editable_p(fix_for_version)] 1 select inform] \
         -label "Fix for Version" \
-        -options [bt_version_get_options -include_undecided] \
+        -options [bug_tracker::version_get_options -include_undecided] \
         -optional
 
 element create bug fixed_in_version \
         -datatype text \
         -widget [ad_decode [info exists field_editable_p(fixed_in_version)] 1 select inform] \
         -label "Fixed in Version" \
-        -options [bt_version_get_options -include_undecided] \
+        -options [bug_tracker::version_get_options -include_undecided] \
         -optional
 
 switch -- $mode {
@@ -289,7 +289,7 @@ if { [form is_request bug] } {
     element set_properties bug component_id \
         -value [ad_decode [info exists field_editable_p(component_id)] 1 $bug(component_id) $bug(component_name)]
     element set_properties bug bug_type \
-            -value [ad_decode [info exists field_editable_p(bug_type)] 1 $bug(bug_type) [bt_bug_type_pretty $bug(bug_type)]]
+            -value [ad_decode [info exists field_editable_p(bug_type)] 1 $bug(bug_type) [bug_tracker::bug_type_pretty $bug(bug_type)]]
     element set_properties bug summary \
             -value [ad_decode [info exists field_editable_p(summary)] 1 $bug(summary) "<b>$bug(summary)</b>"]
     element set_properties bug submitter \
@@ -298,9 +298,9 @@ if { [form is_request bug] } {
             -label "$bug(submitter_first_names) $bug(submitter_last_name)"]
     (<a href=\"mailto:$bug(submitter_email)\">$bug(submitter_email)</a>)"
     element set_properties bug status \
-            -value [ad_decode [info exists field_editable_p(status)] 1 $bug(status) [bt_status_pretty $bug(status)]]
+            -value [ad_decode [info exists field_editable_p(status)] 1 $bug(status) [bug_tracker::status_pretty $bug(status)]]
     element set_properties bug resolution \
-            -value [ad_decode [info exists field_editable_p(resolution)] 1 $bug(resolution) [bt_resolution_pretty $bug(resolution)]]
+            -value [ad_decode [info exists field_editable_p(resolution)] 1 $bug(resolution) [bug_tracker::resolution_pretty $bug(resolution)]]
     element set_properties bug severity \
             -value [ad_decode [info exists field_editable_p(severity)] 1 $bug(severity) $bug(severity_pretty)]
     element set_properties bug priority \
@@ -350,8 +350,8 @@ if { [form is_request bug] } {
         and    actor.user_id = ba.actor
         order  by action_date
     } {
-        append action_html "<b>$action_date_pretty [bt_bug_action_pretty $action] by $actor_first_names $actor_last_name</b>
-        <blockquote>[bt_bug_convert_comment_to_html -comment $comment -format $comment_format]</blockquote>"
+        append action_html "<b>$action_date_pretty [bug_tracker::bug_action_pretty $action] by $actor_first_names $actor_last_name</b>
+        <blockquote>[bug_tracker::bug_convert_comment_to_html -comment $comment -format $comment_format]</blockquote>"
     }
 
     if { [string equal $mode "view"] } {
@@ -359,7 +359,7 @@ if { [form is_request bug] } {
     } else {
         element set_properties bug description \
                 -history $action_html \
-                -header "$bug(now_pretty) [bt_bug_action_pretty $mode] by [bt_conn user_first_names] [bt_conn user_last_name]" \
+                -header "$bug(now_pretty) [bug_tracker::bug_action_pretty $mode] by [bug_tracker::conn user_first_names] [bug_tracker::conn user_last_name]" \
                 -value ""
     }
 
@@ -438,7 +438,7 @@ if { [form is_valid bug] } {
         }
     }
 
-    bt_bug_notify $bug_id $mode $description $desc_format
+    bug_tracker::bug_notify $bug_id $mode $description $desc_format
 
     ad_returnredirect $return_url
     ad_script_abort

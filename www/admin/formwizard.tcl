@@ -192,7 +192,7 @@ if { \[exists_and_not_null cancel\] } {
 }
 
 # Set some common bug-tracker variables
-set project_name \[bt_conn project_name\]
+set project_name \[bug_tracker::conn project_name\]
 set package_id \[ad_conn package_id\]
 set package_key \[ad_conn package_key\]
 

@@ -22,7 +22,7 @@ ad_maybe_redirect_for_registration
 ad_require_permission [ad_conn package_id] read
 
 # Set some common bug-tracker variables
-set project_name [bt_conn project_name]
+set project_name [bug_tracker::conn project_name]
 set package_id [ad_conn package_id]
 set package_key [ad_conn package_key]
 

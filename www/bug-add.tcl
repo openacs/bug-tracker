@@ -21,7 +21,7 @@ ad_require_permission [ad_conn package_id] create
 ad_maybe_redirect_for_registration
 
 # Set some common bug-tracker variables
-set project_name [bt_conn project_name]
+set project_name [bug_tracker::conn project_name]
 set package_id [ad_conn package_id]
 set package_key [ad_conn package_key]
 
@@ -44,13 +44,13 @@ element create bug component_id \
         -datatype integer \
         -widget select \
         -label "Component" \
-        -options [bt_components_get_options]
+        -options [bug_tracker::components_get_options]
 
 element create bug bug_type \
         -datatype text \
         -widget select \
         -label "Type of bug" \
-        -options [bt_bug_type_get_options] \
+        -options [bug_tracker::bug_type_get_options] \
         -optional
 
 element create bug summary  \
@@ -62,21 +62,21 @@ element create bug severity \
         -datatype integer \
         -widget select \
         -label "Severity" \
-        -options [bt_severity_codes_get_options] \
+        -options [bug_tracker::severity_codes_get_options] \
         -optional
 
 element create bug priority \
         -datatype integer \
         -widget select \
         -label "Priority" \
-        -options [bt_priority_codes_get_options] \
+        -options [bug_tracker::priority_codes_get_options] \
         -optional
 
 element create bug found_in_version \
         -datatype integer \
         -widget select \
         -label "Version" \
-        -options [bt_version_get_options -include_unknown] \
+        -options [bug_tracker::version_get_options -include_unknown] \
         -optional
 
 element create bug description  \
@@ -105,8 +105,8 @@ if { [form is_request bug] } {
     element set_properties bug found_in_version \
             -value [db_string user_version { select user_version from bt_user_prefs where user_id = :user_id and project_id = :package_id }]
     
-    element set_properties bug severity -value [bt_severity_get_default]
-    element set_properties bug priority -value [bt_priority_get_default]
+    element set_properties bug severity -value [bug_tracker::severity_get_default]
+    element set_properties bug priority -value [bug_tracker::priority_get_default]
 
     element set_properties bug desc_format -value "plain"
 
@@ -150,7 +150,7 @@ if { [form is_valid bug] } {
 
     }
     
-    bt_bug_notify $bug_id "open" $description $desc_format
+    bug_tracker::bug_notify $bug_id "open" $description $desc_format
 
     ad_returnredirect $return_url
     ad_script_abort
