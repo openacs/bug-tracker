@@ -6,9 +6,8 @@
 <if @action_id@ nil>
   <div style="float: right;">
     <multiple name="navlinks">
-      <if @navlinks.url@ not nil><a href="@navlinks.url@">@navlinks.label;noquote@</a></if>
-      <else>@navlinks.label;noquote@</else>
-      <if @navlinks.rownum@ lt @navlinks:rowcount@>&nbsp;&nbsp;&nbsp;</if>
+      <if @navlinks.url@ not nil><a href="@navlinks.url@"><img src="@navlinks.img@" width="16" height="16" border="0" alt="@navlinks.alt@"></a></if>
+       @navlinks.label@
    </multiple>
   </div>
 </if>

@@ -365,6 +365,8 @@ if { ![form is_valid bug] } {
         set filter_bug_numbers [bug_tracker::bug::get_bug_numbers]
         set filter_bug_index [lsearch -exact $filter_bug_numbers $bug_number]
 
+        set first_url {}
+        set last_url {}
         set prev_url {}
         set next_url {}
         
@@ -379,27 +381,47 @@ if { ![form is_valid bug] } {
         set filter_bug_index [lsearch -exact $filter_bug_numbers $bug_number]
 
         if { $filter_bug_index > 0 } {
+            set first_bug_number [lindex $filter_bug_numbers 0]
+            set first_url [export_vars -base bug -entire_form -override { { bug_number $first_bug_number } }]
             set prev_bug_number [lindex $filter_bug_numbers [expr $filter_bug_index -1]]
             set prev_url [export_vars -base bug -entire_form -override { { bug_number $prev_bug_number } }]
         }
         if { $filter_bug_index < [expr [llength $filter_bug_numbers]-1] } {
             set next_bug_number [lindex $filter_bug_numbers [expr $filter_bug_index +1]]
             set next_url [export_vars -base bug -entire_form -override { { bug_number $next_bug_number } }]
+            set last_bug_number [lindex $filter_bug_numbers end]
+            set last_url [export_vars -base bug -entire_form -override { { bug_number $last_bug_number } }]
         }
     
-        multirow create navlinks url label
+        multirow create navlinks url img alt label 
         
         if { $filter_bug_index != -1 } {
             
             multirow append navlinks \
-                $prev_url \
-                {<img src="/resources/acs-subsite/stock_left-16.png" width="16" height="16" border="0" alt="Previous">}
+                $first_url \
+                "/resources/acs-subsite/stock_first-16.png" \
+                "First"
             
-            multirow append navlinks "" "[expr $filter_bug_index+1] of [llength $filter_bug_numbers]"
+            multirow append navlinks \
+                $prev_url \
+                "/resources/acs-subsite/stock_left-16.png" \
+                "Previous"
+            
+            multirow append navlinks \
+                {} \
+                {} \
+                {} \
+                "[expr $filter_bug_index+1] of [llength $filter_bug_numbers]"
             
             multirow append navlinks \
                 $next_url \
-                {<img src="/resources/acs-subsite/stock_right-16.png" width="16" height="16" border="0" alt="Previous">}
+                "/resources/acs-subsite/stock_right-16.png" \
+                "Next"
+
+            multirow append navlinks \
+                $last_url \
+                "/resources/acs-subsite/stock_last-16.png" \
+                Last
         }
     }  
 }
