@@ -11,8 +11,19 @@ set package_id [ad_conn package_id]
 set package_url [ad_conn package_url]
 set component_id [bug_tracker::conn component_id]
 
-set admin_p [permission::permission_p -object_id $package_id -privilege admin]
-set create_p [expr { [ad_conn user_id] == 0 || [permission::permission_p -object_id [ad_conn package_id] -privilege create] }]
+set admin_p [permission::permission_p \
+                 -party_id [ad_conn untrusted_user_id] \
+                 -object_id $package_id \
+                 -privilege admin]
+
+if { [ad_conn untrusted_user_id] == 0 } { 
+    set create_p 1
+} else {
+    set create_p [permission::permission_p \
+                      -party_id [ad_conn untrusted_user_id] \
+                      -object_id [ad_conn package_id] \
+                      -privilege create]
+}
 
 bug_tracker::get_pretty_names -array pretty_names
 
@@ -45,7 +56,7 @@ if { $create_p } {
     multirow append links "New [bug_tracker::conn Bug]" "${url_prefix}bug-add"
 }
 
-if { [ad_conn user_id] != 0 } {
+if { [ad_conn untrusted_user_id] != 0 } {
     multirow append links "My [bug_tracker::conn Bugs]" "${url_prefix}.?[export_vars -url { { filter.assignee {[ad_conn user_id]} } }]"
 }
 

@@ -332,8 +332,8 @@ ad_proc -private bug_tracker::bug::workflow_create {} {
                         workflow.Role_DefaultAssignees_CreationUser
                     }
                 }
-                assignee {
-                    pretty_name "Assignee"
+                resolver {
+                    pretty_name "Resolver"
                     callbacks {
                         bug-tracker.ComponentMaintainer
                         bug-tracker.ProjectMaintainer
@@ -364,21 +364,21 @@ ad_proc -private bug_tracker::bug::workflow_create {} {
                 comment {
                     pretty_name "Comment"
                     pretty_past_tense "Commented"
-                    allowed_roles { submitter assignee }
+                    allowed_roles { submitter resolver }
                     privileges { read write }
                     always_enabled_p t
                 }
                 edit {
                     pretty_name "Edit"
                     pretty_past_tense "Edited"
-                    allowed_roles { submitter assignee }
+                    allowed_roles { submitter resolver }
                     privileges { write }
                     always_enabled_p t
                     edit_fields { 
                         component_id 
                         summary 
                         found_in_version
-                        role_assignee
+                        role_resolver
                         fix_for_version
                         resolution 
                         fixed_in_version 
@@ -387,16 +387,16 @@ ad_proc -private bug_tracker::bug::workflow_create {} {
                 reassign {
                     pretty_name "Reassign"
                     pretty_past_tense "Reassigned"
-                    allowed_role { submitter assignee }
+                    allowed_role { submitter resolver }
                     privileges { write }
                     enabled_states { resolved }
                     assigned_states { open }
-                    edit_fields { role_assignee }
+                    edit_fields { role_resolver }
                 }
                 resolve {
                     pretty_name "Resolve"
                     pretty_past_tense "Resolved"
-                    assigned_role "assignee"
+                    assigned_role "resolver"
                     enabled_states { resolved }
                     assigned_states { open }
                     new_state "resolved"
