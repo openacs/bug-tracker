@@ -37,8 +37,11 @@ ad_proc bug_tracker::conn { args } {
             } else {
                 switch -- $var {
                     bug - bugs - Bug - Bugs - 
-                    component - components - Component - Components {
-                        get_pretty_names -array bt_conn
+                    component - components - Component - Components -
+                    patch - patches - Patch - Patches {
+                        if { ![info exists bt_conn($var)] } {
+                            get_pretty_names -array bt_conn
+                        }
                         return $bt_conn($var)
                     }
                     project_name - project_description - 
@@ -85,15 +88,20 @@ ad_proc bug_tracker::get_pretty_names {
 } {
     upvar $array row
 
-    set row(bug) [parameter::get -parameter "TicketPrettyName" -default "bug"]
-    set row(bugs) [parameter::get -parameter "TicketPrettyPlural" -default "bugs"]
+    set row(bug) [lang::util::localize [parameter::get -parameter "TicketPrettyName" -default "bug"]]
+    set row(bugs) [lang::util::localize [parameter::get -parameter "TicketPrettyPlural" -default "bugs"]]
     set row(Bug) [string totitle $row(bug)]
     set row(Bugs) [string totitle $row(bugs)]
 
-    set row(component) [parameter::get -parameter "ComponentPrettyName" -default "component"]
-    set row(components) [parameter::get -parameter "ComponentPrettyPlural" -default "components"]
+    set row(component) [lang::util::localize [parameter::get -parameter "ComponentPrettyName" -default "component"]]
+    set row(components) [lang::util::localize [parameter::get -parameter "ComponentPrettyPlural" -default "components"]]
     set row(Component) [string totitle $row(component)]
     set row(Components) [string totitle $row(components)]
+
+    set row(patch) [lang::util::localize [parameter::get -parameter "PatchPrettyName" -default "patch"]]
+    set row(patches) [lang::util::localize [parameter::get -parameter "PatchPrettyPlural" -default "patches"]]
+    set row(Patch) [string totitle $row(patch)]
+    set row(Patches) [string totitle $row(patches)]
 }
 
 ad_proc bug_tracker::get_bug_id {
