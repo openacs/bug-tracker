@@ -21,26 +21,48 @@ ad_proc -private bug_tracker::search::bug::datasource { bug_id } {
     @author Jeff Davis davis@xarg.net
 } {
     bug_tracker::bug::get -bug_id $bug_id -array row
+
     set case_id [workflow::case::get_id \
                      -object_id $bug_id \
                      -workflow_short_name [bug_tracker::bug::workflow_short_name]]
-    set comments [workflow::case::get_activity_text -case_id $case_id]
+
+    workflow::case::get -case_id $case_id -array case
+
+    template::multirow -local create roles role_pretty email user_id user_name user_url
+    foreach role_id [workflow::get_roles -workflow_id $case(workflow_id)] {
+        workflow::role::get -role_id $role_id -array role 
+        foreach assignee [workflow::case::role::get_assignees -case_id $case_id -role_id $role_id] {
+            array set ass $assignee
+            template::multirow -local append roles \
+                $role(pretty_name) $ass(email) $ass(party_id) $ass(name) \
+                "[ad_url][acs_community_member_url -user_id $ass(party_id)]"
+            array unset ass
+        }
+        array unset role
+    }
+
+    set comments [workflow::case::get_activity_html -case_id $case_id]
+
     set title "Bug $row(bug_number_display) - $row(summary) \[$row(component_name)\]"
-    set content [lang::util::localize "Bug $row(bug_number_display) - $row(summary) \[$row(component_name)\]
-Created: $row(creation_date_pretty)
-Fix for: $row(fix_for_version_name)
-Fixed in: $row(fixed_in_version_name) $row(fixed_in_version)
-Resolution: $row(resolution)
-Found in: $row(found_in_version_name)
-State: $row(pretty_state)
-User agent: $row(user_agent)\n\n$comments"]
+    set base [apm_package_url_from_id $row(project_id)]
+    set full "[ad_url]$base"
+
+    set body [template::adp_include /packages/bug-tracker/lib/one-bug [list &bug "row" & roles base $full & comments style feed]]
 
     return [list object_id $bug_id \
                 title $title \
-                content $content \
+                content $body \
                 keywords $row(component_name) \
                 storage_type text \
-                mime text/plain ]
+                mime text/plain \
+                syndication [list link "${full}bug?bug_number=$row(bug_number)" \
+                                 description $title \
+                                 author XXX \
+                                 category bugs \
+                                 guid "[ad_url]/o/$bug_id" \
+                                 pubDate "2004-04-20 12:01:34" \
+                                 ] \
+                ]
 }
 
 ad_proc -private bug_tracker::search::bug::url { bug_id } {

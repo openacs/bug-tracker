@@ -318,8 +318,8 @@ if { ![form is_valid bug] } {
 
         # check that the element exists
         if { [info exists bug:$element] && [info exists bug($element)] } {
-            if { [form is_request bug] \
-                     || [string equal [element get_property bug $element mode] display] } { 
+            if {[form is_request bug] 
+                || [string equal [element get_property bug $element mode] display] } { 
                 if { [string first "#" $bug($element)] == 0 } {
                     element set_value bug $element [lang::util::localize $bug($element)]
                 } else {
