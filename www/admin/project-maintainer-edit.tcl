@@ -5,14 +5,7 @@ ad_page_contract {
     @creation-date 2002-03-26
     @cvs-id $Id$
 } {
-    cancel:optional
-    maintainer:integer,optional
-    {return_url ""}
-}
-
-if { [exists_and_not_null cancel] } {
-    ad_returnredirect $return_url
-    ad_script_abort
+    {return_url "."}
 }
 
 set project_name [bug_tracker::conn project_name]
@@ -23,13 +16,14 @@ set page_title "Edit Project Maintainer"
 
 set context_bar [ad_context_bar $page_title]
 
-form create project_maintainer
+form create project_maintainer -cancel_url $return_url
 
 element create project_maintainer return_url -datatype text -widget hidden -value $return_url
 
 element create project_maintainer maintainer \
         -datatype search \
         -widget search \
+        -result_datatype integer \
         -label "Project Maintainer" \
         -options [bug_tracker::users_get_options] \
         -optional \
@@ -46,6 +40,8 @@ if { [form is_request project_maintainer] } {
 }
 
 if { [form is_valid project_maintainer] } {
+    form get_values project_maintainer maintainer
+    
     db_dml project_maintainer_update {
         update bt_projects
         set    maintainer = :maintainer

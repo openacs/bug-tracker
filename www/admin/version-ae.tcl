@@ -5,13 +5,7 @@ ad_page_contract {
     @cvs-id $Id$
 } {
     {version_id ""}
-    {return_url ""}
-    cancel:optional
-}
-
-if { [exists_and_not_null cancel] } {
-    ad_returnredirect $return_url
-    ad_script_abort
+    {return_url "."}
 }
 
 set project_name [bug_tracker::conn project_name]
@@ -30,7 +24,7 @@ set context_bar [ad_context_bar [list $return_url "Versions"] $page_title]
 # no primary key and you're only inserting, you can just ignore it.  
 # Add handling for any other incoming URL variables that should become part of the form.
 
-form create version
+form create version -cancel_url $return_url
 
 element create version version_id -widget hidden
 element create version return_url -datatype text -widget hidden -value $return_url
