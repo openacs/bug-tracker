@@ -1,5 +1,5 @@
 --
--- bt_bugs
+-- bt_bugs: add 'needinfo' to resolution check constraint
 --
 
 drop index bt_bugs_pk;
@@ -58,12 +58,25 @@ create table bt_bugs (
   unique (project_id, bug_number)
 );
 
-insert into bt_bugs select * from bt_bugs_old;
+-- We do this in an inline function, so that we won't delete the _old table if the insert fails.
 
-drop table bt_bugs_old;
+create function inline_0 ()
+returns integer as '
+begin
+    insert into bt_bugs select * from bt_bugs_old;
+
+    drop table bt_bugs_old;
+
+    return 0;
+end;' language 'plpgsql';
+
+select inline_0 ();
+
+drop function inline_0 ();
+
 
 --
--- bt_bug_actions
+-- bt_bug_actions: add 'needinfo' to resolution check constraint
 --
 
 drop index bt_bug_actions_pk;
@@ -96,8 +109,20 @@ create table bt_bug_actions (
                                 check (comment_format in ('html', 'plain', 'pre'))
 );
 
-insert into bt_bug_actions (action_id, bug_id, action, resolution, actor, action_date, comment, comment_format) 
-select action_id, bug_id, action, resolution, actor, action_date, comment, comment_format from bt_bug_actions_old;
+create function inline_0 ()
+returns integer as '
+begin
+    insert into bt_bug_actions (action_id, bug_id, action, resolution, actor, action_date, comment, comment_format) 
+    select action_id, bug_id, action, resolution, actor, action_date, comment, comment_format from bt_bug_actions_old;
 
-drop table bt_bug_actions_old;
+    drop table bt_bug_actions_old;
+
+    return 0;
+end;' language 'plpgsql';
+
+select inline_0 ();
+
+drop function inline_0 ();
+
+
 
