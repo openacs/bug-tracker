@@ -107,7 +107,7 @@ if { [form is_request bug] } {
     element set_properties bug bug_id -value [db_nextval "acs_object_id_seq"]
 
     element set_properties bug found_in_version \
-            -value [db_string user_version { select user_version from bt_user_prefs where user_id = :user_id and project_id = :package_id }]
+            -value [bug_tracker::conn user_version_id]
     
     element set_properties bug severity -value [bug_tracker::severity_get_default]
     element set_properties bug priority -value [bug_tracker::priority_get_default]
