@@ -25,7 +25,7 @@
             to_char(now(), 'fmMM/DDfm/YYYY') as now_pretty
      from bt_patches,
           acs_objects,
-          cc_users submitter,
+          acs_users_all submitter,
           bt_components
      where bt_patches.patch_number = :patch_number
        and bt_patches.project_id = :package_id
