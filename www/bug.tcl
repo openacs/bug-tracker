@@ -365,11 +365,15 @@ if { [form is_request bug] } {
 
     set page_title "Bug #$bug_number: $bug(summary)"
 
+    # If the user has submitted the bug he gets full write access on the bug
+    set write_p [expr $write_p || ($bug(submitter_user_id) == [ad_conn user_id])]
+
     if { [string equal $mode "view"] && $write_p } {
         set button_form_export_vars [export_vars -form { bug_number }]
         multirow create button name label
         multirow append button "edit" "Edit"
         multirow append button "comment" "Comment"
+
         switch -- $bug(status) {
             open {
                 multirow append button "resolve" "Resolve"
@@ -385,19 +389,56 @@ if { [form is_request bug] } {
         }
     }
 
+    if { ![string equal $mode "view"] && !$write_p } {
+        ns_log notice "$bug(submitter_user_id) doesn't have write on object $bug(bug_id)"
+        ad_return_forbidden "Security Violation" "<blockquote>
+        You don't have permission to edit this bug.
+        <br>
+        This incident has been logged.
+        </blockquote>"
+        ad_script_abort
+    }
+
 }
 
 set context_bar [ad_context_bar $page_title]
 
 if { [form is_valid bug] } {
 
-    # Require write permission here, just to make sure not DML statement is executed without write permission
-    ad_require_permission [ad_conn package_id] write
+    # Find out whether the user has permission to modify
+
+    if { !$write_p } {
+        # No write permission, is this the submitter?
+        db_1row submitter { 
+            select o.creation_user as submitter_user_id,
+                   o.object_id
+            from   bt_bugs b,
+                   acs_objects o
+            where  o.object_id = b.bug_id
+            and    b.bug_number = :bug_number
+            and    b.project_id = :package_id
+        } -column_array bug
+    
+        # If the user has submitted the bug he gets full write access on the bug
+        set write_p [expr $write_p || ($bug(submitter_user_id) == [ad_conn user_id])]
+    }
+
+    if { !$write_p } {
+        ns_log notice "$bug(submitter_user_id) doesn't have write on object $bug(object_id)"
+        ad_return_forbidden \
+                "Security Violation" \
+                "<blockquote>
+        You don't have permission to edit this bug.
+        <br>
+        This incident has been logged.
+        </blockquote>"
+        ad_script_abort
+    }
 
     set update_exprs [list]
 
     foreach column $edit_fields {
-        set $column [element::get_value bug $column]
+        set $column [element get_value bug $column]
         lappend update_exprs "$column = :$column"
     }
 
@@ -427,7 +468,7 @@ if { [form is_valid bug] } {
         set user_id [ad_conn user_id]
  
         foreach column { description desc_format } {
-            set $column [element::get_value bug $column]
+            set $column [element get_value bug $column]
         }
 
         db_dml bug_action {
