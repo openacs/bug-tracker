@@ -1094,7 +1094,7 @@ ad_proc bug_tracker::get_patch_links {
     db_foreach get_patches_for_bug "" {
         
         set status_indicator [ad_decode $show_patch_status "all" "($status)" ""]
-        lappend patch_list "<a href=\"patch?patch_number=$patch_number\">$summary</a> $status_indicator"
+        lappend patch_list "<a href=\"patch?patch_number=$patch_number\" title=\"patch $patch_number\">[ad_quotehtml $summary]</a> $status_indicator"
     } if_no_rows { 
         set patches_string "No patches." 
     }

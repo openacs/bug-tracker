@@ -28,7 +28,7 @@ permission::require_permission -object_id $package_id -privilege read
 
 set page_title "[bug_tracker::conn Bug] #$bug_number"
 
-set context [list $page_title]
+set context [list [ad_quotehtml $page_title]]
 
 # Is this project using multiple versions?
 set versions_p [bug_tracker::versions_p]
@@ -95,9 +95,12 @@ if { [empty_string_p $action_id] } {
 
 
 # set patch label
+# JCD: The string map below is to work around a "feature" in the form generation that 
+# lets you use +var+ for a var to eval on the second round.  
+# cf http://openacs.org/bugtracker/openacs/bug?bug%5fnumber=1099
 set patch_label [ad_decode $show_patch_status \
-                     "open" "Open Patches (<a href=\"[export_vars -base [ad_conn url] -entire_form -override { { show_patch_status all } }]\">show all</a>)" \
-                     "all" "All Patches (<a href=\"[export_vars -base [ad_conn url] -entire_form -override { { show_patch_status open } }]\">show only open)" \
+                     "open" "Open Patches (<a href=\"[string map {+ %20} [export_vars -base [ad_conn url] -entire_form -override { { show_patch_status all } }]]\">show all</a>)" \
+                     "all" "All Patches (<a href=\"[string map {+ %20} [export_vars -base [ad_conn url] -entire_form -override { { show_patch_status open } }]]\">show only open)" \
                      "Patches"]
 
 ad_form -name bug -cancel_url $return_url -mode display -has_edit 1 -actions $actions -form  {
@@ -156,6 +159,7 @@ ad_form -extend -name bug -form {
 workflow::case::role::add_assignee_widgets -case_id $case_id -form_name bug
 
 # More fixed form elements
+
 ad_form -extend -name bug -form {
     {patches:text(inform)
 	{label $patch_label}
@@ -341,9 +345,9 @@ if { ![form is_valid bug] } {
     # TODO: Make real
     set filtered_p 1
     if { $filtered_p } {
-        set context [list [list [export_vars -base . -entire_form -exclude { bug_number }] "Filtered [bug_tracker::conn bug] list"] $page_title]
+        set context [list [list [export_vars -base . -entire_form -exclude { bug_number }] "Filtered [bug_tracker::conn bug] list"] [ad_quotehtml $page_title]]
     } else {
-        set context [list $page_title]
+        set context [list [ad_quotehtml $page_title]]
     }
     
     # User agent show/hide URLs

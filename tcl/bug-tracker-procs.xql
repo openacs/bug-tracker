@@ -109,7 +109,7 @@
        where bt_patch_bug_map.bug_id = :bug_id
          and bt_patch_bug_map.patch_id = bt_patches.patch_id
              $status_where_clause
-    
+       order by bt_patches.summary
       </querytext>
 </fullquery>
 
