@@ -127,7 +127,7 @@ begin
     perform content_folder__delete(v_folder_id);
 
     -- delete the projects keywords
-    perform bt_projects__keywords_delete(p_project_id, ''t'');
+    perform bt_project__keywords_delete(p_project_id, ''t'');
 
     -- These tables should really be set up to cascade
     delete from bt_versions where project_id = p_project_id;
