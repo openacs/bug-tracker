@@ -713,6 +713,13 @@ ad_proc bug_tracker::bug::get_list {
             display_template {<a href="@bugs.submitter_url@">@bugs.submitter_first_names@ @bugs.submitter_last_name@</a>}
             hide_p 1
         }
+        assigned_to {
+            label "Assigned To"
+            display_template {<a href="@bugs.assignee_url@">@bugs.assignee_first_names@
+                               @bugs.assignee_last_name@</a>
+                               <if @bugs.action_pretty_name@ not nil> to </if>
+                               @bugs.action_pretty_name@}
+        }
         fix_for_version {
             label "Fix for"
             display_col fix_for_version_name
@@ -884,6 +891,7 @@ ad_proc bug_tracker::bug::get_multirow {} {
     set extend_list { 
         comment_short
         submitter_url 
+        assignee_url 
         status_pretty
         resolution_pretty
         component_name
@@ -917,6 +925,7 @@ ad_proc bug_tracker::bug::get_multirow {} {
             set fixed_in_version_name [bug_tracker::version_get_name -version_id $fixed_in_version]
             set comment_short [string_truncate -len $truncate_len -format $comment_format -- $comment_content]
             set submitter_url [acs_community_member_url -user_id $submitter_user_id]
+            set assignee_url [acs_community_member_url -user_id $assigned_user_id]
             set resolution_pretty [bug_tracker::resolution_pretty $resolution]
             
             # Hide fields in this state
