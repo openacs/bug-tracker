@@ -140,49 +140,85 @@
       </querytext>
   </partialquery>
 
+<!-- bd: the inline view assign_info returns names
+     of assignees as well as pretty_names of assigned actions.
+     I'm left-outer-joining against this view.
+
+     WARNING: In the query below I assume there can be at most one
+     person assigned to a bug.  If more people are assigned you will get
+     multiple rows per bug in the result set.  Current bug tracker
+     doesn't have UI for creating such conditions. If you add UI that
+     allows user to break this assumption you'll also need to deal with
+     this.
+-->
 <fullquery name="bug_tracker::bug::get_query.bugs">
   <querytext>
-    
-    select q.*,
-           km.keyword_id
-    from (
-        select b.bug_id,
-               b.bug_number,
-               b.summary,
-               b.comment_content,
-               b.comment_format,
-               b.component_id,
-               b.creation_date,
-               to_char(b.creation_date, 'fmMM/DDfm/YYYY') as creation_date_pretty,
-               b.creation_user as submitter_user_id,
-               submitter.first_names as submitter_first_names,
-               submitter.last_name as submitter_last_name,
-               submitter.email as submitter_email,
-               st.pretty_name as pretty_state,
-               st.short_name as state_short_name,
-               st.state_id,
-               st.hide_fields,
-               b.resolution,
-               b.found_in_version,
-               b.fix_for_version,
-               b.fixed_in_version
-        from   $from_bug_clause,
-               cc_users submitter,
-               workflow_cases cas,
-               workflow_case_fsm cfsm,
-               workflow_fsm_states st 
-        where  submitter.user_id = b.creation_user
-        and    cas.workflow_id = :workflow_id
-        and    cas.object_id = b.bug_id
-        and    cfsm.case_id = cas.case_id
-        and    cfsm.parent_enabled_action_id is null
-        and    st.state_id = cfsm.current_state 
-        $orderby_category_where_clause
-        [template::list::filter_where_clauses -and -name "bugs"]
-        [template::list::orderby_clause -orderby -name "bugs"]
-    ) q left outer join
-    cr_item_keyword_map km on (km.item_id = q.bug_id)
-
+select q.*,
+       km.keyword_id,
+       assign_info.*
+from (
+  select b.bug_id,
+         b.bug_number,
+         b.summary,
+         lower(b.summary) as lower_summary,
+         b.comment_content,
+         b.comment_format,
+         b.component_id,
+         b.creation_date,
+         to_char(b.creation_date, 'fmMM/DDfm/YYYY') as creation_date_pretty,
+         b.creation_user as submitter_user_id,
+         submitter.first_names as submitter_first_names,
+         submitter.last_name as submitter_last_name,
+         submitter.email as submitter_email,
+         lower(submitter.first_names) as lower_submitter_first_names,
+         lower(submitter.last_name) as lower_submitter_last_name,
+         lower(submitter.email) as lower_submitter_email,
+         st.pretty_name as pretty_state,
+         st.short_name as state_short_name,
+         st.state_id,
+         st.hide_fields,
+         b.resolution,
+         b.found_in_version,
+         b.fix_for_version,
+         b.fixed_in_version,
+         cas.case_id
+         $more_columns
+    from $from_bug_clause,
+         acs_users_all submitter,
+         acs_users_all assignee,
+         workflow_cases cas,
+         workflow_case_fsm cfsm,
+         workflow_fsm_states st 
+   where submitter.user_id = b.creation_user
+     and cas.workflow_id = :workflow_id
+     and cas.object_id = b.bug_id
+     and cfsm.case_id = cas.case_id
+     and cfsm.parent_enabled_action_id is null
+     and st.state_id = cfsm.current_state 
+   $orderby_category_where_clause
+   [template::list::filter_where_clauses -and -name "bugs"]
+) q
+left outer join
+  cr_item_keyword_map km
+on (bug_id = km.item_id)
+left outer join
+  (select cru.user_id as assigned_user_id,
+          aa.action_id,
+          aa.case_id,
+          wa.pretty_name as action_pretty_name,
+          assignee.first_names as assignee_first_names,
+          assignee.last_name as assignee_last_name
+     from workflow_case_assigned_actions aa,
+          workflow_case_role_user_map cru,
+          workflow_actions wa,
+          acs_users_all assignee
+    where aa.case_id = cru.case_id
+      and aa.role_id = cru.role_id
+      and cru.user_id = assignee.user_id
+      and wa.action_id = aa.action_id
+  ) assign_info
+on (q.case_id = assign_info.case_id)
+   [template::list::orderby_clause -orderby -name "bugs"]
   </querytext>
 </fullquery>
 
