@@ -558,6 +558,21 @@ namespace eval bug_tracker {
                 where  b.project_id = :package_id
                 and    u.user_id = b.assignee
                 union
+                select u.first_names || ' ' || u.last_name || ' (' || u.email || ')'  as name, u.user_id
+                from   bt_components c, cc_users u
+                where  c.project_id = :package_id
+                and    u.user_id = c.maintainer
+                union
+                select u.first_names || ' ' || u.last_name || ' (' || u.email || ')'  as name, u.user_id
+                from   bt_versions v, cc_users u
+                where  v.project_id = :package_id
+                and    u.user_id = v.maintainer
+                union
+                select u.first_names || ' ' || u.last_name || ' (' || u.email || ')'  as name, u.user_id
+                from   bt_projects p, cc_users u
+                where  p.project_id = :package_id
+                and    u.user_id = p.maintainer
+                union
                 select u.first_names || ' ' || u.last_name || ' (' || u.email || ')' as name, u.user_id
                 from   cc_users u
                 where  u.user_id = :user_id
