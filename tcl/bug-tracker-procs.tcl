@@ -257,7 +257,7 @@ namespace eval bug_tracker {
     ad_proc resolution_get_options {} {
         return { 
             { "Fixed" fixed } { "By Design" bydesign } { "Won't Fix" wontfix } { "Postponed" postponed } 
-            { "Duplicate" duplicate } { "Not Reproducable" norepro } 
+            { "Duplicate" duplicate } { "Not Reproducable" norepro } { "Need Info" needinfo } 
         }
     }
     
@@ -271,6 +271,7 @@ namespace eval bug_tracker {
             postponed "Postponed"
             duplicate "Duplicate"
             norepro "Not Reproducable"
+            needinfo "Need Info"
         }
         if { [info exists resolution_codes($resolution)] } {
             return $resolution_codes($resolution)

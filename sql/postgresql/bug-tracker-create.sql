@@ -272,7 +272,7 @@ create table bt_bugs (
   resolution                    varchar(50)
                                 constraint bt_bugs_resolution_ck
                                 check (resolution is null or 
-                                       resolution in ('fixed','bydesign','wontfix','postponed','duplicate','norepro')),
+                                       resolution in ('fixed','bydesign','wontfix','postponed','duplicate','norepro','needinfo')),
   bug_type                      varchar(50) not null
                                 constraint bt_bugs_bug_type_ck
                                 check (bug_type in ('bug', 'suggestion','todo')),
@@ -317,7 +317,7 @@ create table bt_bug_actions (
   resolution                    varchar(50)
                                 constraint bt_bugs_actions_resolution_ck
                                 check (resolution is null or 
-                                       resolution in ('fixed','bydesign','wontfix','postponed','duplicate','norepro')),
+                                       resolution in ('fixed','bydesign','wontfix','postponed','duplicate','norepro','needinfo')),
   actor                         integer not null
                                 constraint bt_bug_actions_actor_fk
                                 references users(user_id),
