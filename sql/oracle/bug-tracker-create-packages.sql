@@ -370,7 +370,8 @@ as
             description =>      null,             
             nls_language =>     null,             
             mime_type =>        null,             
-            data =>             null              
+            data =>             null,             
+            package_id =>       bt_bug.new.package_id
         );
 
         -- create the item type row
@@ -512,6 +513,9 @@ as
                fix_for_version = bt_bug_revision.new.fix_for_version,
                fixed_in_version = bt_bug_revision.new.fixed_in_version
         where  bug_id = bt_bug_revision.new.bug_id;
+
+        -- update the title
+        update acs_objects set title = bt_bug.name(bt_bug_revision.new.bug_id) where object_id =bt_bug_revision.new.bug_id;
 
         return v_revision_id;
     end new;

@@ -346,7 +346,7 @@ select acs_object_type__create_type (
     null,
     'f',
     null,
-    null
+    ''bt_bug__name''
 );
 
 
@@ -461,7 +461,8 @@ begin
         null,                      -- description
         null,                      -- mime_type
         null,                      -- nls_language
-        null                       -- data
+        null,                      -- data
+        p_package_id
     );
 
     -- create the item type row
@@ -599,11 +600,30 @@ begin
            fixed_in_version = p_fixed_in_version
     where  bug_id = p_bug_id;
 
+    -- update the title in acs_objects
+    update acs_objects set title = bt_bug__name(p_bug_id) where object_id = p_bug_id;
+
     return v_revision_id;
 end;
 ' language 'plpgsql';
 
 
+create or replace function bt_bug__name(
+   integer                      -- bug_id
+) returns varchar
+as '
+declare
+   p_bug_id                 alias for $1;
+   v_name                     varchar;
+begin
+   select ''Bug #''||bug_number||'': ''||summary 
+          into v_name 
+   from bt_bugs 
+   where bug_id = p_bug_id;
+
+   return v_name;
+end;
+' language 'plpgsql';
 
 
 create table bt_user_prefs (
@@ -729,7 +749,8 @@ begin
         p_creation_user,        -- creation_user
         p_creation_ip,          -- creation_ip
         p_project_id,           -- context_id
-        ''t''                   -- security_inherit_p
+        null,                   -- title 
+        p_project_id            -- package_id
     );
 
     select coalesce(max(patch_number),0) + 1
@@ -754,6 +775,8 @@ begin
          p_generated_from_version,
          v_patch_number);
 
+    update acs_objects set title = bt_patch__name(v_patch_id) where object_id = v_patch_id;
+
     select nextval(''t_acs_object_id_seq'') 
     into   v_action_id;
 
@@ -774,7 +797,7 @@ declare
    p_patch_id                 alias for $1;
    v_name                     varchar;
 begin
-   select summary
+   select ''Patch #''||patch_number||'': ''||summary
    into   v_name
    from   bt_patches
    where  patch_id = p_patch_id;

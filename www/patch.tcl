@@ -408,8 +408,11 @@ if { [form is_valid patch] } {
     foreach column $edit_fields {
         set $column [element get_value patch $column]
         lappend update_exprs "$column = :$column"
+        if {[string equal $column summary]} { 
+            set new_title "Patch \#$patch_number: $summary"
+        }
     }
-
+    
     switch -- $mode {
         accept {
             set status "accepted"
@@ -443,7 +446,9 @@ if { [form is_valid patch] } {
         if { [llength $update_exprs] > 0 } {
             db_dml update_patch {}
         }
-
+        if {[info exists new_title] && ![empty_string_p $new_title]} { 
+            db_dml update_patch_title {update acs_objects set title = :new_title where object_id = :patch_id}
+        }
         set action_id [db_nextval "acs_object_id_seq"]
 
         foreach column { description desc_format } {
