@@ -901,7 +901,6 @@ ad_proc bug_tracker::bug::get_multirow {} {
 
     array set row_category $category_defaults
     array set row_category_names $category_defaults
-
     db_multirow -extend $extend_list bugs select_bugs [get_query] {
 
         # parent_id is part of the column name
@@ -917,7 +916,6 @@ ad_proc bug_tracker::bug::get_multirow {} {
             set fix_for_version_name [bug_tracker::version_get_name -version_id $fix_for_version]
             set fixed_in_version_name [bug_tracker::version_get_name -version_id $fixed_in_version]
             set comment_short [string_truncate -len $truncate_len -format $comment_format -- $comment_content]
-            set summary [ad_quotehtml $summary]
             set submitter_url [acs_community_member_url -user_id $submitter_user_id]
             set resolution_pretty [bug_tracker::resolution_pretty $resolution]
             
@@ -929,11 +927,18 @@ ad_proc bug_tracker::bug::get_multirow {} {
             # Move categories from array to normal variables, then clear the array for next row
             foreach parent_id [array names row_category] {
                 set category_$parent_id $row_category($parent_id)
-                set category_name_$parent_id $row_category_name($parent_id)
+                if {[info exists row_category_name($parent_id)]} { 
+                    set category_name_$parent_id $row_category_name($parent_id)
+                } else { 
+                    set category_name_$parent_id {}
+                }
             }
 
+
+            unset row_category
+            unset row_category_name
             array set row_category $category_defaults
-            array set row_category_names $category_defaults
+            array set row_category_name $category_defaults
         } else {
             continue
         }
