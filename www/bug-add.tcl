@@ -71,6 +71,13 @@ ad_form -extend -name bug -form {
 }
 
 ad_form -extend -name bug -new_data {
+
+    set keyword_ids [list]
+    foreach {category_id category_name} [bug_tracker::category_types] {
+        # -singular not required here since it's a new bug
+        lappend keyword_ids [element get_value bug $category_id]
+    }
+
     bug_tracker::bug::new \
 	-bug_id $bug_id \
 	-package_id $package_id \
@@ -78,12 +85,8 @@ ad_form -extend -name bug -new_data {
 	-found_in_version $found_in_version \
 	-summary $summary \
 	-description [template::util::richtext::get_property contents $description] \
-	-desc_format [template::util::richtext::get_property format $description] 
-
-    foreach {category_id category_name} [bug_tracker::category_types] {
-        # -singular not required here since it's a new bug
-        cr::keyword::item_assign -item_id $bug_id -keyword_id [element get_value bug $category_id]
-    }
+	-desc_format [template::util::richtext::get_property format $description] \
+        -keyword_ids $keyword_ids
         
 } -after_submit {
     bug_tracker::bugs_exist_p_set_true
