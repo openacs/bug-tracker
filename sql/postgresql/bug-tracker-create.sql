@@ -502,7 +502,7 @@ begin
     from   workflow_cases 
     where  object_id = p_bug_id;
 
-    perform workflow_case__delete(v_case_id);
+    perform workflow_case_pkg__delete(v_case_id);
 
     -- Every bug may have notifications attached to it
     -- and there is one column in the notificaitons datamodel that doesn''t
