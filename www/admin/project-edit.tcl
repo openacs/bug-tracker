@@ -20,17 +20,16 @@ ad_form -name project -cancel_url $return_url -form {
     {name:text {html { size 50 }} {label "Project Name"}
         {help_text {This is also the name of this package in the site map}}
     }
-    {description:text(hidden) {label "Description"} optional {html { cols 50 rows 8 }}
+    {description:text(hidden),optional {label "Description"} {html { cols 50 rows 8 }}
         {help_text {This isn't actually used anywhere at this point. Sorry.}}
     }
-    {email_subject_name:text {html { size 50 }} {label "Notification tag"} optional
+    {email_subject_name:text,optional {html { size 50 }} {label "Notification tag"}
         {help_text {This text will be included in square brackets at the beginning of all notifications, for example \[OpenACS Bugs\]}}
     }
-    {maintainer:search
+    {maintainer:search,optional
         {result_datatype integer}
         {label {Project Maintainer}}
         {options [bug_tracker::users_get_options]}
-        optional
         {search_query {[db_map user_search]}}
     }
 } -select_query_name project_select -edit_data {

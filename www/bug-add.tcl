@@ -44,11 +44,10 @@ ad_form -name bug -cancel_url $return_url -form {
 	{label "Summary"} 
 	{html {size 50}}
     }
-    {found_in_version:text(select)
+    {found_in_version:text(select),optional 
         {label "Version"}  
         {options {[bug_tracker::version_get_options -include_unknown]}} 
         {value {[bug_tracker::conn user_version_id]}}
-        optional 
     }
 
     {return_url:text(hidden) {value $return_url}}
@@ -64,10 +63,9 @@ foreach {category_id category_name} [bug_tracker::category_types] {
 }
 
 ad_form -extend -name bug -form {
-    {description:richtext(richtext)
+    {description:richtext(richtext),optional
         {label "Description"}
         {html {cols 60 rows 13}}
-        optional
     }
 
 }

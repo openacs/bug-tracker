@@ -16,11 +16,10 @@ set context [list $page_title]
 
 ad_form -name project_maintainer -cancel_url $return_url -form {
     {return_url:text(hidden) {value $return_url}}
-    {maintainer:search
+    {maintainer:search,optional
         {result_datatype integer}
         {label {Project Maintainer}}
         {options [bug_tracker::users_get_options]}
-        optional
         {search_query
             {
                 select distinct u.first_names || ' ' || u.last_name || ' (' || u.email || ')' as name, u.user_id

@@ -11,9 +11,8 @@ set context [list [list versions "Versions"] $page_title]
 ad_form -name version -cancel_url versions -form {
     version_id:key
     {version_name:text {mode display} {label "Version Name"}}
-    {anticipated_release_date:date,to_sql(sql_date),to_html(sql_date) 
+    {anticipated_release_date:date,to_sql(sql_date),to_html(sql_date),optional
         {mode display} {label "Anticipated release date"}
-        optional
     }
     {actual_release_date:date,to_sql(sql_date),to_html(sql_date)
         {label "Actual release date"}

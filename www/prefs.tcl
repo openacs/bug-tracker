@@ -26,10 +26,9 @@ set context_bar [ad_context_bar $page_title]
 set user_id [ad_conn user_id]
 
 ad_form -name prefs -cancel_url $return_url -form {
-    {user_version:integer(select) 
+    {user_version:integer(select),optional
         {label "Your version"}
         {options {[bug_tracker::version_get_options -include_unknown]}}
-        optional
     }
     {return_url:text(hidden)
         {value $return_url}

@@ -96,15 +96,14 @@ if { [empty_string_p $action_id] } {
 set patch_label [ad_decode $show_patch_status "open" "Open Patches (<a href=\"$return_url&show_patch_status=all\">show all</a>)" "all" "All Patches (<a href=\"$return_url&show_patch_status=open\">show only open)" "Patches"]
 
 ad_form -name bug -cancel_url $return_url -mode display -has_edit 1 -actions $actions -form  {
-    {bug_number_display:integer(inform)
+    {bug_number_display:text(inform)
 	{label "[bug_tracker::conn Bug] \#"}
         {mode display}
     }
-    {component_id:integer(select)
+    {component_id:integer(select),optional
 	{label "[bug_tracker::conn Component]"}
 	{options {[bug_tracker::components_get_options]}}
 	{mode display}
-        optional
     }
     {summary:text(text)
 	{label "Summary"}
@@ -123,11 +122,10 @@ ad_form -extend -name bug -form {
 	{after_html  "</b>"}
 	{mode display}
     }
-    {resolution:text(select)
+    {resolution:text(select),optional
 	{label "Resolution"}
 	{options {[bug_tracker::resolution_get_options]}}
 	{mode display}
-	optional
     }
 }
 
@@ -143,11 +141,10 @@ foreach {category_id category_name} [bug_tracker::category_types] {
 
 
 ad_form -extend -name bug -form {
-    {found_in_version:text(select)
+    {found_in_version:text(select),optional
 	{label "Found in Version"}
 	{options {[bug_tracker::version_get_options -include_unknown]}}
 	{mode display}
-	optional
     }
 }
 
@@ -163,30 +160,25 @@ ad_form -extend -name bug -form {
 	{label "User Agent"}
 	{mode display}
     }
-    {fix_for_version:text(select)
+    {fix_for_version:text(select),optional
 	{label "Fix for Version"}
 	{options {[bug_tracker::version_get_options -include_undecided]}}
 	{mode display}
-	optional
     }
-    {fixed_in_version:text(select)
+    {fixed_in_version:text(select),optional
 	{label "Fixed in Version"}
 	{options {[bug_tracker::version_get_options -include_undecided]}}
 	{mode display}
-	optional
     }
-    {description:richtext(richtext) 
+    {description:richtext(richtext),optional
 	{label "Description"} 
 	{html {cols 60 rows 13}} 
-	optional
     }
     {return_url:text(hidden) 
 	{value $return_url}
     }
     {bug_number:key}
-    {entry_id:integer(hidden)
-	optional
-    }
+    {entry_id:integer(hidden),optional}
 }
 
 # Export filters
@@ -299,7 +291,6 @@ if { ![form is_valid bug] } {
         element set_properties bug user_agent -widget hidden
     }
 
-
     # Set regular element values
     foreach element $element_names { 
 
@@ -310,7 +301,7 @@ if { ![form is_valid bug] } {
             }
         }
     }
-
+    
     # Add empty option to resolution code
     if { ![empty_string_p $action_id] } {
         if { [lsearch [workflow::action::get_element -action_id $action_id -element edit_fields] "resolution"] == -1 } {
