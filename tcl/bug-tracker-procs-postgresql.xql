@@ -201,8 +201,8 @@
    <fullquery name="bug_tracker::project_new.instance_info">      
      <querytext>
 	select p.instance_name, o.creation_user, o.creation_ip 
-	from apm_packages p join acs_objects o on (p.package_id = o.object_id) w
-	here  p.package_id = :project_id      
+	from apm_packages p join acs_objects o on (p.package_id = o.object_id) 
+	where  p.package_id = :project_id      
      </querytext>
    </fullquery>
 
