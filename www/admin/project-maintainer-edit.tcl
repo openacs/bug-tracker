@@ -28,11 +28,17 @@ form create project_maintainer
 element create project_maintainer return_url -datatype text -widget hidden -value $return_url
 
 element create project_maintainer maintainer \
-        -datatype integer \
-        -widget select \
+        -datatype search \
+        -widget search \
         -label "Project Maintainer" \
-        -options [concat {{ "--None--" "" }} [db_list_of_lists users { select first_names || ' ' || last_name, user_id from cc_users }]] \
-        -optional
+        -options [bug_tracker::users_get_options] \
+        -optional \
+        -search_query {
+    select distinct u.first_names || ' ' || u.last_name || ' (' || u.email || ')' as name, u.user_id
+    from   cc_users u
+    where  upper(coalesce(u.first_names || ' ', '')  || coalesce(u.last_name || ' ', '') || u.email || ' ' || coalesce(u.screen_name, '')) like upper('%'||:value||'%')
+    order  by name
+} 
 
 if { [form is_request project_maintainer] } {
     element set_properties project_maintainer maintainer \
