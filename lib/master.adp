@@ -105,8 +105,8 @@
   }
   </style>
 </property>
-<if @signatory;noquote@ not nil><property name="signatory">@signatory;noquote@</property></if>
-<if @focus;noquote@ not nil><property name="focus">@focus;noquote@</property></if>
+<if @signatory@ not nil><property name="signatory">@signatory;noquote@</property></if>
+<if @focus@ not nil><property name="focus">@focus;noquote@</property></if>
 <property name="body_start_include">/packages/bug-tracker/lib/version-bar</property>
 <if @context_bar@ not nil>
   <property name="context_bar">@context_bar;noquote@</property>
