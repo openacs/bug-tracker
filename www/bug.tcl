@@ -68,19 +68,17 @@ foreach field $edit_fields {
     set field_editable_p($field) 1
 }
 
-
-
 if { ![string equal $mode "view"] } {
     ad_maybe_redirect_for_registration
 }    
-
-set write_p [ad_permission_p [ad_conn package_id] write]
 
 set project_name [bug_tracker::conn project_name]
 set package_id [ad_conn package_id]
 set package_key [ad_conn package_key]
 
 set user_id [ad_conn user_id]
+
+set write_p [ad_permission_p $package_id write]
 
 
 #
@@ -357,6 +355,9 @@ if { ![form is_valid bug] } {
         reopen {
             set bug(status) "open"
         }
+        close {
+            set bug(status) "closed"
+        }
     }
     
     set pretty(bug_number) "#$bug(bug_number)"
@@ -379,9 +380,7 @@ if { ![form is_valid bug] } {
         [acs_community_member_link -user_id $bug(assignee) \
                 -label "$bug(assignee_first_names) $bug(assignee_last_name)"]
         (<a href=\"mailto:$bug(assignee_email)\">$bug(assignee_email)</a>)"]
-}
 
-if { [form is_request bug] } {
     element set_properties bug bug_number -value $bug(bug_number)
 
     # Description/Actions/History
@@ -423,6 +422,9 @@ if { [form is_request bug] } {
 
     set page_title "Bug #$bug_number: $bug(summary)"
 
+}
+
+if { [form is_request bug] } {
     # If the user has submitted the bug he gets full write access on the bug
     set write_p [expr $write_p || ($bug(submitter_user_id) == [ad_conn user_id])]
     if { !$write_p && [info exists bug(assignee)] && $bug(assignee) == [ad_conn user_id] } {
