@@ -175,6 +175,7 @@
         and    cas.workflow_id = :workflow_id
         and    cas.object_id = b.bug_id
         and    cfsm.case_id = cas.case_id
+        and    cfsm.parent_enabled_action_id is null
         and    st.state_id = cfsm.current_state 
         $orderby_category_where_clause
         [template::list::filter_where_clauses -and -name "bugs"]
