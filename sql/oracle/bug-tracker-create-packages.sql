@@ -148,7 +148,8 @@ as
             name => 'bug_tracker_' || bt_project.new.package_id,
             label => v_instance_name,
             description => null,
-            parent_id => v_root_folder_id
+            parent_id => v_root_folder_id,
+            context_id => bt_project.new.package_id
         );
 
         -- register our content type

@@ -56,7 +56,13 @@ begin
         ''bug_tracker_''||p_package_id,        -- name
         v_instance_name,                       -- label
         null,                                  -- description
-        content_item_globals.c_root_folder_id  -- parent_bi
+        content_item_globals.c_root_folder_id, -- parent_id
+        p_package_id,                          -- context_id
+        null,                                  -- folder_id
+        now(),                                 -- creation_date
+        v_creation_user,                       -- creation_user
+        v_creation_ip,                         -- creation_ip,
+        ''t''                                  -- security_inherit_p
     );
 
     -- register our content type
