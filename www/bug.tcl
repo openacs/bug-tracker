@@ -16,6 +16,8 @@ ad_page_contract {
 #
 #####
 
+ns_log Notice "********************************************************"
+
 set return_url [export_vars -base [ad_conn url] [bug_tracker::get_export_variables { bug_number }]]
 
 set project_name [bug_tracker::conn project_name]
@@ -64,22 +66,33 @@ set workflow_id [bug_tracker::bug::get_instance_workflow_id]
 
 set enabled_action_id [form get_action bug]
 
+
 # Registration required for all actions
 set action_id ""
 if { ![empty_string_p $enabled_action_id] } {
+    ns_log Notice "enabled_action if statement"
     ad_maybe_redirect_for_registration
     workflow::case::enabled_action_get -enabled_action_id $enabled_action_id -array enabled_action    
     set action_id $enabled_action(action_id)
 }
+
 
 # Check permissions
 if { ![workflow::case::action::available_p -enabled_action_id $enabled_action_id] } {
     bug_tracker::security_violation -user_id $user_id -bug_id $bug(bug_id) -action_id $action_id
 }
 
+
+ns_log Notice "actions: enabled_action_id: -${enabled_action_id}-"
+
+
 # Buttons
 set actions [list]
 if { [empty_string_p $enabled_action_id] } {
+
+    ns_log Notice "actions: case_id: $case_id"
+    ns_log Notice "actions: case_id: $case_id get_enabled_actions: [workflow::case::get_available_enabled_action_ids -case_id $case_id]"
+
     foreach available_enabled_action_id [workflow::case::get_available_enabled_action_ids -case_id $case_id] {
         # TODO: avoid the enabled_action_get query by caching it, or caching only the enabled_action_id -> action_id lookup?
         workflow::case::enabled_action_get -enabled_action_id $available_enabled_action_id -array enabled_action
@@ -88,6 +101,7 @@ if { [empty_string_p $enabled_action_id] } {
     }
 }
 
+ns_log Notice "actions: $actions"
 
 #####
 #
@@ -379,71 +393,4 @@ if { ![form is_valid bug] } {
     if { [empty_string_p $enabled_action_id]  } {
         set notification_link [bug_tracker::bug::get_watch_link -bug_id $bug(bug_id)]
     }
-
-
-    # Filter management
-    if { [empty_string_p $enabled_action_id] } {
-    
-        set filter_bug_numbers [bug_tracker::bug::get_bug_numbers]
-        set filter_bug_index [lsearch -exact $filter_bug_numbers $bug_number]
-
-        set first_url {}
-        set last_url {}
-        set prev_url {}
-        set next_url {}
-        
-        if { $filter_bug_index == -1 } {
-            # This bug is not included in the list, get the client property (if it exists)
-            set filter_bug_numbers [ad_get_client_property bug-tracker filter_bug_numbers]
-        } else {
-            # This bug is included in the list
-            ad_set_client_property bug-tracker filter_bug_numbers $filter_bug_numbers 
-        }
-
-        set filter_bug_index [lsearch -exact $filter_bug_numbers $bug_number]
-
-        if { $filter_bug_index > 0 } {
-            set first_bug_number [lindex $filter_bug_numbers 0]
-            set first_url [export_vars -base bug -entire_form -override { { bug_number $first_bug_number } }]
-            set prev_bug_number [lindex $filter_bug_numbers [expr $filter_bug_index -1]]
-            set prev_url [export_vars -base bug -entire_form -override { { bug_number $prev_bug_number } }]
-        }
-        if { $filter_bug_index < [expr [llength $filter_bug_numbers]-1] } {
-            set next_bug_number [lindex $filter_bug_numbers [expr $filter_bug_index +1]]
-            set next_url [export_vars -base bug -entire_form -override { { bug_number $next_bug_number } }]
-            set last_bug_number [lindex $filter_bug_numbers end]
-            set last_url [export_vars -base bug -entire_form -override { { bug_number $last_bug_number } }]
-        }
-    
-        multirow create navlinks url img alt label 
-        
-        if { $filter_bug_index != -1 } {
-            
-            multirow append navlinks \
-                $first_url \
-                "/resources/acs-subsite/stock_first-16.png" \
-                "First"
-            
-            multirow append navlinks \
-                $prev_url \
-                "/resources/acs-subsite/stock_left-16.png" \
-                "Previous"
-            
-            multirow append navlinks \
-                {} \
-                {} \
-                {} \
-                "[expr $filter_bug_index+1] of [llength $filter_bug_numbers]"
-            
-            multirow append navlinks \
-                $next_url \
-                "/resources/acs-subsite/stock_right-16.png" \
-                "Next"
-
-            multirow append navlinks \
-                $last_url \
-                "/resources/acs-subsite/stock_last-16.png" \
-                Last
-        }
-    }  
 }
