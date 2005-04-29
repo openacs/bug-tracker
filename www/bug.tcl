@@ -16,8 +16,6 @@ ad_page_contract {
 #
 #####
 
-ns_log Notice "********************************************************"
-
 set return_url [export_vars -base [ad_conn url] [bug_tracker::get_export_variables { bug_number }]]
 
 set project_name [bug_tracker::conn project_name]
@@ -70,7 +68,6 @@ set enabled_action_id [form get_action bug]
 # Registration required for all actions
 set action_id ""
 if { ![empty_string_p $enabled_action_id] } {
-    ns_log Notice "enabled_action if statement"
     ad_maybe_redirect_for_registration
     workflow::case::enabled_action_get -enabled_action_id $enabled_action_id -array enabled_action    
     set action_id $enabled_action(action_id)
@@ -83,15 +80,11 @@ if { ![workflow::case::action::available_p -enabled_action_id $enabled_action_id
 }
 
 
-ns_log Notice "actions: enabled_action_id: -${enabled_action_id}-"
 
 
 # Buttons
 set actions [list]
 if { [empty_string_p $enabled_action_id] } {
-
-    ns_log Notice "actions: case_id: $case_id"
-    ns_log Notice "actions: case_id: $case_id get_enabled_actions: [workflow::case::get_available_enabled_action_ids -case_id $case_id]"
 
     foreach available_enabled_action_id [workflow::case::get_available_enabled_action_ids -case_id $case_id] {
         # TODO: avoid the enabled_action_get query by caching it, or caching only the enabled_action_id -> action_id lookup?
@@ -100,8 +93,6 @@ if { [empty_string_p $enabled_action_id] } {
         lappend actions [list "     $available_action(pretty_name)     " $available_enabled_action_id]
     }
 }
-
-ns_log Notice "actions: $actions"
 
 #####
 #
