@@ -60,6 +60,13 @@ ad_proc -private bug_tracker::install::package_upgrade {
                     workflow::case::state_changed_handler -case_id $case_id
                 }
             }
+            1.4 1.4.1 {
+		# update for all the projects a new component_keyword_id
+		db_foreach get_instance_name { select ck.heading, bp.project_id from cr_keywords ck, bt_projects bp where ck.keyword_id = bp.root_keyword_id } {
+		    set component_keyword_id [content::keyword::new -heading "Components $heading"]
+		    db_dml new_root_keyword_id { update bt_projects set component_keyword_id = :component_keyword_id where project_id = :project_id }
+		}
+            }
         }
 }
 
