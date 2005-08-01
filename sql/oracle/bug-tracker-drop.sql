@@ -37,6 +37,7 @@ show errors
 drop table bt_bug_revisions;
 drop table bt_default_keywords;
 drop table bt_versions;
+drop table bt_keyword_component_map;
 drop table bt_components;
 drop table bt_projects;
 

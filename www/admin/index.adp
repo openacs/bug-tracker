@@ -85,6 +85,17 @@
   </tr>
   <tr bgcolor="#cccccc">
     <td colspan="3">
+      Distributions
+    </td>
+    <td align="center">
+      <a href="distros"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="Edit"></a>
+    </td>
+    <td align="center">
+      &nbsp;
+    </td>
+  </tr>
+  <tr bgcolor="#cccccc">
+    <td colspan="3">
       Permissions
     </td>
     <td align="center">

@@ -7,18 +7,15 @@
     <initial-install-p>f</initial-install-p>
     <singleton-p>f</singleton-p>
     
-    <version name="1.4" url="http://openacs.org/repository/download/apm/bug-tracker-1.4.apm">
-    <database-support>
-        <database>postgresql</database>
-        <database>oracle</database>
-    </database-support>
+    <version name="1.4.1" url="http://openacs.org/repository/download/apm/bug-tracker-1.4.1.apm">
         <owner url="mailto:lars@collaboraid.biz">Lars Pind</owner>
         <summary>Tracks bugs and features, versions and maintainers, in software projects.</summary>
-        <release-date>2003-02-28</release-date>
+        <release-date>2005-07-29</release-date>
         <vendor url="http://www.museatech.net">Musea Technologies</vendor>
         <description format="text/html">Bug tracking application with notifications, configurable state management, and patch upload.
         Contains the best of SDM, Bugzilla, FogBUGZ, and bughost.com.</description>
-        <provides url="bug-tracker" version="1.4"/>
+
+        <provides url="bug-tracker" version="1.4.1"/>
         <requires url="acs-content-repository" version="5.1.4d4"/>
         <requires url="acs-kernel" version="5.0d13"/>
         <requires url="acs-tcl" version="4.6.2d"/>
@@ -28,11 +25,10 @@
         <callbacks>
             <callback type="after-install"  proc="bug_tracker::install::package_install"/>
             <callback type="after-instantiate"  proc="bug_tracker::install::package_instantiate"/>
+            <callback type="after-upgrade"  proc="bug_tracker::install::package_upgrade"/>
             <callback type="before-uninstall"  proc="bug_tracker::install::package_uninstall"/>
             <callback type="before-uninstantiate"  proc="bug_tracker::install::package_uninstantiate"/>
-            <callback type="after-upgrade"  proc="bug_tracker::install::package_upgrade"/>
         </callbacks>
-
         <parameters>
             <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="ComponentPrettyName"  default="component" description="Pretty name of a component/area/module, e.g. 'area'. Use the capitalization that you would use in the middle of a sentence."/>
             <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="ComponentPrettyPlural"  default="components" description="Plural pretty name of a component/area/module, e.g. 'area'. Use the capitalization that you would use in the middle of a sentence."/>

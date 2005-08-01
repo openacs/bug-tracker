@@ -829,6 +829,19 @@ ad_proc bug_tracker::bug::get_list {
                  orderby_asc {heading asc, bug_number asc}]
     }
 
+
+    set component_keyword_id [bug_tracker::get_component_keyword -package_id $package_id]
+
+    set distributions [db_list_of_lists get_distributions {}]
+        
+    if {[llength distributions] > 0} {
+        lappend filters f_distribution \
+            [list \
+                 label Distributions \
+                 values $distributions \
+                 where_clause "b.component_id in (select bkcm.component_id from cr_keywords ck, bt_keyword_component_map bkcm where ck.parent_id = :f_distribution and ck.keyword_id = bkcm.keyword_id)"]
+    }
+
     if { [bug_tracker::versions_p] } {
         lappend filters f_fix_for_version {
             label "Fix for version"
