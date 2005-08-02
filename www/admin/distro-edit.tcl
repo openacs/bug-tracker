@@ -8,11 +8,7 @@ ad_page_contract {
 
 set project_name [bug_tracker::conn project_name]
 
-if { (![info exists keyword_id] && ![info exists parent_id]) || [string equal $type_p "t"] } {
-    set object_type_name "Distribution Type"
-} else {
-    set object_type_name "Distribution"
-}
+set object_type_name "Distribution"
 
 if { [info exists keyword_id] } {
     set function "Edit"
@@ -21,7 +17,7 @@ if { [info exists keyword_id] } {
 }
 
 set page_title "$function $object_type_name"
-set context_bar [ad_context_bar [list categories "Manage Distributions"] $page_title]
+set context_bar [ad_context_bar [list distros "Manage Distributions"] $page_title]
 
 
 ad_form -name keyword -cancel_url distros -form {
