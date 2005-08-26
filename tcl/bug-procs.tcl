@@ -649,13 +649,13 @@ ad_proc -private bug_tracker::bug::notification_info::get_notification_info {
     # Build up data structures with the form labels and values
     # (Note, this is something that the metadata system should be able to do for us)
 
-    array set label {
-        summary "[_ bug-tracker.Summary]"
-        status "[_ bug-tracker.Status]"
-        found_in_version "[_ bug-tracker.Found]"
-        fix_for_version "[_ bug-tracker.Fix]"
-        fixed_in_version "[_ bug-tracker.Fixed_1]"
-    }
+    array set label [list \
+        summary "[_ bug-tracker.Summary]" \
+        status "[_ bug-tracker.Status]" \
+        found_in_version "[_ bug-tracker.Found]" \
+        fix_for_version "[_ bug-tracker.Fix]" \
+        fixed_in_version "[_ bug-tracker.Fixed_1]" \
+    ]
 
     set label(bug_number) "$pretty_names(Bug) "
     set label(component) "$pretty_names(Component)"
