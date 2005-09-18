@@ -28,7 +28,7 @@ select content from bt_patches where patch_number = :patch_number and project_id
                bt_patch_actions.comment_text,
                bt_patch_actions.comment_format
         from   bt_patch_actions,
-               cc_users actor
+               acs_users_all actor
         where  bt_patch_actions.patch_id = :patch_id
         and    actor.user_id = bt_patch_actions.actor
         order  by action_date
