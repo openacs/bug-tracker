@@ -1292,7 +1292,7 @@ ad_proc bug_tracker::project_new { project_id } {
 
     if {![db_0or1row already_there {select 1 from bt_projects where  project_id = :project_id} ] } {
 	if [db_0or1row instance_info { *SQL* } ] {
-	    set folder_id [content::folder::new -name "bug_tracker_$project_id" -package_id $project_id]
+	    set folder_id [content::folder::new -name "bug_tracker_$project_id" -package_id $project_id -context_id $project_id]
 	    content::folder::register_content_type -folder_id $folder_id -content_type {bt_bug_revision} -include_subtypes t
 	    
 	    set keyword_id [content::keyword::new -heading "$instance_name"]
