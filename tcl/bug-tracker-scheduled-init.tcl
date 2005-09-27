@@ -12,4 +12,4 @@ ad_library {
     @cvs-id $Id$
 }
 
-ad_schedule_proc -thread t -schedule_proc ns_schedule_daily [list 03 20] bug_tacker::scheduled::close_bugs
+ad_schedule_proc -thread t -schedule_proc ns_schedule_daily [list 03 20] bug_tracker::scheduled::close_bugs
