@@ -6,13 +6,13 @@
 
   <tr>
 
-    <td class="list-filter-pane" valign="top" width="200">
+    <td style="vertical-align: top;" class="list-filter-pane" width="200">
 
       <listfilters name="bugs"></listfilters>
 
     </td>
 
-    <td class="list-list-pane" valign="top">
+    <td style="vertical-align: top;" class="list-list-pane">
 
       <listtemplate name="bugs"></listtemplate>
 
