@@ -161,7 +161,6 @@
         order  by parent.heading, child.heading
     </querytext>
 </fullquery>
-
 <fullquery name="bug_tracker::project_delete.min_bug_id">
     <querytext>
         select min(bug_id)
@@ -171,13 +170,13 @@
 </fullquery>
 
 <fullquery name="bug_tracker::project_new.bt_projects_insert">
-    <querytext>
       insert into bt_projects
-        (project_id, folder_id, root_keyword_id)
+        (project_id, folder_id, root_keyword_id, component_keyword_id)
        values
-         (:project_id, :folder_id, :keyword_id)
+         (:project_id, :folder_id, :keyword_id, :component_keyword_id)
     </querytext>
 </fullquery>
+
 
 <fullquery name="bug_tracker::project_new.bt_components_insert">
     <querytext>

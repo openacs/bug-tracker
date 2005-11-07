@@ -123,6 +123,7 @@ ad_proc bug_tracker::get_page_variables {
         page:optional
         f_state:optional
         f_fix_for_version:optional
+	f_distribution:optional
         f_component:optional
         orderby:optional
         {format "table"}
@@ -145,6 +146,7 @@ ad_proc bug_tracker::get_export_variables {
     set export_vars {
         f_state
         f_fix_for_version
+	f_distribution
         f_component
         orderby
         format
@@ -843,6 +845,30 @@ ad_proc bug_tracker::assignee_get_options {
 }
 
 
+ad_proc bug_tracker::assignee_get_options {
+    -workflow_id
+    -include_unknown:boolean
+    -include_undecided:boolean
+} {
+    Returns an option list containing all users that have submitted or assigned to a bug.
+    Used for the add bug form. Added because the workflow api requires a case_id.  
+    (an item to evaluate is refactoring workflow to provide an assignee widget without a case_id)
+} {
+   
+    set assignee_list [db_list_of_lists assignees {}]
+
+    if { $include_unknown_p } {
+        set assignee_list [concat { { "Unknown" "" } } $assignee_list]
+    } 
+    
+    if { $include_undecided_p } {
+        set assignee_list [concat { { "Undecided" "" } } $assignee_list]
+    } 
+    
+    return $assignee_list
+}
+
+
 ad_proc bug_tracker::versions_p {
     {-package_id ""}
 } { 
@@ -1376,3 +1402,12 @@ ad_proc bug_tracker::state_get_filter_data {
                              -package_id $package_id \
                              -workflow_id $workflow_id]]
 }
+
+ad_proc bug_tracker::get_component_keyword {
+    {-package_id:required}
+} {
+    @param package_id The package (project) to select from
+} {
+    return [db_string get_component_keyword { select component_keyword_id from bt_projects where project_id = :package_id }]
+}
+
