@@ -170,6 +170,7 @@
 </fullquery>
 
 <fullquery name="bug_tracker::project_new.bt_projects_insert">
+   <querytext>
       insert into bt_projects
         (project_id, folder_id, root_keyword_id, component_keyword_id)
        values
