@@ -1322,6 +1322,7 @@ ad_proc bug_tracker::project_new { project_id } {
 	    content::folder::register_content_type -folder_id $folder_id -content_type {bt_bug_revision} -include_subtypes t
 	    
 	    set keyword_id [content::keyword::new -heading "$instance_name"]
+            set component_keyword_id [content::keyword::new -heading "Components $instance_name"]
 	    
 	    # Inserts into bt_projects
 	    set component_id [db_nextval acs_object_id_seq]
