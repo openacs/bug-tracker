@@ -24,7 +24,7 @@ select content from bt_patches where patch_number = :patch_number and project_id
                actor.last_name as actor_last_name,
                actor.email as actor_email,
                bt_patch_actions.action_date,
-               to_char(bt_patch_actions.action_date, 'fmMM/DDfm/YYYY') as action_date_pretty,
+               to_char(bt_patch_actions.action_date, 'YYYY-MM-DD HH24:MI:SS') as action_date_pretty,
                bt_patch_actions.comment_text,
                bt_patch_actions.comment_format
         from   bt_patch_actions,

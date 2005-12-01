@@ -48,7 +48,7 @@
     select bt_patches.patch_number,
            bt_patches.summary,
            bt_patches.status,
-           to_char(acs_objects.creation_date, 'fmMM/DDfm/YYYY') as creation_date_pretty,
+           to_char(acs_objects.creation_date, 'YYYY-MM-DD HH24:MI:SS') as creation_date_pretty,
            bt_components.component_name,
            (select atv.version_name 
             from   bt_versions atv 

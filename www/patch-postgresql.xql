@@ -21,8 +21,8 @@
             submitter.last_name as submitter_last_name,
             submitter.email as submitter_email,
             acs_objects.creation_date,
-            to_char(acs_objects.creation_date, 'fmMM/DDfm/YYYY') as creation_date_pretty,
-            to_char(now(), 'fmMM/DDfm/YYYY') as now_pretty
+            to_char(acs_objects.creation_date, 'YYYY-MM-DD HH24:MI:SS') as creation_date_pretty,
+            to_char(now(), 'YYYY-MM-DD HH24:MI:SS') as now_pretty
      from bt_patches,
           acs_objects,
           acs_users_all submitter,
