@@ -7,7 +7,7 @@
       <querytext>
 select bt_bugs.bug_number,
                 bt_bugs.summary,
-                to_char(acs_objects.creation_date, 'fmMM/DDfm/YYYY') as creation_date_pretty                
+                to_char(acs_objects.creation_date, 'YYYY-MM-DD HH24:MI:SS') as creation_date_pretty                
                 from bt_bugs, acs_objects, workflow_cases cas, workflow_case_fsm cfsm
                 where bt_bugs.bug_id = acs_objects.object_id
                  and  $sql_where_clause
