@@ -17,14 +17,14 @@
                b.component_id,
                c.component_name,
                o.creation_date,
-               to_char(o.creation_date, 'fmMM/DDfm/YYYY') as creation_date_pretty,
+               to_char(o.creation_date, 'YYYY-MM-DD HH24:MI:SS') as creation_date_pretty,
                st.pretty_name as status,
                b.resolution,
                b.user_agent,
                b.found_in_version,
                b.fix_for_version,
                b.fixed_in_version,
-               to_char(now(), 'fmMon/DDfm/YYYY') as now_pretty
+               to_char(now(), 'YYYY-MM-DD HH24:MI:SS') as now_pretty
         from   bt_bugs b,
                acs_objects o,
                bt_components c,

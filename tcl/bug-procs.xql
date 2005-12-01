@@ -41,7 +41,7 @@
              actor.last_name as actor_last_name,
              actor.email as actor_email,
              ba.action_date,
-             to_char(ba.action_date, 'fmMM/DDfm/YYYY') as action_date_pretty,
+             to_char(ba.action_date, 'YYYY-MM-DD HH24:MI:SS') as action_date_pretty,
              ba.comment_s,
              ba.comment_format
       from   bt_bug_actions ba,

@@ -11,14 +11,14 @@
              b.summary,
              b.component_id,
              b.creation_date,
-             to_char(b.creation_date, 'fmMM/DDfm/YYYY') as creation_date_pretty,
+             to_char(b.creation_date, 'YYYY-MM-DD HH24:MI:SS') as creation_date_pretty,
              b.resolution,
              b.user_agent,
              b.found_in_version,
              b.found_in_version,
              b.fix_for_version,
              b.fixed_in_version,
-             to_char(now(), 'fmMM/DDfm/YYYY') as now_pretty
+             to_char(now(), 'YYYY-MM-DD HH24:MI:SS') as now_pretty
       from   bt_bugs b
       where  b.bug_id = :bug_id
     </querytext>
@@ -108,7 +108,7 @@
            b.comment_format,
            b.component_id,
            b.creation_date,
-           to_char(b.creation_date, 'fmMM/DDfm/YYYY') as creation_date_pretty,
+           to_char(b.creation_date, 'YYYY-MM-DD HH24:MI:SS') as creation_date_pretty,
            b.creation_user as submitter_user_id,
            submitter.first_names as submitter_first_names,
            submitter.last_name as submitter_last_name,
@@ -158,7 +158,7 @@ from (
          b.comment_format,
          b.component_id,
          b.creation_date,
-         to_char(b.creation_date, 'fmMM/DDfm/YYYY') as creation_date_pretty,
+         to_char(b.creation_date, 'YYYY-MM-DD HH24:MI:SS') as creation_date_pretty,
          b.creation_user as submitter_user_id,
          submitter.first_names as submitter_first_names,
          submitter.last_name as submitter_last_name,
