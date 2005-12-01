@@ -104,8 +104,8 @@ ad_proc -private bug_tracker::search::patch::datasource { patch_id } {
             submitter.last_name as submitter_last_name,
             submitter.email as submitter_email,
             acs_objects.creation_date,
-            to_char(acs_objects.creation_date, 'fmMM/DDfm/YYYY') as creation_date_pretty,
-            to_char(now(), 'fmMM/DDfm/YYYY') as now_pretty
+            to_char(acs_objects.creation_date, 'YYYY-MM-DD HH24:MI:SS') as creation_date_pretty,
+            to_char(now(), 'YYYY-MM-DD HH24:MI:SS') as now_pretty
      from bt_patches,
           acs_objects,
           cc_users submitter,
@@ -133,7 +133,7 @@ ad_proc -private bug_tracker::search::patch::datasource { patch_id } {
                actor.last_name as actor_last_name,
                actor.email as actor_email,
                bt_patch_actions.action_date,
-               to_char(bt_patch_actions.action_date, 'fmMM/DDfm/YYYY') as action_date_pretty,
+               to_char(bt_patch_actions.action_date, 'YYYY-MM-DD HH24:MI:SS') as action_date_pretty,
                bt_patch_actions.comment_text,
                bt_patch_actions.comment_format
         from   bt_patch_actions,
