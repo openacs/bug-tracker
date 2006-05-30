@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="bug-tracker" package_version="1.3d3" locale="en_US" charset="ISO-8859-1">
+<message_catalog package_key="bug-tracker" package_version="1.5d2" locale="en_US" charset="ISO-8859-1">
 
-  <msg key="Accepted">Accepted</msg>
   <msg key="Accept">Accept</msg>
+  <msg key="Accepted">Accepted</msg>
   <msg key="action_open">Open</msg>
   <msg key="Actual">freeze</msg>
   <msg key="Actual_1">release</msg>
@@ -35,13 +35,13 @@
   <msg key="Bug-tracker_1">project maintainer</msg>
   <msg key="Bug-tracker_2">bug info</msg>
   <msg key="Bug_Bug_cat">*Bug</msg>
-  <msg key="Bug_Number">Bug Number</msg>
   <msg key="Bug_not_found">Bug #%bug_number% not found.</msg>
-  <msg key="Bug_Title">#%bug_number% - %bug_name%</msg>
+  <msg key="Bug_Number">Bug Number</msg>
   <msg key="Bug_status_open_filter">Bug status: [ %open_filter% ]</msg>
   <msg key="Bug_Sug_Cat">Suggestion</msg>
-  <msg key="Bug_Type">Bug Type</msg>
+  <msg key="Bug_Title">#%bug_number% - %bug_name%</msg>
   <msg key="Bug_Tracker">Bug Tracker</msg>
+  <msg key="Bug_Type">Bug Type</msg>
   <msg key="Bugs">of any Status</msg>
   <msg key="By_Design">By Design</msg>
   <msg key="Capture">resolution code in the case activity log</msg>
@@ -72,6 +72,7 @@
   <msg key="Deleted">Deleted</msg>
   <msg key="Description">Description</msg>
   <msg key="Description_1">format</msg>
+  <msg key="Details">Details</msg>
   <msg key="Download_patch_content">Download patch content</msg>
   <msg key="Duplicate">Duplicate</msg>
   <msg key="Edit">Edit</msg>
@@ -97,6 +98,7 @@
   <msg key="Generated">from Version</msg>
   <msg key="hide_user_agent">hide user agent</msg>
   <msg key="How_to_submit_a_patch">How to submit a patch</msg>
+  <msg key="HTML">Plain</msg>
   <msg key="In_Development">In Development</msg>
   <msg key="Initial">Setup</msg>
   <msg key="Initial_project_config">Initial project configuration</msg>
@@ -115,6 +117,7 @@
   <msg key="Manage_your_notification">Manage your notifications</msg>
   <msg key="Map">map to %bugs_name%</msg>
   <msg key="Mapping">Map patch #%patch_number% &quot;%patch_summary%&quot; to a Bug</msg>
+  <msg key="Message_Type">Message Type</msg>
   <msg key="Name_in_shortcut_URL">Name in shortcut URL</msg>
   <msg key="Need_Info">Need_Info</msg>
   <msg key="New">New</msg>
@@ -143,23 +146,22 @@
   <msg key="Opened">Opened</msg>
   <msg key="Page_with_pagination">Page with  [ %pagination_filter% ] &amp;nbsp; &amp;nbsp; Show</msg>
   <msg key="Parameters">Parameters</msg>
-  <msg key="Patch_Header">%patch_pretty_name% %patch_action_pretty_mode% by %bt_user_first_names% %bt_user_last_name%</msg>
   <msg key="Patch">file</msg>
   <msg key="Patch_1">#</msg>
   <msg key="Patch_2">file (leave blank to keep current file):</msg>
   <msg key="Patch_3">#%patch_number%</msg>
+  <msg key="Patch_Header">%patch_pretty_name% %patch_action_pretty_mode% by %bt_user_first_names% %bt_user_last_name%</msg>
   <msg key="Patch_Page_Title">Patch #%patch_number%: %patch_summary%</msg>
   <msg key="Permission">Denied</msg>
   <msg key="Permission_Denied">Permission Denied</msg>
   <msg key="Permissions">Permissions</msg>
   <msg key="Plain">Plain</msg>
-  <msg key="HTML">Plain</msg>
-  <msg key="Preformatted">Preformatted</msg>
   <msg key="Planned_Freeze">Planned Freeze</msg>
   <msg key="Planned_Release">Planned Release</msg>
   <msg key="Please_contact_admin">Please contact a project administrator to get the components set up.</msg>
   <msg key="Please_visit_admin_page">Please visit the &lt;a href=&quot;admin/&quot;&gt;project administration&lt;/a&gt; pages to define software components.</msg>
   <msg key="Postponed">Postponed</msg>
+  <msg key="Preformatted">Preformatted</msg>
   <msg key="Prefs">Pref</msg>
   <msg key="pretty_plural_per_page">%pretty_plural% per page</msg>
   <msg key="Prio_High_Cat">1 - High</msg>
@@ -171,8 +173,8 @@
   <msg key="Project_administration">Project administration</msg>
   <msg key="Reassign">Reassign</msg>
   <msg key="Reassigned">Reassigned</msg>
-  <msg key="Refused">Refused</msg>
   <msg key="Refuse">Refuse</msg>
+  <msg key="Refused">Refused</msg>
   <msg key="Release">Release</msg>
   <msg key="Release_1">Version</msg>
   <msg key="Release_this_version">Release this version</msg>
@@ -215,12 +217,11 @@ High&amp;quot;, &amp;quot;2 - Normal&amp;quot;, etc., or &amp;quot;A - Critical&
   <msg key="Subscribe_1">to %pretty_name%</msg>
   <msg key="Summary">Summary</msg>
   <msg key="Support_Center">Support-Center</msg>
+  <msg key="Support_Error">*Error</msg>
   <msg key="Support_Problem">Problem</msg>
   <msg key="Support_Question">*Question</msg>
   <msg key="Support_Suggestion">Suggestion</msg>
   <msg key="Support_Type">Support Type</msg>
-  <msg key="Message_Type">Message Type</msg>
-  <msg key="Support_Error">*Error</msg>
   <msg key="Supported">platforms</msg>
   <msg key="Table">Table</msg>
   <msg key="There_are_no_open_to_map">There are no open %pretty_names.bugs% to map the patch to. Try changing the component filter above.</msg>
@@ -264,5 +265,4 @@ High&amp;quot;, &amp;quot;2 - Normal&amp;quot;, etc., or &amp;quot;A - Critical&
   <msg key="Your">Your Preferences</msg>
   <msg key="Your_1">Your version</msg>
   <msg key="Your_version">Your version:</msg>
-  <msg key="Details">Details</msg>
 </message_catalog>
