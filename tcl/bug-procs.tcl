@@ -828,7 +828,19 @@ ad_proc bug_tracker::bug::get_list {
                  orderby_desc {heading desc, bug_number desc} \
                  orderby_asc {heading asc, bug_number asc}]
     }
-
+     
+    set component_keyword_id [bug_tracker::get_component_keyword -package_id $package_id]
+     
+    set distributions [db_list_of_lists get_distributions {}]
+     
+    if {[llength distributions] > 0} {
+	         lappend filters f_distribution \
+		     [list \
+			                    label Distributions \
+			                    values $distributions \
+			  where_clause "b.component_id in (select bkcm.component_id from cr_keywords ck, bt_keyword_component_map bkcm where ck.parent_id = :f_distribution and ck.keyword_id = bkcm.keyword_id)"]
+    }
+     
     if { [bug_tracker::versions_p] } {
         lappend filters f_fix_for_version {
             label "[_ bug-tracker.Fix]"
@@ -839,14 +851,14 @@ ad_proc bug_tracker::bug::get_list {
         }
     }
 
-    foreach action_id [workflow::get_actions -workflow_id $workflow_id] {
-        array unset action
-        workflow::action::get -action_id $action_id -array action
+     foreach action_id [workflow::get_actions -workflow_id $workflow_id] {
+         array unset action
+         workflow::action::get -action_id $action_id -array action
 
-        set values [bug_tracker::assignee_get_filter_data \
-                       -package_id $package_id \
-                       -workflow_id $workflow_id \
-                       -action_id $action_id]
+         set values [bug_tracker::assignee_get_filter_data \
+                        -package_id $package_id \
+                        -workflow_id $workflow_id \
+                        -action_id $action_id]
         
         lappend filters f_action_$action_id \
             [list \

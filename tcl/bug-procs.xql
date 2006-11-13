@@ -104,5 +104,22 @@
       </querytext>
   </partialquery>
 
+  <fullquery name="bug_tracker::bug::get_list.get_distributions">
+    <querytext>
+       select k.heading, k.keyword_id, 
+         (select count(*) 
+          from bt_bugs b 
+          where b.component_id in 
+          (select cm.component_id 
+           from bt_keyword_component_map cm 
+           where cm.keyword_id in 
+           (select kk.keyword_id 
+            from cr_keywords kk 
+            where kk.parent_id = k.keyword_id))) as num_bugs
+       from   cr_keywords k
+       where  k.parent_id = :component_keyword_id
+     </querytext>
+ </fullquery>
+
 </queryset>
 
