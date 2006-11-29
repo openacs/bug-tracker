@@ -241,6 +241,8 @@ High&amp;quot;, &amp;quot;2 - Normal&amp;quot;, etc., or &amp;quot;A - Critical&
   <msg key="unmap">unmap</msg>
   <msg key="Unsubscribe">Unsubscribe</msg>
   <msg key="Unsubscribe_1">from %pretty_name%&quot; &quot;&lt;# Subscribe to %pretty_name%</msg>
+  <description key="Unsubscribe_1">Something went horribly wrong here!</description>
+
   <msg key="unsubscribe_to_bug">Unsubscribe to notifications for activity on this %bug_name%</msg>
   <msg key="Upload_Patch">Upload a patch</msg>
   <msg key="Use_default_setup">Use default setup</msg>

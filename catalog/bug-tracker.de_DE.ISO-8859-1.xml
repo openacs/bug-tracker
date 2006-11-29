@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<message_catalog package_key="bug-tracker" package_version="1.5d2" locale="de_DE" charset="ISO-8859-1">
+
+  <msg key="Accept">Akzeptieren</msg>
+  <msg key="Accepted">Akzeptiert</msg>
+  <msg key="action_open">Öffnen</msg>
+  <msg key="Add_1">Benutzer</msg>
+  <msg key="Add_2">Version</msg>
+  <msg key="Parameters">Parameter</msg>
+  <msg key="Patch_1">#</msg>
+  <msg key="Version">Version</msg>
+  <msg key="Version_1">Name</msg>
+  <msg key="Version_2">Name</msg>
+  <msg key="Version_id">Version_id %version_id% nicht gefunden</msg>
+  <msg key="Versions">Versionen</msg>
+  <msg key="You_6">Sie sind nicht berechtigt, diesen Patch zu editieren.</msg>
+  <msg key="Your">Ihre Einstellungen</msg>
+  <msg key="Your_1">Ihre Version</msg>
+  <msg key="Your_version">Ihre Version:</msg>
+</message_catalog>
