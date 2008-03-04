@@ -1246,6 +1246,7 @@ ad_proc bug_tracker::get_uploaded_patch_file_content {
     set tmp_file [ns_queryget patch_file.tmpfile]
     set tmp_file_channel [open $tmp_file r]
     set content [read $tmp_file_channel]
+    close $tmp_file_channel
 
     return $content
 }
