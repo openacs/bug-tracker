@@ -100,7 +100,7 @@ ad_proc -public bug_tracker::bug::insert {
     @return bug_id The same bug_id passed in, just for convenience.
     
 } {
-    if { ![exists_and_not_null user_agent] } {
+    if { ![exists_and_not_null user_agent] && [ad_conn isconnected] } {
         set user_agent [ns_set get [ns_conn headers] "User-Agent"]
     }
 
@@ -191,7 +191,8 @@ ad_proc -public bug_tracker::bug::new {
                 -comment $description \
                 -comment_mime_type $desc_format \
 		-user_id $user_id \
-		-assignment [array get assign_array]]
+		-assignment [array get assign_array] \
+        -package_id $package_id]
     
     return $bug_id
     }
@@ -666,7 +667,7 @@ ad_proc -private bug_tracker::bug::notification_info::get_notification_info {
     }
 
     # keywords
-    foreach { category_id category_name } [bug_tracker::category_types] {
+    foreach { category_id category_name } [bug_tracker::category_types -package_id $bug(project_id)] {
         lappend fields $category_id
         set value($category_id) [bug_tracker::category_heading \
                                      -keyword_id [cr::keyword::item_get_assigned -item_id $bug(bug_id) -parent_id $category_id] \

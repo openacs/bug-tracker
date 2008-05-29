@@ -853,7 +853,7 @@ ad_proc bug_tracker::versions_p {
         set package_id [ad_conn package_id]
     }
     
-    return [parameter::get -package_id [ad_conn package_id] -parameter "VersionsP" -default 1]
+    return [parameter::get -package_id $package_id -parameter "VersionsP" -default 1]
 }
 
 
