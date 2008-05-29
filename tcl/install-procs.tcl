@@ -65,6 +65,12 @@ ad_proc -private bug_tracker::install::package_upgrade {
                     workflow::case::state_changed_handler -case_id $case_id
                 }
             }
+            1.4d3 1.4d4 { 
+                db_foreach select_folder_ids {} {
+                    content::folder::register_content_type -folder_id $folder_id -content_type "content_revision"
+                    content::folder::register_content_type -folder_id $folder_id -content_type "image"
+                }
+            }
         }
 }
 

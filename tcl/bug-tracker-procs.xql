@@ -221,6 +221,25 @@
     </querytext>
   </fullquery>
 
-
+  <fullquery name="bug_tracker::get_related_files_links.get_related_files_for_bug">      
+    <querytext>
+      select l.rel_id,
+             l.object_id_two as related_object_id,
+             r.title as related_title,
+             i.name as related_name,
+             o.creation_user as related_creation_user,
+             r.revision_id as related_revision_id
+        from acs_data_links l,
+             cr_items i,
+             cr_revisions r,
+             acs_objects o
+       where l.object_id_one = :bug_id
+             and l.object_id_two = i.item_id
+             and r.revision_id = i.live_revision
+             and i.item_id = o.object_id
+             and (i.content_type = 'content_revision' or i.content_type = 'image')
+       order by l.object_id_two
+    </querytext>
+  </fullquery>
  
 </queryset>

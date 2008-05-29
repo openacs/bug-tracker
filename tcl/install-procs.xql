@@ -16,4 +16,11 @@
     </querytext>
 </fullquery>
 
+<fullquery name="bug_tracker::install::package_upgrade.select_folder_ids">
+    <querytext>
+      select folder_id
+      from bt_projects
+    </querytext>
+</fullquery>
+
 </queryset>

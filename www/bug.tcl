@@ -39,6 +39,8 @@ set versions_p [bug_tracker::versions_p]
 # Paches enabled for this project?
 set patches_p [bug_tracker::patches_p]
 
+# Does project allow upload of related files?
+set related_files_p [bug_tracker::related_files_p]
 
 #####
 #
@@ -186,6 +188,10 @@ workflow::case::role::add_assignee_widgets -case_id $case_id -form_name bug
 # More fixed form elements
 
 ad_form -extend -name bug -form {
+    {related_files:text(inform)
+	{label "[_ bug-tracker.Related_Files]"}
+	{mode display}
+    }
     {patches:text(inform)
 	{label $patch_label}
 	{mode display}
@@ -300,6 +306,9 @@ if { ![form is_valid bug] } {
     # Display value for patches
     set bug(patches_display) "[bug_tracker::get_patch_links -bug_id $bug(bug_id) -show_patch_status $show_patch_status] &nbsp; \[ <a href=\"patch-add?[export_vars { { bug_number $bug(bug_number) } { component_id $bug(component_id) } }]\">[_ bug-tracker.Upload_Patch]</a> \]"
 
+    # Display value for related files
+    set bug(related_files_display) "[bug_tracker::get_related_files_links -bug_id $bug(bug_id)]<br>\[ <a href=\"related-file-add?[export_vars { { bug_number $bug(bug_number) } return_url }]\">[_ bug-tracker.Upload_related_file]</a> \]"
+
     # Hide elements that should be hidden depending on the bug status
     foreach element $bug(hide_fields) {
         element set_properties bug $element -widget hidden
@@ -315,6 +324,14 @@ if { ![form is_valid bug] } {
 
     if { !$patches_p } {
         foreach element { patches } {
+            if { [info exists bug:$element] } {
+                element set_properties bug $element -widget hidden
+            }
+        }
+    }
+
+    if { !$related_files_p } {
+        foreach element { related_files } {
             if { [info exists bug:$element] } {
                 element set_properties bug $element -widget hidden
             }
@@ -357,6 +374,7 @@ if { ![form is_valid bug] } {
     # Set values for elements with separate display value
     foreach element { 
         patches
+        related_files
     } {
         # check that the element exists
         if { [info exists bug:$element] } {
