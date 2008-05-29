@@ -872,46 +872,13 @@ ad_proc bug_tracker::bug::get_list {
         upvar \#[template::adp_level] $var $var
     }
 
-    # Get enabled actions on the filtered state
-    if {[info exists f_state]} {
-        set bulk_action_f_state $f_state
-    } else {
-        set bulk_action_f_state $state_default_value
-    }
-    set enabled_actions_for_this_state [db_list get_action_ids {
-        select action_id
-        from workflow_fsm_action_en_in_st
-        where state_id = :bulk_action_f_state
-    }]
-
-    # Generate bulk actions
-
-    set bulk_actions {}
-    foreach action_id [workflow::get_actions -workflow_id $workflow_id] {
-        if {[lsearch $enabled_actions_for_this_state $action_id] != -1} {
-            # this particular action is enabled
-            # add to bulk actions
-            workflow::action::get -action_id $action_id -array bulk_action_array_info
-            set action_pretty_name $bulk_action_array_info(pretty_name)
-            set action_short_name $bulk_action_array_info(short_name)
-            lappend bulk_actions "$action_pretty_name" "bulk-update/${action_short_name}" "$action_pretty_name"
-        }
-    }
-    lappend bulk_actions "[_ bug-tracker.Send_Summary_Email]" "send-summary-email" "[_ bug-tracker.Send_Summary_Email]"
-
-    set bulk_action_export_vars [list [list workflow_id $workflow_id] [list return_url [ad_return_url]]]
-
     template::list::create \
         -ulevel [expr $ulevel + 1] \
         -name bugs \
         -multirow bugs \
-        -key bug_id \
         -class "list-tiny" \
         -sub_class "narrow" \
         -pass_properties { pretty_names } \
-        -bulk_actions $bulk_actions \
-        -bulk_action_method get \
-        -bulk_action_export_vars $bulk_action_export_vars \
         -elements $elements \
         -filters $filters \
         -orderby $orderbys \

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="bug-tracker" package_version="1.3d3" locale="en_US" charset="ISO-8859-1">
+<message_catalog package_key="bug-tracker" locale="en_US" charset="ISO-8859-1">
 
-  <msg key="Accepted">Accepted</msg>
   <msg key="Accept">Accept</msg>
+  <msg key="Accepted">Accepted</msg>
   <msg key="action_open">Open</msg>
   <msg key="Actual">freeze</msg>
   <msg key="Actual_1">release</msg>
@@ -30,19 +30,29 @@
   <msg key="Apply_2">to Version</msg>
   <msg key="Assign">Assign</msg>
   <msg key="Assignable?">Assignable</msg>
+  <msg key="Assigned_To">Assigned To</msg>
   <msg key="Before_getting_started">Before you can get started using the bug-tracker, you need to create at least one component.</msg>
   <msg key="Bug-tracker">component maintainer</msg>
   <msg key="Bug-tracker_1">project maintainer</msg>
   <msg key="Bug-tracker_2">bug info</msg>
   <msg key="Bug_Bug_cat">*Bug</msg>
-  <msg key="Bug_Number">Bug Number</msg>
   <msg key="Bug_not_found">Bug #%bug_number% not found.</msg>
-  <msg key="Bug_Title">#%bug_number% - %bug_name%</msg>
+  <msg key="Bug_not_found_2">Bug not found</msg>
+  <msg key="Bug_Number">Bug Number</msg>
   <msg key="Bug_status_open_filter">Bug status: [ %open_filter% ]</msg>
   <msg key="Bug_Sug_Cat">Suggestion</msg>
-  <msg key="Bug_Type">Bug Type</msg>
+  <msg key="Bug_Title">#%bug_number% - %bug_name%</msg>
   <msg key="Bug_Tracker">Bug Tracker</msg>
+  <msg key="Bug_Type">Bug Type</msg>
   <msg key="Bugs">of any Status</msg>
+  <msg key="bulk_action_error">Error on %bug_pretty_s% ID %one_bug_id%:</msg>
+  <msg key="bulk_actions_errors">Skipping due to errors</msg>
+  <msg key="bulk_actions_perform">Actions to be performed</msg>
+  <msg key="bulk_actions_security_no_perms">No permission on #%bug_info.bug_number%: %bug_info.summary%</msg>
+  <msg key="bulk_actions_security_not_enabled">%action_pretty_name% not enabled on #%bug_info.bug_number%: %bug_info.summary%</msg>
+  <msg key="bulk_actions_security_violations">Skipping because you do not have permission to %action_short_name%</msg>
+  <msg key="bulk_actions_success_inform">Will %action_short_name% #%bug_info.bug_number%: %bug_info.summary%</msg>
+  <msg key="Bulk_update_op">Bulk %action_pretty_name% %bug_pretty%</msg>
   <msg key="By_Design">By Design</msg>
   <msg key="Capture">resolution code in the case activity log</msg>
   <msg key="Categories">Categories</msg>
@@ -97,6 +107,8 @@
   <msg key="Generated">from Version</msg>
   <msg key="hide_user_agent">hide user agent</msg>
   <msg key="How_to_submit_a_patch">How to submit a patch</msg>
+  <msg key="HTML">Plain</msg>
+  <msg key="ID">ID</msg>
   <msg key="In_Development">In Development</msg>
   <msg key="Initial">Setup</msg>
   <msg key="Initial_project_config">Initial project configuration</msg>
@@ -115,6 +127,7 @@
   <msg key="Manage_your_notification">Manage your notifications</msg>
   <msg key="Map">map to %bugs_name%</msg>
   <msg key="Mapping">Map patch #%patch_number% &quot;%patch_summary%&quot; to a Bug</msg>
+  <msg key="Message_Type">Message Type</msg>
   <msg key="Name_in_shortcut_URL">Name in shortcut URL</msg>
   <msg key="Need_Info">Need_Info</msg>
   <msg key="New">New</msg>
@@ -127,6 +140,7 @@
   <msg key="No_of_All">%next_bug_num% of %all_bugs%</msg>
   <msg key="No_patches">No %patches_name%.</msg>
   <msg key="No_Permission_to_do_action">You don't have permission to '%action.pretty_name%' on bug #%bug_id% &quot;%bug.summary%&quot;</msg>
+  <msg key="No_selected_bugs">No selected bugs.</msg>
   <msg key="No_user_in_database">Couldn't find user in database</msg>
   <msg key="None">None</msg>
   <msg key="Not_logged_in">You're not logged in. For more options, &lt;a href=&quot;%login_url%&quot;&gt;log in now&lt;/a&gt;.</msg>
@@ -143,23 +157,22 @@
   <msg key="Opened">Opened</msg>
   <msg key="Page_with_pagination">Page with  [ %pagination_filter% ] &amp;nbsp; &amp;nbsp; Show</msg>
   <msg key="Parameters">Parameters</msg>
-  <msg key="Patch_Header">%patch_pretty_name% %patch_action_pretty_mode% by %bt_user_first_names% %bt_user_last_name%</msg>
   <msg key="Patch">file</msg>
   <msg key="Patch_1">#</msg>
   <msg key="Patch_2">file (leave blank to keep current file):</msg>
   <msg key="Patch_3">#%patch_number%</msg>
+  <msg key="Patch_Header">%patch_pretty_name% %patch_action_pretty_mode% by %bt_user_first_names% %bt_user_last_name%</msg>
   <msg key="Patch_Page_Title">Patch #%patch_number%: %patch_summary%</msg>
   <msg key="Permission">Denied</msg>
   <msg key="Permission_Denied">Permission Denied</msg>
   <msg key="Permissions">Permissions</msg>
   <msg key="Plain">Plain</msg>
-  <msg key="HTML">Plain</msg>
-  <msg key="Preformatted">Preformatted</msg>
   <msg key="Planned_Freeze">Planned Freeze</msg>
   <msg key="Planned_Release">Planned Release</msg>
   <msg key="Please_contact_admin">Please contact a project administrator to get the components set up.</msg>
   <msg key="Please_visit_admin_page">Please visit the &lt;a href=&quot;admin/&quot;&gt;project administration&lt;/a&gt; pages to define software components.</msg>
   <msg key="Postponed">Postponed</msg>
+  <msg key="Preformatted">Preformatted</msg>
   <msg key="Prefs">Pref</msg>
   <msg key="pretty_plural_per_page">%pretty_plural% per page</msg>
   <msg key="Prio_High_Cat">1 - High</msg>
@@ -171,8 +184,8 @@
   <msg key="Project_administration">Project administration</msg>
   <msg key="Reassign">Reassign</msg>
   <msg key="Reassigned">Reassigned</msg>
-  <msg key="Refused">Refused</msg>
   <msg key="Refuse">Refuse</msg>
+  <msg key="Refused">Refused</msg>
   <msg key="Release">Release</msg>
   <msg key="Release_1">Version</msg>
   <msg key="Release_this_version">Release this version</msg>
@@ -189,6 +202,15 @@
   <msg key="Return">Return</msg>
   <msg key="Search">Search...</msg>
   <msg key="Select_one_or_more_of">Select one or more of the following %pretty_names.bugs% for patch &quot;%patch_summary%&quot; (you may select more %pretty_names.bugs% later):</msg>
+  <msg key="send_email_error">Error on %bug_pretty_s% ID %one_bug_id%:</msg>
+  <msg key="send_email_success_inform">#%bug_info.bug_number%: %bug_info.summary%</msg>
+  <msg key="Send_Summary_Email">Send Summary Email</msg>
+  <msg key="send_summary_email_errors">Skipping sending of summary for these emails</msg>
+  <msg key="send_summary_email_header">%bug_pretty% Summary for %package_instance_name% (%subsite_instance_name%)</msg>
+  <msg key="send_summary_email_perform">Sending summary for these bugs</msg>
+  <msg key="send_summary_email_Recipients">Recipients</msg>
+  <msg key="send_summary_email_Recipients_help">A space-separated list of emails to send to</msg>
+  <msg key="send_summary_email_subject">%bug_pretty% Summary for %package_instance_name%</msg>
   <msg key="set">set</msg>
   <msg key="Set_to_current">Set to current</msg>
   <msg key="Sev_Critical_Cat">1 - Critical</msg>
@@ -215,14 +237,14 @@ High&amp;quot;, &amp;quot;2 - Normal&amp;quot;, etc., or &amp;quot;A - Critical&
   <msg key="Subscribe_1">to %pretty_name%</msg>
   <msg key="Summary">Summary</msg>
   <msg key="Support_Center">Support-Center</msg>
+  <msg key="Support_Error">*Error</msg>
   <msg key="Support_Problem">Problem</msg>
   <msg key="Support_Question">*Question</msg>
   <msg key="Support_Suggestion">Suggestion</msg>
   <msg key="Support_Type">Support Type</msg>
-  <msg key="Message_Type">Message Type</msg>
-  <msg key="Support_Error">*Error</msg>
   <msg key="Supported">platforms</msg>
   <msg key="Table">Table</msg>
+  <msg key="The_operation_you_1">The operation you provided looks invalid. Please check your url or contact the webmaster if you think it should work.</msg>
   <msg key="There_are_no_open_to_map">There are no open %pretty_names.bugs% to map the patch to. Try changing the component filter above.</msg>
   <msg key="this_bug">this %bug_name%</msg>
   <msg key="This_is_a_new_project">This is a new project.</msg>
