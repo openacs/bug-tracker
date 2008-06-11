@@ -915,7 +915,7 @@ ad_proc bug_tracker::bug::get_list {
         -elements $elements \
         -filters $filters \
         -orderby $orderbys \
-        -page_size 25 \
+        -page_size [parameter::get -package_id [ad_conn package_id] -parameter PageSize] \
         -page_flush_p 0 \
         -page_query {[bug_tracker::bug::get_query -query_name bugs_pagination]} \
         -formats {
