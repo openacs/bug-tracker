@@ -1,8 +1,5 @@
 <master>
   <property name="title">@title;noquote@</property>
-  <property name="header_stuff">
-    <link rel="stylesheet" type="text/css" href="/resources/bug-tracker/bug-tracker.css" media="all">
-  </property>
   <if @signatory@ not nil><property name="signatory">@signatory;noquote@</property></if>
   <if @focus@ not nil><property name="focus">@focus;noquote@</property></if>
   <if @displayed_object_id@ not nil><property name="displayed_object_id">@displayed_object_id;noquote@</property></if>
