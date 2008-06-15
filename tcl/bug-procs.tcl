@@ -496,7 +496,7 @@ ad_proc -public bug_tracker::bug::get_package_workflow_id {} {
 } {
     return [workflow::get_id \
             -short_name [workflow_short_name] \
-            -package_key [bug_tracker::package_key]]
+            -package_key bug-tracker]
 
 }
 

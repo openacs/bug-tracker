@@ -28,7 +28,7 @@ ad_proc -public -callback acs_mail_lite::incoming_email -impl bug-tracker {
         }
     }
 
-    set package_key [bug_tracker::package_key]
+    set package_key bug-tracker
 
     set package_id_list [db_list get_package_ids {}]
     

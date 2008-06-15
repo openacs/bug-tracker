@@ -149,7 +149,7 @@ ad_proc -private bug_tracker::install::register_capture_resolution_code_impl {} 
     }
     
     lappend spec contract_name [workflow::service_contract::action_side_effect] 
-    lappend spec owner [bug_tracker::package_key]
+    lappend spec owner bug-tracker
     
     acs_sc::impl::new_from_spec -spec $spec
 }
@@ -166,7 +166,7 @@ ad_proc -private bug_tracker::install::register_component_maintainer_impl {} {
     }
     
     lappend spec contract_name [workflow::service_contract::role_default_assignees]
-    lappend spec owner [bug_tracker::package_key]
+    lappend spec owner bug-tracker
     
     acs_sc::impl::new_from_spec -spec $spec
 }
@@ -183,7 +183,7 @@ ad_proc -private bug_tracker::install::register_project_maintainer_impl {} {
     }
     
     lappend spec contract_name [workflow::service_contract::role_default_assignees]
-    lappend spec owner [bug_tracker::package_key]
+    lappend spec owner bug-tracker
     
     acs_sc::impl::new_from_spec -spec $spec
 }
@@ -200,7 +200,7 @@ ad_proc -private bug_tracker::install::register_format_log_title_impl {} {
     }
     
     lappend spec contract_name [workflow::service_contract::activity_log_format_title]
-    lappend spec owner [bug_tracker::package_key]
+    lappend spec owner bug-tracker
     
     acs_sc::impl::new_from_spec -spec $spec
 }
@@ -217,7 +217,7 @@ ad_proc -private bug_tracker::install::register_bug_notification_info_impl {} {
     }
     
     lappend spec contract_name [workflow::service_contract::notification_info]
-    lappend spec owner [bug_tracker::package_key]
+    lappend spec owner bug-tracker
     
     acs_sc::impl::new_from_spec -spec $spec
 }

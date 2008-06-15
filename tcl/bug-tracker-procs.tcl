@@ -10,10 +10,6 @@ ad_library {
 
 namespace eval bug_tracker {}
 
-ad_proc bug_tracker::package_key {} {
-    return "bug-tracker"
-}
-
 ad_proc bug_tracker::conn { args } {
 
     global bt_conn

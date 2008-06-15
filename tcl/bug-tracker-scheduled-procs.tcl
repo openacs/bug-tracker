@@ -18,7 +18,7 @@ ad_proc -public bug_tracker::scheduled::close_bugs {
 } {
     set bt_instance [parameter::get -parameter BugTrackerInstance -package_id [ad_acs_kernel_id] -default {}]
     if {![empty_string_p $bt_instance]} {
-	array set community_info [site_node::get -url "${bt_instance}/[bug_tracker::package_key]"]
+	array set community_info [site_node::get -url "${bt_instance}/bug-tracker"]
 	set bt_package_id $community_info(package_id)
 	db_foreach open_bug { *SQL* } {
 	    set case_id [workflow::case::get_id \
