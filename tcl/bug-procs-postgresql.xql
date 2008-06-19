@@ -187,7 +187,8 @@ from (
      and cfsm.case_id = cas.case_id
      and cfsm.parent_enabled_action_id is null
      and st.state_id = cfsm.current_state 
-   $orderby_category_where_clause
+   [template::list::filter_where_clauses -and -name "bugs"]
+   $orderby_category_where_clause   
    [template::list::page_where_clause -and -name bugs -key bug_id]
 ) q
 left outer join
