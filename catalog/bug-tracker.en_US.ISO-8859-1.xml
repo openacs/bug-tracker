@@ -32,6 +32,7 @@
   <msg key="Assignable?">Assignable</msg>
   <msg key="Assigned_To">Assigned To</msg>
   <msg key="Before_getting_started">Before you can get started using the bug-tracker, you need to create at least one component.</msg>
+  <msg key="Bug">Bug</msg>
   <msg key="Bug-tracker">component maintainer</msg>
   <msg key="Bug-tracker_1">project maintainer</msg>
   <msg key="Bug-tracker_2">bug info</msg>
@@ -294,6 +295,7 @@ High&amp;quot;, &amp;quot;2 - Normal&amp;quot;, etc., or &amp;quot;A - Critical&
   <msg key="View_the_bug_fo_component">View the %pretty_names.bugs% for this component</msg>
   <msg key="watch_this_bug">Watch this %bug_name%</msg>
   <msg key="Wont_Fix">Won't fix</msg>
+  <msg key="Workflow">Workflow</msg>
   <msg key="Writing_a_good_bug_report">Writing a good bug report</msg>
   <msg key="You">You can filter by this %component_name% by viisting %filter_url_string%</msg>
   <msg key="You_1">You do not have permission to map this patch to a bug. Only the submitter of the patch and users with write permission on this Bug Tracker project (package instance) may do so.</msg>
