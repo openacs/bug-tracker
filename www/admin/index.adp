@@ -94,12 +94,25 @@
       &nbsp;
     </td>
   </tr>
+
   <tr bgcolor="#cccccc">
     <td colspan="3">
      #bug-tracker.Parameters#
     </td>
     <td align="center">
       <a href="@parameters_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="#acs-kernel.common_edit#"></a>
+    </td>
+    <td align="center">
+      &nbsp;
+    </td>
+  </tr>
+
+  <tr bgcolor="#cccccc">
+    <td colspan="3">
+     #bug-tracker.Workflow#: <i>Foo!</i>
+    </td>
+    <td align="center">
+      <a href="@workflow_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="#acs-kernel.common_edit#"></a>
     </td>
     <td align="center">
       &nbsp;

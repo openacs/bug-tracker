@@ -9,6 +9,10 @@ create table bt_projects (
                                 on delete cascade
                                 constraint bt_projects_pk 
                                 primary key,
+  workflow_id                   integer 
+                                constraint bt_projects_workflow_id_fk
+                                references workflows(workflow_id) 
+                                on delete cascade,
   description                   text,
   -- short string will be included in the subject line of emails                                                                
   email_subject_name            text,
@@ -111,13 +115,18 @@ declare
     p_project_id          alias for $1;
     v_folder_id           integer;
     v_root_keyword_id     integer;
+    v_workflow_id         integer;
     rec                   record;
 begin
-    -- get the content folder for this instance
-    select folder_id, root_keyword_id
-    into   v_folder_id, v_root_keyword_id
+    -- get the content folder and workflow_id for this instance
+    select folder_id, root_keyword_id, workflow_id
+    into   v_folder_id, v_root_keyword_id, v_workflow_id
     from   bt_projects
     where  project_id = p_project_id;
+
+    if v_workflow_id not null then
+      perform workflow__delete(v_workflow_id);
+    end if;
 
     -- This gets done in tcl before we are called ... for now
     --  Delete the bugs

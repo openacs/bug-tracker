@@ -23,4 +23,12 @@
     </querytext>
 </fullquery>
 
+<fullquery name="bug_tracker::install::package_upgrade.update_project">
+    <querytext>
+      update bt_projects
+      set workflow_id = :workflow_id
+      where project_id = :project_id
+    </querytext>
+</fullquery>
+
 </queryset>

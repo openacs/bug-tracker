@@ -71,6 +71,13 @@ ad_proc -private bug_tracker::install::package_upgrade {
                     content::folder::register_content_type -folder_id $folder_id -content_type "image"
                 }
             }
+            1.4d6 1.4d7 { 
+                db_foreach select_project_ids {} {
+                    set workflow_id \
+                        [bug_tracker::bug::get_instance_workflow_id -package_id $project_id]
+                    db_dml update_project {}
+                }
+            }
         }
 }
 
