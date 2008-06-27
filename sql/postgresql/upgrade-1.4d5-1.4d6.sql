@@ -20,7 +20,7 @@ begin
     from   bt_projects
     where  project_id = p_project_id;
 
-    if workflow_id is not null then
+    if v_workflow_id is not null then
       perform workflow__delete(v_workflow_id);
     end if;
 
