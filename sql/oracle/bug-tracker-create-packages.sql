@@ -201,14 +201,20 @@ as
     )
     is
         v_folder_id         integer;
+        v_workflow_id       integer;
         v_root_keyword_id   integer;
     begin
 
-        -- get the content folder for this instance
-        select folder_id, root_keyword_id
-        into   v_folder_id, v_root_keyword_id
+        -- get the content folder and workflow_id for this instance
+        select folder_id, root_keyword_id, workflow_id
+        into   v_folder_id, v_root_keyword_id, v_workflow_id
         from   bt_projects
         where  project_id = bt_project.del.project_id;
+
+        if v_workflow_id is not null then
+          -- DRB: Kludge as workflow.del is incorrectly created as a function!!!!
+          v_workflow_id := workflow.del(v_workflow_id);
+        end if;
 
         -- This get''s done in tcl before we are called ... for now
         -- Delete the bugs

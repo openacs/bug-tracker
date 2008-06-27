@@ -17,6 +17,10 @@ create table bt_projects (
                                 on delete cascade
                                 constraint bt_projects_pk 
                                 primary key,
+  workflow_id                   integer
+                                constraint bt_projects_workflow_id_fk
+                                references workflows(workflow_id) 
+                                on delete cascade,
   description                   clob,
                                 -- short string will be included in the subject line of emails                                                                
   email_subject_name            varchar2(1000),
