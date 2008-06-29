@@ -31,6 +31,40 @@
     </querytext>
 </fullquery>
 
+<fullquery name="bug_tracker::bug::get_instance_workflow_id.get_instance_workflow_id">
+    <querytext>
+        select workflow_Id
+        from bt_projects
+        where project_id = :package_id
+    </querytext>
+</fullquery>
+
+<fullquery name="bug_tracker::bug::instance_workflow_create.get_workflow_id">
+    <querytext>
+      select w1.workflow_id
+      from workflows w, workflows w1
+      where w.workflow_id = :workflow_id
+        and w.short_name = w1.short_name
+        and w1.object_id = :package_id
+    </querytext>
+</fullquery>
+
+<fullquery name="bug_tracker::bug::instance_workflow_create.update_project">
+    <querytext>
+      update bt_projects
+      set workflow_id = :workflow_id
+      where project_id = :package_id
+    </querytext>
+</fullquery>
+
+<fullquery name="bug_tracker::bug::instance_workflow_delete.update_project">
+    <querytext>
+      update bt_projects
+      set workflow_id = null
+      where project_id = :package_id
+    </querytext>
+</fullquery>
+
   <fullquery name="bug_tracker::bug::get_activity_html.actions">
     <querytext>
       select ba.action_id,

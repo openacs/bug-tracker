@@ -33,7 +33,8 @@ set workflow_edit_url "workflow-edit"
 set parameters_edit_url "/shared/parameters?[export_vars { { return_url [ad_return_url] } { package_id {[ad_conn package_id]} } }]"
 set severity_codes_edit_url "severity-codes"
 set priority_codes_edit_url "priority-codes"
-
+set workflow_pretty_name [workflow::get_element -element pretty_name \
+                             -workflow_id [bug_tracker::bug::get_instance_workflow_id]]
 db_multirow -extend { edit_url delete_url maintainer_url view_bugs_url } components components {} {
     set edit_url "component-ae?[export_vars { component_id }]"
     if { $num_bugs == 0 } {

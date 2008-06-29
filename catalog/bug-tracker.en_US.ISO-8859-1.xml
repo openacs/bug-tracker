@@ -137,6 +137,7 @@
   <msg key="Name_in_shortcut_URL">Name in shortcut URL</msg>
   <msg key="Need_Info">Need_Info</msg>
   <msg key="New">New</msg>
+  <msg key="New_Workflow">New Workflow</msg>
   <msg key="New_1">New %Bug_name%</msg>
   <msg key="New_2">Patch</msg>
   <msg key="No_Bugs">No %bugs_name%</msg>

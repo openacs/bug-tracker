@@ -109,7 +109,7 @@
 
   <tr bgcolor="#cccccc">
     <td colspan="3">
-     #bug-tracker.Workflow#: <i>Foo!</i>
+     #bug-tracker.Workflow#: <i>@workflow_pretty_name@</i>
     </td>
     <td align="center">
       <a href="@workflow_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="#acs-kernel.common_edit#"></a>

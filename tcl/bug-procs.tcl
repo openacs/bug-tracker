@@ -509,21 +509,30 @@ ad_proc -public bug_tracker::bug::get_instance_workflow_id {
     if { [empty_string_p $package_id] } {
         set package_id [ad_conn package_id]
     }
-
-    return [workflow::get_id \
-            -short_name [workflow_short_name] \
-            -object_id $package_id]
+    return [db_string get_instance_workflow_id {}]
 }
 
 ad_proc -private bug_tracker::bug::instance_workflow_create {
     {-package_id:required}
+    -workflow_id
 } {
-    Creates a clone of the default bug-tracker package workflow for a
-    specific package instance 
+    Creates a clone of the given workflow for a specific package instance, or reassign
+    an existing clone if it already exists.
 } {
-    set workflow_id [workflow::fsm::clone \
-            -workflow_id [get_package_workflow_id] \
-            -object_id $package_id]
+    if { ![info exists workflow_id] } {
+        set workflow_id [get_package_workflow_id]
+    }
+
+    if { ![db_0or1row get_workflow_id {}] } {
+        # The workflow package only allows one instance of a workflow to be bound to
+        # a given object.  If the workflow doesn't exist for this package instance,
+        # we clone the package workflow.  If it does, we just reuse the existing clone.
+        set workflow_id [workflow::fsm::clone \
+                -workflow_id $workflow_id \
+                -object_id $package_id]
+    }
+
+    db_dml update_project {}
     
     return $workflow_id
 }
@@ -534,9 +543,8 @@ ad_proc -private bug_tracker::bug::instance_workflow_delete {
     Deletes the instance workflow
 } {
     workflow::delete -workflow_id [get_instance_workflow_id -package_id $package_id]
+    db_dml update_project {}
 }
-
-
 
 
 #####
