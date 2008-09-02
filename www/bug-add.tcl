@@ -58,13 +58,11 @@ ad_form -name bug -cancel_url $return_url -form {
         {value {[bug_tracker::conn user_version_id]}}
     }
 
-    {assign_to:text(select),optional 
-        {label "Assign to"}  
-        {options {[bug_tracker::assignee_get_options -workflow_id $workflow_id -include_unknown]}} 
-    }
-
     {return_url:text(hidden) {value $return_url}}
 }
+
+workflow::role::add_assignee_widgets -workflow_id $workflow_id -form_name bug -mode edit -roles resolver
+
 foreach {category_id category_name} [bug_tracker::category_types] {
     ad_form -extend -name bug -form [list \
         [list "${category_id}:integer(select)" \
@@ -102,9 +100,8 @@ ad_form -extend -name bug -new_data {
 	-desc_format [template::util::richtext::get_property format $description] \
         -keyword_ids $keyword_ids \
 	-fix_for_version $fix_for_version \
-	-assign_to $assign_to
-
-
+	-assign_to $role_resolver
+    
 } -after_submit {
     bug_tracker::bugs_exist_p_set_true
 
