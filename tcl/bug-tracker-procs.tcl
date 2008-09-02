@@ -659,6 +659,7 @@ ad_proc -public bug_tracker::get_default_configurations {} {
                 ComponentPrettyPlural "components"
                 PatchesP "1"
                 VersionsP "1"
+                RelatedFilesP "1"
             } \
         ] \
         [_ bug-tracker.Ticket_Tracker] [list \
@@ -680,6 +681,7 @@ ad_proc -public bug_tracker::get_default_configurations {} {
                 ComponentPrettyPlural "areas"
                 PatchesP "0" 
                 VersionsP "0"
+                RelatedFilesP "1"
             } \
         ] \
         [_ bug-tracker.Support_Center] [list \
@@ -702,6 +704,7 @@ ad_proc -public bug_tracker::get_default_configurations {} {
                 ComponentPrettyPlural "areas"
                 PatchesP "0" 
                 VersionsP "0"
+                RelatedFilesP "1"
             } \
         ] \
     ]
@@ -1292,8 +1295,8 @@ ad_proc bug_tracker::project_new { project_id } {
 	if [db_0or1row instance_info { *SQL* } ] {
 	    set folder_id [content::folder::new -name "bug_tracker_$project_id" -package_id $project_id]
 	    content::folder::register_content_type -folder_id $folder_id -content_type {bt_bug_revision} -include_subtypes t
-	    content::folder::register_content_type -folder_id $folder_id -content_type "content_revision"
-	    content::folder::register_content_type -folder_id $folder_id -content_type "image"
+            content::folder::register_content_type -folder_id $folder_id -content_type "content_revision"
+            content::folder::register_content_type -folder_id $folder_id -content_type "image"
 	    
 	    set keyword_id [content::keyword::new -heading "$instance_name"]
 	    
@@ -1411,6 +1414,51 @@ ad_proc bug_tracker::get_related_files_links {
             set extra_actions ""
         }
         lappend related_files_list "$related_title <a href=\"${view_url}\">[_ bug-tracker.download]</a> | <a href=\"${properties_url}\">[_ bug-tracker.properties]</a>${extra_actions}"
+    } if_no_rows { 
+        set related_files_string [_ bug-tracker.No_related_files]
+    }
+    
+    if { [llength $related_files_list] != 0 } {
+        set related_files_string [join $related_files_list "<br>"]
+    }
+    
+    return $related_files_string
+}
+
+#####
+#
+# Related Files
+#
+#####
+
+ad_proc bug_tracker::related_files_p {} { 
+    Is the related files submission feature turned on?
+} {
+    return [parameter::get -package_id [ad_conn package_id] -parameter "RelatedFilesP" -default 1]
+}
+
+ad_proc bug_tracker::get_related_files_links {
+    {-bug_id:required}
+} {
+    set related_files_list [list]
+    set user_id [ad_conn user_id]
+    set admin_p [permission::permission_p \
+                     -party_id $user_id \
+                     -object_id [ad_conn package_id] \
+                     -privilege "admin"]
+    set return_url [ad_return_url]
+
+    db_foreach get_related_files_for_bug {} {
+        set view_url [export_vars -base related-file-download {bug_id related_object_id {t $related_revision_id}}]
+        set properties_url [export_vars -base "related-file-properties" {bug_id related_object_id}]
+        set delete_url [export_vars -base "related-file-delete" {bug_id related_object_id return_url}]
+        set new_version_url [export_vars -base "related-file-update" {bug_id related_object_id return_url}]
+        if { ( $related_creation_user == $user_id ) || $admin_p } {
+            set extra_actions " | <a href=\"$new_version_url\">upload new version</a> | <a href=\"$delete_url\">delete</a>"
+        } else {
+            set extra_actions ""
+        }
+        lappend related_files_list "$related_title <a href=\"${view_url}\">download</a> | <a href=\"${properties_url}\">properties</a>${extra_actions}"
     } if_no_rows { 
         set related_files_string [_ bug-tracker.No_related_files]
     }
