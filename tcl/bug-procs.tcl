@@ -723,10 +723,14 @@ ad_proc -private bug_tracker::bug::notification_info::get_notification_info {
 
 ad_proc bug_tracker::bug::get_list {
     {-ulevel 1}
+    {-package_id {}}
+    -no_bulk_actions:boolean
 } {
-    set package_id [ad_conn package_id]
-    set workflow_id [bug_tracker::bug::get_instance_workflow_id]
-    bug_tracker::get_pretty_names -array pretty_names
+    if { $package_id eq "" } {
+        set package_id [ad_conn package_id]
+    }
+    set workflow_id [bug_tracker::bug::get_instance_workflow_id -package_id $package_id]
+    bug_tracker::get_pretty_names -array pretty_names -package_id $package_id
 
     set elements {
         bug_number {
@@ -876,7 +880,7 @@ ad_proc bug_tracker::bug::get_list {
 
     upvar \#[template::adp_level] format format
     
-    foreach var [bug_tracker::get_export_variables] { 
+    foreach var [bug_tracker::get_export_variables -package_id $package_id] { 
         upvar \#[template::adp_level] $var $var
     }
 
@@ -895,17 +899,19 @@ ad_proc bug_tracker::bug::get_list {
     # Generate bulk actions
 
     set bulk_actions {}
-    foreach action_id [workflow::get_actions -workflow_id $workflow_id] {
-        if {[lsearch $enabled_actions_for_this_state $action_id] != -1} {
-            # this particular action is enabled
-            # add to bulk actions
-            workflow::action::get -action_id $action_id -array bulk_action_array_info
-            set action_pretty_name $bulk_action_array_info(pretty_name)
-            set action_short_name $bulk_action_array_info(short_name)
-            lappend bulk_actions "$action_pretty_name" "bulk-update/${action_short_name}" "$action_pretty_name"
+    if { !$no_bulk_actions_p } {
+        foreach action_id [workflow::get_actions -workflow_id $workflow_id] {
+            if {[lsearch $enabled_actions_for_this_state $action_id] != -1} {
+                # this particular action is enabled
+                # add to bulk actions
+                workflow::action::get -action_id $action_id -array bulk_action_array_info
+                set action_pretty_name $bulk_action_array_info(pretty_name)
+                set action_short_name $bulk_action_array_info(short_name)
+                lappend bulk_actions "$action_pretty_name" "bulk-update/${action_short_name}" "$action_pretty_name"
+            }
         }
+        lappend bulk_actions "[_ bug-tracker.Send_Summary_Email]" "send-summary-email" "[_ bug-tracker.Send_Summary_Email]"
     }
-    lappend bulk_actions "[_ bug-tracker.Send_Summary_Email]" "send-summary-email" "[_ bug-tracker.Send_Summary_Email]"
 
     set bulk_action_export_vars [list [list workflow_id $workflow_id] [list return_url [ad_return_url]]]
 
@@ -988,14 +994,26 @@ ad_proc bug_tracker::bug::get_query {
 }
 
 
-ad_proc bug_tracker::bug::get_multirow {} {
-    foreach var [bug_tracker::get_export_variables] { 
+ad_proc bug_tracker::bug::get_multirow {
+    {-package_id ""}
+    {-truncate_len ""}
+    {-query_name bugs}
+} {
+    if { $package_id eq "" } {
+        set package_id [ad_conn package_id]
+    }
+    if { $truncate_len eq "" } {
+        set truncate_len [parameter::get \
+                             -package_id $package_id \
+                             -parameter  "TruncateDescriptionLength" \
+                             -default 200]
+    }
+    foreach var [bug_tracker::get_export_variables -package_id $package_id] { 
 #JOEL put this back later
         upvar \#[template::adp_level] $var $var
     }
 
-    set workflow_id [bug_tracker::bug::get_instance_workflow_id]
-    set truncate_len [parameter::get -parameter "TruncateDescriptionLength" -default 200]
+    set workflow_id [bug_tracker::bug::get_instance_workflow_id -package_id $package_id]
 
     set extend_list { 
         comment_short
@@ -1018,7 +1036,7 @@ ad_proc bug_tracker::bug::get_multirow {} {
 
     array set row_category $category_defaults
     array set row_category_names $category_defaults
-    db_multirow -extend $extend_list bugs select_bugs [get_query] {
+    db_multirow -extend $extend_list bugs select_bugs [get_query -query_name $query_name] {
 
         # parent_id is part of the column name
         set parent_id [bug_tracker::category_parent_element -keyword_id $keyword_id -element id]
@@ -1028,10 +1046,18 @@ ad_proc bug_tracker::bug::get_multirow {} {
         set row_category_name($parent_id) [bug_tracker::category_heading -keyword_id $keyword_id]
 
         if { [db_multirow_group_last_row_p -column bug_id] } {
-            set component_name [bug_tracker::component_get_name -component_id $component_id]
-            set found_in_version_name [bug_tracker::version_get_name -version_id $found_in_version]
-            set fix_for_version_name [bug_tracker::version_get_name -version_id $fix_for_version]
-            set fixed_in_version_name [bug_tracker::version_get_name -version_id $fixed_in_version]
+            set component_name [bug_tracker::component_get_name \
+                                   -component_id $component_id \
+                                   -package_id $package_id]
+            set found_in_version_name [bug_tracker::version_get_name \
+                                          -version_id $found_in_version \
+                                          -package_id $package_id]
+            set fix_for_version_name [bug_tracker::version_get_name \
+                                         -version_id $fix_for_version\
+                                         -package_id $package_id]
+            set fixed_in_version_name [bug_tracker::version_get_name \
+                                          -version_id $fixed_in_version \
+                                          -package_id $package_id]
             set comment_short [string_truncate -len $truncate_len -- $comment_content]
             set submitter_url [acs_community_member_url -user_id $submitter_user_id]
             set assignee_url [acs_community_member_url -user_id $assigned_user_id]

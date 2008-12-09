@@ -81,21 +81,25 @@ ad_proc bug_tracker::conn { args } {
 
 ad_proc bug_tracker::get_pretty_names { 
     -array:required
+    {-package_id ""}
 } {
     upvar $array row
 
-    set row(bug) [lang::util::localize [parameter::get -parameter "TicketPrettyName" -default "bug"]]
-    set row(bugs) [lang::util::localize [parameter::get -parameter "TicketPrettyPlural" -default "bugs"]]
+    if { $package_id eq "" } {
+        set package_id [ad_conn package_id]
+    }
+    set row(bug) [lang::util::localize [parameter::get -package_id $package_id -parameter "TicketPrettyName" -default "bug"]]
+    set row(bugs) [lang::util::localize [parameter::get -package_id $package_id -parameter "TicketPrettyPlural" -default "bugs"]]
     set row(Bug) [string totitle $row(bug)]
     set row(Bugs) [string totitle $row(bugs)]
 
-    set row(component) [lang::util::localize [parameter::get -parameter "ComponentPrettyName" -default "component"]]
-    set row(components) [lang::util::localize [parameter::get -parameter "ComponentPrettyPlural" -default "components"]]
+    set row(component) [lang::util::localize [parameter::get -package_id $package_id -parameter "ComponentPrettyName" -default "component"]]
+    set row(components) [lang::util::localize [parameter::get -package_id $package_id -parameter "ComponentPrettyPlural" -default "components"]]
     set row(Component) [string totitle $row(component)]
     set row(Components) [string totitle $row(components)]
 
-    set row(patch) [lang::util::localize [parameter::get -parameter "PatchPrettyName" -default "patch"]]
-    set row(patches) [lang::util::localize [parameter::get -parameter "PatchPrettyPlural" -default "patches"]]
+    set row(patch) [lang::util::localize [parameter::get -package_id $package_id -parameter "PatchPrettyName" -default "patch"]]
+    set row(patches) [lang::util::localize [parameter::get -package_id $package_id -parameter "PatchPrettyPlural" -default "patches"]]
     set row(Patch) [string totitle $row(patch)]
     set row(Patches) [string totitle $row(patches)]
 }
@@ -134,10 +138,14 @@ ad_proc bug_tracker::get_page_variables {
 }
 
 ad_proc bug_tracker::get_export_variables { 
+    {-package_id ""}
     {extra_vars ""}
 } {
     Gets a list of variables to export for the bug list
 } {
+    if { $package_id eq "" } {
+        set package_id [ad_conn package_id]
+    }
     set export_vars {
         f_state
         f_fix_for_version
@@ -149,7 +157,9 @@ ad_proc bug_tracker::get_export_variables {
     foreach { parent_id parent_heading } [bug_tracker::category_types] {
         lappend export_vars "f_category_$parent_id"
     }
-    foreach action_id [workflow::get_actions -workflow_id [bug_tracker::bug::get_instance_workflow_id]] {
+    foreach action_id [workflow::get_actions \
+                          -workflow_id [bug_tracker::bug::get_instance_workflow_id \
+                                           -package_id $package_id]] {
         lappend export_vars "f_action_$action_id"
     }
 
