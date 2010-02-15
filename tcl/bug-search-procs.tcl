@@ -34,8 +34,7 @@ ad_proc -private bug_tracker::search::bug::datasource { bug_id } {
         foreach assignee [workflow::case::role::get_assignees -case_id $case_id -role_id $role_id] {
             array set ass $assignee
             template::multirow -local append roles \
-                $role(pretty_name) $ass(email) $ass(party_id) $ass(name) \
-                "[ad_url][acs_community_member_url -user_id $ass(party_id)]"
+                $role(pretty_name) $ass(email) $ass(party_id) $ass(name)
             array unset ass
         }
         array unset role

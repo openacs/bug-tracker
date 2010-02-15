@@ -65,3 +65,5 @@ drop view bt_patch_number_seq;
 delete from acs_objects where object_type = 'bt_patch';
 
 select acs_object_type__drop_type('bt_patch', 't');
+
+\i bug-tracker-search-triggers-drop.sql
