@@ -138,9 +138,9 @@
   <msg key="Name_in_shortcut_URL">Name in shortcut URL</msg>
   <msg key="Need_Info">Need_Info</msg>
   <msg key="New">New</msg>
-  <msg key="New_Workflow">New Workflow</msg>
   <msg key="New_1">New %Bug_name%</msg>
   <msg key="New_2">Patch</msg>
+  <msg key="New_Workflow">New Workflow</msg>
   <msg key="No_Bugs">No %bugs_name%</msg>
   <msg key="No_categories_of_this_type">No categories of this type.</msg>
   <msg key="No_components">No components</msg>
@@ -220,7 +220,7 @@
   <msg key="Resolver">Resolver</msg>
   <msg key="resolver">resolver</msg>
   <msg key="Return">Return</msg>
-  <msg key="Search">Search...</msg>
+  <msg key="Search">Search</msg>
   <msg key="Select_one_or_more_of">Select one or more of the following %pretty_names.bugs% for patch &quot;%patch_summary%&quot; (you may select more %pretty_names.bugs% later):</msg>
   <msg key="send_email_error">Error on %bug_pretty_s% ID %one_bug_id%:</msg>
   <msg key="send_email_success_inform">#%bug_info.bug_number%: %bug_info.summary%</msg>

@@ -88,4 +88,10 @@ if { $admin_p } {
 
 set form_action_url "[ad_conn package_url]bug"
 
+set search_mounted_p [bug_tracker::search_mounted_p]
+
+if {$search_mounted_p} {
+    set form_search_url "[site_node::get_package_url -package_key search]search"
+}
+
 ad_return_template
