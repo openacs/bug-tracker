@@ -112,6 +112,7 @@ ad_form -extend -name bug -new_data {
 
 if { !$versions_p } {
     element set_properties bug found_in_version -widget hidden
+    element set_properties bug fix_for_version -widget hidden
 }
 
 ad_return_template
