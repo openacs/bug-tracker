@@ -119,31 +119,17 @@
     </td>
   </tr>
 
-
-<!--
   <tr bgcolor="#cccccc">
     <td colspan="3">
-     #bug-tracker.Priority_codes#
+     #bug-tracker.Access_policy#: <i>@access_policy_name@</i>
     </td>
     <td align="center">
-      <a href="@priority_codes_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="#acs-kernel.common_edit#"></a>
-    </td>
-    <td align="center">
-      &nbsp;
-    </td>
-  </tr>
-  <tr bgcolor="#cccccc">
-    <td colspan="2">
-     #bug-tracker.Severity_Codes#
-    </td>
-    <td align="center">
-      <a href="@severity_codes_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="#acs-kernel.common_edit#"></a>
+      <a href="@access_edit_url@"><img src="../graphics/Edit16.gif" width="16" height="16" border="0" alt="#acs-kernel.common_edit#"></a>
     </td>
     <td align="center">
       &nbsp;
     </td>
   </tr>
--->
 
   <tr bgcolor="#999999">
     <td colspan="5" align="center">

@@ -202,6 +202,7 @@
       and    cas.object_id = b.bug_id
       and    cfsm.case_id = cas.case_id
       and    st.state_id = cfsm.current_state
+             [bug_tracker::user_bugs_only_where_clause]
       group  by st.state_id, st.pretty_name, st.sort_order
       order  by st.sort_order
     </querytext>
@@ -216,6 +217,7 @@
              bt_components c
        where b.project_id = :package_id
        and   c.component_id = b.component_id
+             [bug_tracker::user_bugs_only_where_clause]
        group by c.component_name, c.component_id
        order by c.component_name
     </querytext>
@@ -241,5 +243,55 @@
        order by l.object_id_two
     </querytext>
   </fullquery>
+
+  <partialquery name="bug_tracker::set_access_policy.get_all_bugs">
+      <querytext>
+          select bug_id
+            from bt_bugs
+      </querytext>
+  </partialquery>
+
+  <partialquery name="bug_tracker::set_access_policy.get_user_bugs">
+      <querytext>
+          select bug_id
+            from bt_bugs
+           where project_id = :package_id
+             and bug_id in (select wc.object_id
+                              from workflow_cases wc,
+                                   workflow_case_role_party_map rpm 
+                             where wc.case_id = rpm.case_id
+                               and rpm.party_id = :user_id)
+      </querytext>
+  </partialquery>
+
+  <partialquery name="bug_tracker::set_access_policy.get_all_users">
+      <querytext>
+        select distinct rpm.party_id
+          from workflow_cases wc,
+               workflow_case_role_party_map rpm,
+               bt_bugs b
+         where wc.case_id = rpm.case_id
+           and b.bug_id = wc.object_id
+           and b.project_id = :package_id
+      </querytext>
+  </partialquery>
+
+  <fullquery name="bug_tracker::access_policy.get_bug">
+      <querytext>
+        select min(bug_id) as bug_id
+         from bt_bugs 
+        where project_id = :package_id
+      </querytext>
+  </fullquery>
+
+  <partialquery name="bug_tracker::user_bugs_only_where_clause.user_bugs_only">
+      <querytext>
+       and exists (select 1
+                     from acs_object_party_privilege_map
+                    where object_id = b.bug_id
+                      and party_id = :user_id
+                      and privilege = 'read')
+      </querytext>
+  </partialquery>
  
 </queryset>

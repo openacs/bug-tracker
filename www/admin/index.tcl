@@ -51,3 +51,5 @@ db_multirow -extend { edit_url delete_url maintainer_url view_bugs_url } compone
 }
 
 set component_add_url "component-ae"
+set access_edit_url "access-policy-edit"
+set access_policy_name [lindex [bug_tracker::access_policy] 0]

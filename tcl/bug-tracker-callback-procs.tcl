@@ -97,3 +97,31 @@ ad_proc -public -callback acs_mail_lite::incoming_email -impl bug-tracker {
     }
     
 }
+
+
+ad_proc -callback workflow::case::role::after_assign -impl bug-tracker {
+    {-case_id:required}
+    {-party_id:required}
+} {
+    A callback that grants direct permission after assignment to the given party.
+} {
+    if {[bug_tracker::user_bugs_only_p]} {
+	workflow::case::get -case_id $case_id -array case
+	set bug_id $case(object_id)
+        bug_tracker::grant_direct_read_permission -bug_id $bug_id -party_id $party_id 
+    }
+}
+
+ad_proc -callback workflow::case::role::after_unassign -impl bug-tracker {
+    {-case_id:required}
+    {-party_id:required}
+} {
+    A callback that revokes direct permission after assignment to the given party.
+    Inherited permissions are restored.
+} {
+    if {[bug_tracker::user_bugs_only_p]} {
+	workflow::case::get -case_id $case_id -array case
+	set bug_id $case(object_id)
+        bug_tracker::inherit -bug_id $bug_id -party_id $party_id 
+    }
+}

@@ -9,6 +9,7 @@ ad_page_contract {
 set page_title [ad_conn instance_name]
 set context [list]
 set admin_p [permission::permission_p -object_id [ad_conn package_id] -privilege admin]
+set user_id [ad_conn user_id]
 bug_tracker::get_pretty_names -array pretty_names
 
 if { [llength [bug_tracker::components_get_options]] == 0 } {
@@ -35,8 +36,8 @@ set project_id [ad_conn package_id]
 # TODO: Bulk actions (set fix for version, reassign, etc.)
 
 
-bug_tracker::bug::get_list
+bug_tracker::bug::get_list -user_id $user_id
 
-bug_tracker::bug::get_multirow
+bug_tracker::bug::get_multirow -user_id $user_id
 
 

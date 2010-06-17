@@ -138,6 +138,7 @@
       and cfsm.parent_enabled_action_id is null
       and st.state_id = cfsm.current_state 
       $orderby_category_where_clause
+      [bug_tracker::user_bugs_only_where_clause]
     [template::list::filter_where_clauses -and -name "bugs"]
     [template::list::orderby_clause -orderby -name "bugs"]
   </querytext>
@@ -186,9 +187,10 @@ from (
      and cas.object_id = b.bug_id
      and cfsm.case_id = cas.case_id
      and cfsm.parent_enabled_action_id is null
-     and st.state_id = cfsm.current_state 
+     and st.state_id = cfsm.current_state
    [template::list::filter_where_clauses -and -name "bugs"]
    $orderby_category_where_clause   
+   [bug_tracker::user_bugs_only_where_clause]
    [template::list::page_where_clause -and -name bugs -key bug_id]
 ) q
 left outer join
@@ -215,7 +217,6 @@ on (q.case_id = assign_info.case_id)
   </querytext>
 </fullquery>
 
-
   <partialquery name="bug_tracker::bug::get_list.filter_assignee_null_where_clause">
       <querytext>
           exists (select 1
@@ -228,6 +229,5 @@ on (q.case_id = assign_info.case_id)
                  )
       </querytext>
   </partialquery>
-
  
 </queryset>

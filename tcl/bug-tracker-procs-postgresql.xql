@@ -152,6 +152,7 @@
                bt_bugs b on (b.bug_id = km.item_id)
         where  kw.parent_id = :parent_id
         and    b.project_id = :package_id
+               [bug_tracker::user_bugs_only_where_clause]
         group  by kw.heading, km.keyword_id
         order  by kw.heading
     </querytext>
@@ -165,6 +166,7 @@
         from   bt_bugs b left outer join 
                bt_versions v on (v.version_id = b.fix_for_version)
         where  b.project_id = :package_id
+               [bug_tracker::user_bugs_only_where_clause]
         group  by b.fix_for_version, v.anticipated_freeze_date, v.version_name
         order  by v.anticipated_freeze_date, v.version_name
     </querytext>
@@ -182,10 +184,10 @@
       where  aa.workflow_id = :workflow_id
       and    aa.action_id = :action_id
       and    aa.object_id = b.bug_id
+             [bug_tracker::user_bugs_only_where_clause]
       group  by p.first_names, p.last_name, crum.user_id
     </querytext>
   </fullquery>
-
 
    <fullquery name="bug_tracker::assignee_get_options.assignees">
      <querytext>

@@ -6,6 +6,7 @@ ad_page_contract {
 
 set page_title [_ bug-tracker.Notifications]
 set context [list $page_title]
+set package_id [ad_conn package_id]
 
 set workflow_id [bug_tracker::bug::get_instance_workflow_id]
 if { [exists_and_not_null bug_number] } {
@@ -27,9 +28,14 @@ multirow create notifications url label title subscribed_p
 
 set bugs_name [bug_tracker::conn bugs]
 
-foreach type { 
-    workflow_assignee workflow_my_cases workflow
-} {
+if {[bug_tracker::user_bugs_only_p]} {
+    set notification_types {workflow_assignee workflow_my_cases}
+} else {
+    set notification_types {workflow_assignee workflow_my_cases workflow}
+}
+
+
+foreach type $notification_types {
     set object_id [workflow::case::get_notification_object \
                        -type $type \
                        -workflow_id $workflow_id \

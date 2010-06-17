@@ -145,6 +145,7 @@
         and    km.keyword_id = kw.keyword_id
         and    b.bug_id (+) = km.item_id
         and    b.project_id = :package_id
+               [bug_tracker::user_bugs_only_where_clause]
         group  by kw.heading, km.keyword_id
         order  by kw.heading
     </querytext>
@@ -159,6 +160,7 @@
                bt_versions v
         where  b.project_id = :package_id
         and    v.version_id (+) = b.fix_for_version
+               [bug_tracker::user_bugs_only_where_clause]
         group  by b.fix_for_version, v.anticipated_freeze_date, v.version_name
         order  by v.anticipated_freeze_date, v.version_name
     </querytext>
@@ -179,6 +181,7 @@
       and    crum.case_id (+) = aa.case_id
       and    crum.role_id (+) = aa.role_id
       and    p.person_id (+) = crum.user_id
+             $user_bugs_onlyx_where_clause
       group  by p.first_names, p.last_name, crum.user_id
     </querytext>
   </fullquery>

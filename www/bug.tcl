@@ -26,8 +26,6 @@ set package_key [ad_conn package_key]
 
 set user_id [ad_conn user_id]
 
-permission::require_permission -object_id $package_id -privilege read
-
 set bug_name [bug_tracker::conn Bug]
 set page_title [_ bug-tracker.Bug_Title]
 
@@ -58,8 +56,11 @@ set case_id [workflow::case::get_id \
         -object_id $bug(bug_id) \
         -workflow_short_name [bug_tracker::bug::workflow_short_name]]
 
+permission::require_permission -object_id $bug(bug_id) -privilege read
+
 set workflow_id [bug_tracker::bug::get_instance_workflow_id ]
 
+set admin_p [permission::permission_p -object_id $bug(bug_id) -party_id $user_id -privilege admin]
 
 #####
 #

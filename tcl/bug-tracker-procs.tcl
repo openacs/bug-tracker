@@ -499,6 +499,9 @@ ad_proc bug_tracker::category_types {
 ad_proc bug_tracker::category_get_filter_data_not_cached {
     {-package_id:required}
     {-parent_id:required}
+    {-user_id ""}
+    {-admin_p "f"}
+    {-user_bugs_only_p "f"}
 } {
     @param package_id The package (project) to select from
     @param parent_id The category type's keyword_id
@@ -510,14 +513,21 @@ ad_proc bug_tracker::category_get_filter_data_not_cached {
 ad_proc bug_tracker::category_get_filter_data {
     {-package_id:required}
     {-parent_id:required}
+    {-user_id ""}
+    {-admin_p "f"}
 } {
     @param package_id The package (project) to select from
     @param parent_id The category type's keyword_id
     @return list-of-lists with category data for filter
 } {
+    set user_bugs_only_p [bug_tracker::user_bugs_only_p]
+
     return [util_memoize [list bug_tracker::category_get_filter_data_not_cached \
                              -package_id $package_id \
-                             -parent_id $parent_id]]
+                             -parent_id $parent_id \
+                             -user_id $user_id \
+                             -admin_p $admin_p \
+                             -user_bugs_only_p $user_bugs_only_p]]
 }
 
 
@@ -907,6 +917,9 @@ ad_proc bug_tracker::version_get_name {
 
 ad_proc bug_tracker::component_get_filter_data_not_cached {
     {-package_id:required}
+    {-user_id ""}
+    {-admin_p "f"}
+    {-user_bugs_only_p "f"}
 } {
     @param package_id The project we're interested in
     @return list-of-lists with component data for filter
@@ -916,12 +929,19 @@ ad_proc bug_tracker::component_get_filter_data_not_cached {
 
 ad_proc bug_tracker::component_get_filter_data {
     {-package_id:required}
+    {-user_id ""}
+    {-admin_p "f"}
 } {
     @param package_id The project we're interested in
     @return list-of-lists with component data for filter
 } {
+    set user_bugs_only_p [bug_tracker::user_bugs_only_p]
+
     return [util_memoize [list bug_tracker::component_get_filter_data_not_cached \
-                             -package_id $package_id]]
+                             -package_id $package_id \
+                             -user_id $user_id \
+                             -admin_p $admin_p \
+                             -user_bugs_only_p $user_bugs_only_p]]
 }
 ad_proc bug_tracker::components_get_options {
     {-package_id ""}
@@ -1303,7 +1323,10 @@ ad_proc bug_tracker::project_new { project_id } {
 
     if {![db_0or1row already_there {select 1 from bt_projects where  project_id = :project_id} ] } {
 	if [db_0or1row instance_info { *SQL* } ] {
-	    set folder_id [content::folder::new -name "bug_tracker_$project_id" -package_id $project_id]
+	    set folder_id [content::folder::new -name "bug_tracker_$project_id" \
+                                                -package_id $project_id \
+                                                -parent_id $project_id \
+                                                -context_id $project_id]
 	    content::folder::register_content_type -folder_id $folder_id -content_type {bt_bug_revision} -include_subtypes t
             content::folder::register_content_type -folder_id $folder_id -content_type "content_revision"
             content::folder::register_content_type -folder_id $folder_id -content_type "image"
@@ -1320,6 +1343,9 @@ ad_proc bug_tracker::project_new { project_id } {
 
 ad_proc bug_tracker::version_get_filter_data_not_cached {
     {-package_id:required}
+    {-user_id ""}
+    {-admin_p "f"}
+    {-user_bugs_only_p "f"}
 } {
     @param package_id The package (project) to select from
     @return list-of-lists with fix-for-version data for filter
@@ -1329,22 +1355,34 @@ ad_proc bug_tracker::version_get_filter_data_not_cached {
 
 ad_proc bug_tracker::version_get_filter_data {
     {-package_id:required}
+    {-user_id ""}
+    {-admin_p "f"}
 } {
     @param package_id The package (project) to select from
+    @param user_id The user to filter by for the ShowMyBugsOnlyP parameter
     @return list-of-lists with fix-for-version data for filter
 } {
+    set user_bugs_only_p [bug_tracker::user_bugs_only_p]
+
     return [util_memoize [list bug_tracker::version_get_filter_data_not_cached \
-                             -package_id $package_id]] 
+                             -package_id $package_id \
+                             -user_id $user_id \
+                             -admin_p $admin_p \
+                             -user_bugs_only_p $user_bugs_only_p]] 
 }
 
 ad_proc bug_tracker::assignee_get_filter_data_not_cached {
     {-package_id:required}
     {-workflow_id:required}
     {-action_id:required}
+    {-user_id ""}
+    {-admin_p "f"}
+    {-user_bugs_only_p "f"}
 } {
     @param package_id The package (project) to select from
     @param workflow_id The workflow we're interested in
     @param action_id The action we're interested in
+    @param user_id User id for optional filtering for logged in user
     @return list-of-lists with assignee data for filter
 } {
     return [db_list_of_lists select {}]
@@ -1354,21 +1392,32 @@ ad_proc bug_tracker::assignee_get_filter_data {
     {-package_id:required}
     {-workflow_id:required}
     {-action_id:required}
+    {-user_id ""}
+    {-admin_p "f"}
 } {
     @param package_id The package (project) to select from
     @param workflow_id The workflow we're interested in
     @param action_id The action we're interested in
+    @param user_id Optional user for filtering by logged in user.
     @return list-of-lists with assignee data for filter
 } {
+    set user_bugs_only_p [bug_tracker::user_bugs_only_p]
+
     return [util_memoize [list bug_tracker::assignee_get_filter_data_not_cached \
                              -package_id $package_id \
                              -workflow_id $workflow_id \
-                             -action_id $action_id]] 
+                             -action_id $action_id \
+                             -user_id $user_id \
+                             -admin_p $admin_p \
+                             -user_bugs_only_p $user_bugs_only_p]]
 }
 
 ad_proc bug_tracker::state_get_filter_data_not_cached {
     {-package_id:required}
     {-workflow_id:required}
+    {-user_id ""}
+    {-admin_p "f"}
+    {-user_bugs_only_p "f"}
 } {
     @param package_id The package (project) to select from
     @param workflow_id The workflow we're interested in
@@ -1380,14 +1429,21 @@ ad_proc bug_tracker::state_get_filter_data_not_cached {
 ad_proc bug_tracker::state_get_filter_data {
     {-package_id:required}
     {-workflow_id:required}
+    {-user_id ""}
+    {-admin_p "f"}
 } {
     @param package_id The package (project) to select from
     @param workflow_id The workflow we're interested in
     @return list-of-lists with state data for filter
 } {
+    set user_bugs_only_p [bug_tracker::user_bugs_only_p]
+
     return [util_memoize [list bug_tracker::state_get_filter_data_not_cached \
                              -package_id $package_id \
-                             -workflow_id $workflow_id]]
+                             -workflow_id $workflow_id \
+                             -user_id $user_id \
+                             -admin_p $admin_p \
+                             -user_bugs_only_p $user_bugs_only_p]]
 }
 
 #####
@@ -1480,3 +1536,81 @@ ad_proc bug_tracker::get_related_files_links {
     return $related_files_string
 }
 
+ad_proc -public bug_tracker::user_bugs_only_p {} {
+    Is the user bugs only feature turned on?
+    Admins always see all bugs.
+} {
+    return [expr [string equal [lindex [bug_tracker::access_policy] 1] "user_bugs"]]
+}
+
+ad_proc -private bug_tracker::set_access_policy {
+    {-all_bugs:boolean "f"}
+    {-user_bugs:boolean "f"}
+} {
+    Set/unset direct permissions on existing bugs.
+    @param all_bugs The user can see all bugs
+    @param user_bugs The user can only see the bugs they are participating in.
+} {
+    if {$all_bugs_p && $user_bugs_p} {
+        error "Select either -all_bugs or -user_bugs but not both"
+    }
+    set package_id [ad_conn package_id]
+    set all_users [db_list get_all_users {}]
+    if {$all_bugs_p} {
+        set bug_ids [db_list get_all_bugs {}]
+        foreach user_id $all_users {            
+  	    foreach bug_id $bug_ids {
+	        bug_tracker::inherit -bug_id $bug_id -party_id $user_id
+	    }
+        }	
+    } elseif {$user_bugs_p} {
+        foreach user_id $all_users {
+            set bug_ids [db_list get_user_bugs {}]
+            foreach bug_id $bug_ids {
+                bug_tracker::grant_direct_read_permission -bug_id $bug_id -party_id $user_id
+            }
+	}
+    }
+
+}
+
+ad_proc -private bug_tracker::grant_direct_read_permission {
+    {-bug_id:required}
+    {-party_id:required}
+} {
+    Grant direct read permissions
+} {
+    permission::set_not_inherit -object_id $bug_id
+    permission::grant -object_id $bug_id -party_id $party_id -privilege read
+}
+
+ad_proc -private bug_tracker::inherit {
+    {-bug_id:required}
+    {-party_id:required}
+} {
+    Grant direct read permissions
+} {
+    permission::set_inherit -object_id $bug_id
+    permission::revoke -object_id $bug_id -party_id $party_id -privilege read
+}
+
+ad_proc -public bug_tracker::access_policy {} {
+    Detect and return the current access policy.
+} {
+    set package_id [ad_conn package_id]
+    db_1row get_bug {}
+    if {[permission::inherit_p -object_id $bug_id]} {
+        return [list "#bug-tracker.Show_all_bugs#" all_bugs]
+    } else {
+        return [list "#bug-tracker.Show_user_bugs_only#" user_bugs]
+    }
+}
+
+
+ad_proc -private bug_tracker::user_bugs_only_where_clause {} {
+    Return the where clause fragment if only user's bugs should appear
+} {
+    if {[bug_tracker::user_bugs_only_p]} {
+        return [db_map user_bugs_only]
+    }
+}

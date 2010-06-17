@@ -724,8 +724,10 @@ ad_proc -private bug_tracker::bug::notification_info::get_notification_info {
 ad_proc bug_tracker::bug::get_list {
     {-ulevel 1}
     {-package_id {}}
+    {-user_id {}}
     -no_bulk_actions:boolean
 } {
+    upvar \#[template::adp_level] admin_p admin_p
     if { $package_id eq "" } {
         set package_id [ad_conn package_id]
     }
@@ -783,7 +785,9 @@ ad_proc bug_tracker::bug::get_list {
 
     set state_values [bug_tracker::state_get_filter_data \
                          -package_id $package_id \
-                         -workflow_id $workflow_id]
+                         -workflow_id $workflow_id \
+                         -user_id $user_id \
+                         -admin_p $admin_p]
     set state_default_value [lindex [lindex $state_values 0] 1]
 
     set filters {
@@ -823,7 +827,9 @@ ad_proc bug_tracker::bug::get_list {
 
         set values [bug_tracker::category_get_filter_data \
                        -package_id $package_id \
-                       -parent_id $parent_id]
+                       -parent_id $parent_id \
+                       -user_id $user_id \
+                       -admin_p $admin_p]
 
         set name category_$parent_id
         
@@ -845,7 +851,7 @@ ad_proc bug_tracker::bug::get_list {
     if { [bug_tracker::versions_p] } {
         lappend filters f_fix_for_version {
             label "[_ bug-tracker.Fix]"
-            values {[bug_tracker::version_get_filter_data -package_id $package_id]}
+            values {[bug_tracker::version_get_filter_data -package_id $package_id -user_id $user_id -admin_p $admin_p]}
             where_clause { b.fix_for_version = :f_fix_for_version }
             null_where_clause { b.fix_for_version is null }
             null_label "[_ bug-tracker.Undecided]"
@@ -859,7 +865,9 @@ ad_proc bug_tracker::bug::get_list {
         set values [bug_tracker::assignee_get_filter_data \
                        -package_id $package_id \
                        -workflow_id $workflow_id \
-                       -action_id $action_id]
+                       -action_id $action_id \
+		       -user_id $user_id \
+                       -admin_p $admin_p]
         
         lappend filters f_action_$action_id \
             [list \
@@ -874,7 +882,7 @@ ad_proc bug_tracker::bug::get_list {
 
     lappend filters f_component {
         label "[_ bug-tracker.Component]"
-        values {[bug_tracker::component_get_filter_data -package_id $package_id]}
+        values {[bug_tracker::component_get_filter_data -package_id $package_id -user_id $user_id -admin_p $admin_p]}
         where_clause {b.component_id = :f_component}
     }
 
@@ -966,12 +974,13 @@ ad_proc bug_tracker::bug::get_query {
     @return The query
 } {
 
-    upvar \#[template::adp_level] orderby orderby 
+    upvar \#[template::adp_level] orderby orderby admin_p admin_p
+    set package_id [ad_conn package_id]
 
     # Needed to handle ordering by categories
     set from_bug_clause "bt_bugs b"
     set orderby_category_where_clause {}
-
+    
     # Lars: This is a little hack because we actually need to alter the query to sort by category
     # but list builder currently doesn't support that.
 
@@ -996,6 +1005,7 @@ ad_proc bug_tracker::bug::get_query {
 
 ad_proc bug_tracker::bug::get_multirow {
     {-package_id ""}
+    {-user_id ""}
     {-truncate_len ""}
     {-query_name bugs}
 } {
