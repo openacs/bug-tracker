@@ -3,6 +3,7 @@
 
   <msg key="Accept">Accept</msg>
   <msg key="Accepted">Accepted</msg>
+  <msg key="Access_policy">Access Policy</msg>
   <msg key="action_open">Open</msg>
   <msg key="Actual">freeze</msg>
   <msg key="Actual_1">release</msg>
@@ -240,8 +241,10 @@
   <msg key="Severity">Severity</msg>
   <msg key="Severity_Codes">Severity codes</msg>
   <msg key="show_all">show all</msg>
+  <msg key="Show_all_bugs">Show all bugs</msg>
   <msg key="show_only_open">show only open</msg>
   <msg key="show_user_agent">user agent</msg>
+  <msg key="Show_user_bugs_only">Show user's bugs only</msg>
   <msg key="Sort_Order_Note">&lt;b&gt;Note:&lt;/b&gt; Categories are sorted by their
 names. Therefore, it's a good idea to use names of ths form &amp;quot;1 -
 High&amp;quot;, &amp;quot;2 - Normal&amp;quot;, etc., or &amp;quot;A - Critical&amp;quot;,
