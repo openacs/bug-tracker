@@ -12,15 +12,33 @@ input.bt_navbar {
   font-family: tahoma,verdana,arial,helvetica; 
   font-weight: bold; 
   font-size: 80%; 
-  color: black; 
+  color: black;
+  background-color: white;
+  text-decoration: none;
+  padding: 3px;
+  text-align:center;
 }
-
+input.bt_navbar_btn {
+  font-family: tahoma,verdana,arial,helvetica; 
+  font-weight: bold; 
+  font-size: 80%; 
+}
+.bt_navbar form { 
+  display:inline;
+}
 .bt_navbar { 
   font-family: tahoma,verdana,arial,helvetica; 
   font-size: 90%;
   font-weight: bold; 
   color: #ccccff; 
-  text-decoration: none; 
+  background-color: #41329c; 
+  text-align: right; 
+  padding: 3px;
+}
+
+.bt_notification {
+  float: left; 
+  padding: .25em 1em 0em 1em;
 }
 
 .bt_summary { 
