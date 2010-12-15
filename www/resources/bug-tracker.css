@@ -1,11 +1,5 @@
 a.bt_navbar { 
   color: white; 
-}
-a.bt_navbar:visited { 
-  color: white; 
-}
-a.bt_navbar:hover { 
-  color: white; 
   text-decoration: underline;
 }
 input.bt_navbar { 
@@ -15,8 +9,8 @@ input.bt_navbar {
   color: black;
   background-color: white;
   text-decoration: none;
-  padding: 3px;
-  text-align:center;
+  text-align: left;
+  padding: 2px;
 }
 input.bt_navbar_btn {
   font-family: tahoma,verdana,arial,helvetica; 
@@ -38,7 +32,7 @@ input.bt_navbar_btn {
 
 .bt_notification {
   float: left; 
-  padding: .25em 1em 0em 1em;
+  padding: 0 1em 0em 1em;
 }
 
 .bt_summary { 
