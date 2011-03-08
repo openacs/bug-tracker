@@ -28,7 +28,8 @@ if {![exists_and_not_null return_url]} {
     set return_url [export_vars -base "bug" {bug_number}]
 }
 
-set bug_title "[bug_tracker::conn Bug] #$bug_number"
+set bug_name [bug_tracker::conn Bug]
+set bug_title "$bug_name #$bug_number"
 
 set page_title "[_ bug-tracker.Delete_related_file]"
 set context [list [list "$return_url" "$bug_title"] $page_title]

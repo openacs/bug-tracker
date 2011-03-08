@@ -73,7 +73,7 @@
   <msg key="components">components</msg>
   <msg key="Components_component_filter">Components: %component_filter%</msg>
   <msg key="Confirm_delete_related_file">Confirm delete</msg>
-  <msg key="Confirm_delete_related_file_text">Are you sure you want to delete this related file from this bug? You will not be able to undo this action.</msg>
+  <msg key="Confirm_delete_related_file_text">Are you sure you want to delete this related file from this %bug_name%? You will not be able to undo this action.</msg>
   <msg key="Create_new">Create new</msg>
   <msg key="Create_new_category_type">Create new category type</msg>
   <msg key="Creation_Date">Creation Date</msg>
