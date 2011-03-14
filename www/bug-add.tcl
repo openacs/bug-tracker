@@ -100,7 +100,8 @@ ad_form -extend -name bug -new_data {
 	-desc_format [template::util::richtext::get_property format $description] \
         -keyword_ids $keyword_ids \
 	-fix_for_version $fix_for_version \
-	-assign_to $role_resolver
+	-assign_to $role_resolver \
+        -user_id $user_id
     
 } -after_submit {
     bug_tracker::bugs_exist_p_set_true

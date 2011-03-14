@@ -192,9 +192,13 @@ ad_proc -public bug_tracker::bug::new {
                 -comment_mime_type $desc_format \
 		-user_id $user_id \
 		-assignment [array get assign_array] \
-        -package_id $package_id]
+                -package_id $package_id]
     
-    return $bug_id
+        if {[lindex [bug_tracker::access_policy] 1] eq "user_bugs"} {
+            bug_tracker::grant_direct_read_permission -bug_id $bug_id -party_id $user_id
+        }
+
+        return $bug_id
     }
 }
 

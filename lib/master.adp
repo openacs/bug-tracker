@@ -13,4 +13,4 @@
 
 <include src="nav-bar" notification_link="@notification_link;noquote@">
 <slave>
-<include src="nav-bar" notification_link="@notification_link;noquote@">
+<comment><include src="nav-bar" notification_link="@notification_link;noquote@"></comment>
