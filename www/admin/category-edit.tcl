@@ -20,7 +20,7 @@ if { [info exists keyword_id] } {
     set function [_ acs-kernel.common_add]
 }
 
-set page_title [_ bug-tracker.function]
+set page_title "[string totitle $function] $object_type_name"
 set context_bar [ad_context_bar [list categories [_ bug-tracker.Manage_Categories]] $page_title]
 
 
