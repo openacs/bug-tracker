@@ -1,4 +1,4 @@
-a.bt_navbar { 
+a.bt_navbar:link { 
   color: white; 
 }
 a.bt_navbar:visited { 
@@ -7,17 +7,18 @@ a.bt_navbar:visited {
 a.bt_navbar:hover { 
   color: white; 
   text-decoration: underline;
+  background: inherit;
 }
 input.bt_navbar { 
   font-family: tahoma,verdana,arial,helvetica; 
   font-weight: bold; 
-  font-size: 80%; 
+  font-size: 95%; 
   color: black; 
 }
 
 .bt_navbar { 
   font-family: tahoma,verdana,arial,helvetica; 
-  font-size: 80%; 
+  font-size: 95%; 
   font-weight: bold; 
   color: #ccccff; 
   text-decoration: none; 
