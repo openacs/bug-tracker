@@ -150,6 +150,7 @@ ad_proc bug_tracker::get_export_variables {
         f_component
         orderby
         format
+	page
     }
     foreach { parent_id parent_heading } [bug_tracker::category_types] {
         lappend export_vars "f_category_$parent_id"
