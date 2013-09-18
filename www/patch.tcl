@@ -18,7 +18,7 @@ ad_page_contract {
 }
 
 # Assert read permission (should this check be in the request processor?)
-ad_require_permission [ad_conn package_id] read
+permission::require_permission -object_id [ad_conn package_id] -object_id read
 
 # Initialize variables related to the request that we'll need
 set package_id [ad_conn package_id]
@@ -86,13 +86,13 @@ switch -- $mode {
         set edit_fields {component_id summary generated_from_version apply_to_version}
     }
     accept {
-        ad_require_permission $package_id write
+        permission::require_permission -object_id $package_id -privilege write
 
         # The user should indicate which version the patch is applied to
         set edit_fields { applied_to_version }
     }
     refuse {
-        ad_require_permission $package_id write
+        permission::require_permission -object_id $package_id -privilege write
 
         set edit_fields {}
     }

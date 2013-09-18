@@ -13,7 +13,7 @@ ad_page_contract {
     {return_url ""}
 }
 
-ad_require_permission [ad_conn package_id] create
+permission::require_permission -object_id [ad_conn package_id] -privilege create
 
 if { [empty_string_p $return_url] } {
     if { [exists_and_not_null bug_number] } {

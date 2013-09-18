@@ -12,7 +12,7 @@ ad_page_contract {
 # User needs to be logged in here
 auth::require_login
 
-ad_require_permission [ad_conn package_id] read
+permission::require_permission -object_id [ad_conn package_id] -privilege read
 
 # Set some common bug-tracker variables
 set project_name [bug_tracker::conn project_name]
