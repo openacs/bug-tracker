@@ -55,3 +55,4 @@ begin
 end;
 ' language 'plpgsql';
 
+update bt_projects bp set workflow_id = w.workflow_id from workflows w where bp.project_id = w.object_id;
