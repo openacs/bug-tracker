@@ -49,8 +49,7 @@ if { [exists_and_not_null download] } {
     
     set patch_content [db_string get_patch_content {}]
     set outputheaders [ns_conn outputheaders]
-    ns_set cput $outputheaders "Content-Disposition" "attachment; filename=patc\
-h-${patch_number}.txt"
+    ns_set cput $outputheaders "Content-Disposition" "attachment; filename=patch-${patch_number}.txt"
     doc_return 200 "text/plain" $patch_content
     ad_script_abort
 }
