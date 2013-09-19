@@ -173,7 +173,7 @@ ad_proc -public bug_tracker::bug::new {
 		-fix_for_version $fix_for_version ]
 
         foreach keyword_id $keyword_ids {
-            cr::keyword::item_assign -item_id $bug_id -keyword_id $keyword_id
+            content::keyword::item_assign -item_id $bug_id -keyword_id $keyword_id
         }
 	
 	if {![empty_string_p $assign_to]} {
@@ -279,7 +279,7 @@ ad_proc -public bug_tracker::bug::edit {
         # Update the keywords
         foreach {category_id category_name} [bug_tracker::category_types] {
             if { [exists_and_not_null row($category_id)] } {
-                cr::keyword::item_assign -singular -item_id $bug_id -keyword_id $row($category_id)
+                content::keyword::item_assign -item_id $bug_id -keyword_id $row($category_id)
             }
             # LARS:
             # We don't unassign if no value is supplied for one of the categories
