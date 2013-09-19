@@ -18,7 +18,7 @@ ad_page_contract {
 }
 
 # Assert read permission (should this check be in the request processor?)
-permission::require_permission -object_id [ad_conn package_id] -object_id read
+permission::require_permission -object_id [ad_conn package_id] -privilege read
 
 # Initialize variables related to the request that we'll need
 set package_id [ad_conn package_id]
