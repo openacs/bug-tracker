@@ -28,7 +28,7 @@ if { [exists_and_not_null cancel] } {
     ad_script_abort
 }
 
-set write_p [ad_permission_p $package_id write]
+set write_p [permission::permission_p -object_id $package_id -privilege write]
 set user_is_submitter_p [expr $user_id == [bug_tracker::get_patch_submitter -patch_number $patch_number]]
 
 if { ![expr $user_is_submitter_p || $write_p] } {            

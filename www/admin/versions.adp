@@ -1,5 +1,5 @@
 <master src="../../lib/master">
-<property name="title">@project_name;noquote@ Versions</property>
+<property name="doc(title)">@project_name;noquote@ Versions</property>
 <property name="context_bar">@context_bar;noquote@</property>
 
 <h3>#bug-tracker.In_Development#</h3>

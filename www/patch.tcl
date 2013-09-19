@@ -24,7 +24,7 @@ permission::require_permission -object_id [ad_conn package_id] -privilege read
 set package_id [ad_conn package_id]
 set user_id [ad_conn user_id]
 # Does the user have write privilege on the project?
-set write_p [ad_permission_p $package_id write]
+set write_p [permission::permission_p -object_id $package_id -privilege write]
 
 set submitter_id [bug_tracker::get_patch_submitter -patch_number $patch_number]
 
