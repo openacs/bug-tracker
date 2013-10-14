@@ -28,8 +28,8 @@ set write_p [permission::permission_p -object_id $package_id -privilege write]
 
 set submitter_id [bug_tracker::get_patch_submitter -patch_number $patch_number]
 
-set user_is_submitter_p [expr { ![empty_string_p $submitter_id] && $user_id == $submitter_id }]
-set write_or_submitter_p [expr $write_p || $user_is_submitter_p]
+set user_is_submitter_p [expr { $submitter_id ne "" && $user_id == $submitter_id }]
+set write_or_submitter_p [expr {$write_p || $user_is_submitter_p}]
 set project_name [bug_tracker::conn project_name]
 set package_key [ad_conn package_key]
 set view_patch_url "[ad_conn url]?[export_vars -url { patch_number }]"
@@ -39,13 +39,13 @@ set patch_status [db_string patch_status {}]
 set versions_p [bug_tracker::versions_p]
 
 # Abort editing and return to view mode if the user hit cancel on the edit form
-if { [exists_and_not_null cancel_edit] } {
+if { ([info exists cancel_edit] && $cancel_edit ne "") } {
     ad_returnredirect $view_patch_url
     ad_script_abort
 }
 
 # If the download link was clicked - return the text content of the patch
-if { [exists_and_not_null download] } {
+if { ([info exists download] && $download ne "") } {
     
     set patch_content [db_string get_patch_content {}]
     set outputheaders [ns_conn outputheaders]
@@ -57,17 +57,17 @@ if { [exists_and_not_null download] } {
 # Initialize the page mode variable
 # We are in view mode per default
 if { ![info exists mode] } {
-    if { [exists_and_not_null edit] } {
+    if { ([info exists edit] && $edit ne "") } {
         set mode edit
-    } elseif { [exists_and_not_null accept] } {        
+    } elseif { ([info exists accept] && $accept ne "") } {        
         set mode accept
-    } elseif { [exists_and_not_null refuse] } {
+    } elseif { ([info exists refuse] && $refuse ne "") } {
         set mode refuse
-    } elseif { [exists_and_not_null delete] } {
+    } elseif { ([info exists delete] && $delete ne "") } {
         set mode delete
-    } elseif { [exists_and_not_null reopen] } {
+    } elseif { ([info exists reopen] && $reopen ne "") } {
         set mode reopen
-    } elseif { [exists_and_not_null comment] } {
+    } elseif { ([info exists comment] && $comment ne "") } {
         set mode comment
     } else {
         set mode view
@@ -78,7 +78,7 @@ if { ![info exists mode] } {
 # And check that the user is permitted to take the chosen action
 switch -- $mode {
     edit {
-        if { ![expr $write_p || $user_is_submitter_p] } {
+        if { ![expr {$write_p || $user_is_submitter_p}] } {
             ad_return_forbidden "[_ bug-tracker.Permission]" "[_ bug-tracker.You_2]"
             ad_script_abort
         }
@@ -98,10 +98,10 @@ switch -- $mode {
     }
     reopen {
         # User must have write permission to reopen a refused patch
-        if { [string equal $patch_status "refused"] && !$write_p } {
+        if { $patch_status eq "refused" && !$write_p } {
             ad_return_forbidden "[_ bug-tracker.Permission]" "[_ bug-tracker.You_3]"
             ad_script_abort
-        } elseif { [string equal $patch_status "deleted"] && !($user_is_submitter_p || $write_p)} {
+        } elseif { $patch_status eq "deleted" && !($user_is_submitter_p || $write_p)} {
             ad_return_forbidden "[_ bug-tracker.Permission]" "[_ bug-tracker.You_4]"
             ad_script_abort
         }
@@ -128,7 +128,7 @@ foreach field $edit_fields {
     set field_editable_p($field) 1
 }
 
-if { ![string equal $mode "view"] } {
+if { $mode ne "view" } {
     auth::require_login
 }    
 
@@ -160,7 +160,7 @@ element create patch component_id \
         -label "[_ bug-tracker.Component]" \
         -options [bug_tracker::components_get_options]
 
-if { [string equal $mode "view"] } {
+if {$mode eq "view"} {
     element create patch fixes_bugs \
         -datatype text \
         -widget inform \
@@ -231,7 +231,7 @@ switch -- $mode {
 
 # In accept mode - give the user the ability to select associated
 # bugs to be resolved
-if { [string equal $mode "accept"] } {
+if {$mode eq "accept"} {
 
     element create patch resolve_bugs \
             -datatype integer \
@@ -241,7 +241,7 @@ if { [string equal $mode "accept"] } {
             -optional
 }
 
-if { [string equal $mode "edit"] } {
+if {$mode eq "edit"} {
     # Edit mode - display the file upload widget for patch content
     element create patch patch_file \
           -datatype file \
@@ -296,7 +296,7 @@ if { [form is_request patch] } {
             -value $patch(patch_number)
     element set_properties patch component_id \
             -value [ad_decode [info exists field_editable_p(component_id)] 1 $patch(component_id) $patch(component_name)]
-    if { [string equal $mode "view"] } {
+    if {$mode eq "view"} {
         set bugs_name [bug_tracker::conn bugs]
 	set map_to_bugs [_ bug-tracker.Map] 
         set map_new_bug_link [ad_decode $write_or_submitter_p "1" "\[ <a href=\"map-patch-to-bugs?patch_number=$patch(patch_number)\">$map_to_bugs</a> \]" ""]
@@ -319,9 +319,9 @@ if { [form is_request patch] } {
     element set_properties patch applied_to_version \
             -value [ad_decode [info exists field_editable_p(applied_to_version)] 1 $patch(applied_to_version) $patch(applied_to_version_name)]
 
-    set deleted_p [string equal $patch(status) deleted]
+    set deleted_p [string equal $patch(status) "deleted"]
 
-    if { ( [string equal $patch(status) open] && ![string equal $mode accept]) || [string equal $patch(status) refused] } {
+    if { ( $patch(status) eq "open" && $mode ne "accept" ) || $patch(status) eq "refused" } {
         element set_properties patch applied_to_version -widget hidden
     }
 
@@ -334,7 +334,7 @@ if { [form is_request patch] } {
         <blockquote>[bug_tracker::bug_convert_comment_to_html -comment $comment -format $comment_format]</blockquote>"
     }
 
-    if { [string equal $mode "view"] } {
+    if {$mode eq "view"} {
         element set_properties patch description -value $action_html
     } else {
 
@@ -357,8 +357,8 @@ if { [form is_request patch] } {
 
     # Create the buttons
     # If the user has submitted the patch he gets full write access on the patch
-    set user_is_submitter_p [expr $patch(submitter_user_id) == [ad_conn user_id]]
-    if { [string equal $mode "view"] } {
+    set user_is_submitter_p [expr {$patch(submitter_user_id) == [ad_conn user_id]}]
+    if {$mode eq "view"} {
         set button_form_export_vars [export_vars -form { patch_number }]
         multirow create button name label
 
@@ -398,7 +398,7 @@ if { [form is_request patch] } {
     }    
 
     # Check that the user is permitted to change the patch
-    if { ![string equal $mode "view"] && !$write_p && !$user_is_submitter_p } {
+    if { $mode ne "view" && !$write_p && !$user_is_submitter_p } {
         ns_log notice "$patch(submitter_user_id) doesn't have write on object $patch(patch_id)"
         ad_return_forbidden "[_ bug-tracker.Permission]" "<blockquote>
         [_ bug-tracker.You_6]
@@ -421,7 +421,7 @@ if { [form is_valid patch] } {
     foreach column $edit_fields {
         set $column [element get_value patch $column]
         lappend update_exprs "$column = :$column"
-        if {[string equal $column summary]} { 
+        if {$column eq "summary"} { 
             set new_title "Patch \#$patch_number: $summary"
         }
     }
@@ -443,7 +443,7 @@ if { [form is_valid patch] } {
             # Get the contents of any new uploaded patch file
             set content [bug_tracker::get_uploaded_patch_file_content]
 
-            if { ![empty_string_p $content] } {
+            if { $content ne "" } {
                 lappend update_exprs "content = :content"
             } 
         }
@@ -459,7 +459,7 @@ if { [form is_valid patch] } {
         if { [llength $update_exprs] > 0 } {
             db_dml update_patch {}
         }
-        if {[info exists new_title] && ![empty_string_p $new_title]} { 
+        if {[info exists new_title] && $new_title ne ""} { 
             db_dml update_patch_title {update acs_objects set title = :new_title where object_id = :patch_id}
         }
         set action_id [db_nextval "acs_object_id_seq"]
@@ -471,7 +471,7 @@ if { [form is_valid patch] } {
         set action $mode
         db_dml patch_action {}
 
-        if { [string equal $mode "accept"] } {
+        if {$mode eq "accept"} {
             # Resolve any bugs that the user selected
             set resolve_bugs [element get_values patch resolve_bugs]
 

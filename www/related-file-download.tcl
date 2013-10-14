@@ -17,7 +17,7 @@ ad_page_contract {
 }
 
 # make sure this object is related to this bug
-if {[exists_and_not_null revision_id]} {
+if {([info exists revision_id] && $revision_id ne "")} {
     if { ![db_0or1row get_related_revision {}] } {
         ad_return_complaint 1 [_ bug-tracker.Related_file_not_found]
         ad_script_abort

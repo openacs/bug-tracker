@@ -19,7 +19,7 @@ set package_id [ad_conn package_id]
 set user_id [auth::require_login]
 set sender_email [acs_user::get_element -user_id $user_id -element email]
 
-if {![exists_and_not_null return_url]} {
+if {(![info exists return_url] || $return_url eq "")} {
     set return_url "./"
 }
 
@@ -70,7 +70,7 @@ ad_form -name bug -cancel_url $return_url -export { return_url workflow_id } -fo
 
     set p_keyword_id 0
     foreach {keyword_id keyword_label} [bug_tracker::category_types -package_id $package_id] {
-        if {[string equal $keyword_label "[_ bug-tracker.Priority]"]} {
+        if {$keyword_label eq "[_ bug-tracker.Priority]"} {
             set p_keyword_id $keyword_id
         }
     }
@@ -94,7 +94,7 @@ ad_form -name bug -cancel_url $return_url -export { return_url workflow_id } -fo
     set final_recipient_list [list]
     foreach one_email [split $recipient_list " "] {
       set one_email [string trim $one_email]
-      if {![string equal $one_email {}]} {
+      if {$one_email ne "" } {
            lappend final_recipient_list $one_email
       }
     }
@@ -111,7 +111,7 @@ ad_form -name bug -cancel_url $return_url -export { return_url workflow_id } -fo
 
 if { [form is_request bug] } {
     foreach field {success_inform_text_stub errors_inform_text_stub} {
-        if {[string equal [set $field] {}]} {
+        if {[set $field] eq ""} {
             element set_properties bug $field -widget hidden
         }
     }

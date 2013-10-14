@@ -20,7 +20,7 @@ ad_page_contract {
 set user_id [auth::require_login]
 set package_id [ad_conn package_id]
 
-if {![exists_and_not_null return_url]} {
+if {(![info exists return_url] || $return_url eq "")} {
     set return_url "./"
 }
 
@@ -88,7 +88,7 @@ foreach one_bug_id $bug_id {
             } else {
                 # assign dummy case id placeholder so that we can
                 # generate assignee widgets when the op is reassign
-                if {$dummy_case_id == ""} {
+                if {$dummy_case_id eq ""} {
                     set dummy_case_id $case_id
                 }
                 if {![array exists dummy_bug_info]} {
@@ -130,7 +130,7 @@ ad_form -name bug -cancel_url $return_url -export { return_url workflow_id op} -
     }
 }
 
-if { ![string equal $dummy_case_id {}] } {
+if { $dummy_case_id ne "" } {
     workflow::case::role::add_assignee_widgets -case_id $dummy_case_id -form_name bug -role_ids $resolver_role_id
 } else {
     ad_form -extend -name bug -form {
@@ -188,7 +188,7 @@ ad_form -extend -name bug -form {
 
 if { [form is_request bug] } {
     foreach field {success_inform_text_stub security_inform_text_stub errors_inform_text_stub} {
-        if {[string equal [set $field] {}]} {
+        if {[set $field] eq ""} {
             element set_properties bug $field -widget hidden
         }
     }
@@ -198,7 +198,7 @@ if { ![form is_valid bug] } {
     set present_fields [workflow::action::get_element -action_id $action_id -element edit_fields]
     set all_fields {resolution fixed_in_version role_resolver}
     
-    if { [lsearch $present_fields "resolution"] == -1 } {
+    if {"resolution" ni $present_fields} {
         element set_properties bug resolution -options [concat {{{} {}}} [element get_property bug resolution options]]
     }
 
@@ -207,7 +207,7 @@ if { ![form is_valid bug] } {
     }
     
     foreach field $all_fields {
-        if {[lsearch $present_fields $field] == -1 || [string equal $dummy_case_id {}]} {
+        if {[lsearch $present_fields $field] == -1 || $dummy_case_id eq ""} {
             element set_properties bug $field -widget hidden
         }
     }

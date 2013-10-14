@@ -27,10 +27,10 @@ while { $interval_low <= $row_count } {
     }
 
     set interval_label [ad_decode $interval_low $row_count "$interval_high" "$interval_low - $interval_high"]
-    lappend pagination_filter_list [ad_decode [expr 1 + $offset] $interval_low "$interval_label" "<a href=\"$pagination_filter_base_url&offset=[expr $interval_low - 1]\">$interval_label</a>"]
+    lappend pagination_filter_list [ad_decode [expr {1 + $offset}] $interval_low "$interval_label" "<a href=\"$pagination_filter_base_url&offset=[expr {$interval_low - 1}]\">$interval_label</a>"]
 
-    set interval_high [expr $interval_high + $interval_size]
-    set interval_low [expr $interval_high - [expr $interval_size - 1]]
+    set interval_high [expr {$interval_high + $interval_size}]
+    set interval_low [expr {$interval_high - [expr {$interval_size - 1}]}]
 }
 
 set pagination_filter [join $pagination_filter_list " | "]

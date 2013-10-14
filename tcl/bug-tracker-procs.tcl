@@ -15,7 +15,7 @@ ad_proc bug_tracker::conn { args } {
     global bt_conn
 
     set flag [lindex $args 0]
-    if { [string index $flag 0] != "-" } {
+    if { [string index $flag 0] ne "-" } {
         set var $flag
         set flag "-get"
     } else {
@@ -181,9 +181,9 @@ ad_proc bug_tracker::get_project_info_internal {
 }
 
 ad_proc bug_tracker::get_project_info {
-    -package_id
+    {-package_id ""}
 } {
-    if { ![info exists package_id] } {
+    if { $package_id eq "" } {
         set package_id [ad_conn package_id]
     }
 
@@ -191,9 +191,9 @@ ad_proc bug_tracker::get_project_info {
 }
 
 ad_proc bug_tracker::get_project_info_flush {
-    -package_id
+    {-package_id ""}
 } {
-    if { ![info exists package_id] } {
+    if { $package_id eq "" } {
         set package_id [ad_conn package_id]
     }
 
@@ -201,10 +201,10 @@ ad_proc bug_tracker::get_project_info_flush {
 }
 
 ad_proc bug_tracker::set_project_name {
-    -package_id
+    {-package_id ""}
     project_name
 } {
-    if { ![info exists package_id] } {
+    if { $package_id eq "" } {
         set package_id [ad_conn package_id]
     }
     
@@ -228,7 +228,7 @@ ad_proc -public bug_tracker::bugs_exist_p {
 } {
     Returns whether any bugs exist in a project
 } {
-    if { ![exists_and_not_null package_id] } {
+    if { $package_id eq "" } {
         set package_id [ad_conn package_id]
     }
 
@@ -240,7 +240,7 @@ ad_proc -public bug_tracker::bugs_exist_p_set_true {
 } {
     Sets bug_exists_p true. Useful for when you add a new bug, so you know that a bug will exist.
 } {
-    if { ![exists_and_not_null package_id] } {
+    if { $package_id eq "" } {
         set package_id [ad_conn package_id]
     }
 
@@ -284,10 +284,10 @@ ad_proc bug_tracker::get_user_prefs_internal {
 }
 
 ad_proc bug_tracker::get_user_prefs {
-    -package_id
+    {-package_id ""}
     -user_id
 } {
-    if { ![info exists package_id] } {
+    if { $package_id eq "" } {
         set package_id [ad_conn package_id]
     }
 
@@ -299,10 +299,10 @@ ad_proc bug_tracker::get_user_prefs {
 }
 
 ad_proc bug_tracker::get_user_prefs_flush {
-    -package_id
+    {-package_id ""}
     -user_id
 } {
-    if { ![info exists package_id] } {
+    if { $package_id eq "" } {
         set package_id [ad_conn package_id]
     }
 
@@ -323,7 +323,7 @@ ad_proc bug_tracker::get_user_prefs_flush {
 ad_proc bug_tracker::status_get_options {
     {-package_id ""}
 } {
-    if { [empty_string_p $package_id] } {
+    if { $package_id eq "" } {
         set package_id [ad_conn package_id]
     }
 
@@ -557,7 +557,7 @@ ad_proc bug_tracker::category_get_options {
 ad_proc -private bug_tracker::get_keywords {
     {-package_id ""}
 } {
-    if { ![exists_and_not_null package_id] } {
+    if { $package_id eq "" } {
         set package_id [ad_conn package_id]
     }
     return [util_memoize [list bug_tracker::get_keywords_not_cached -package_id $package_id]]
@@ -566,7 +566,7 @@ ad_proc -private bug_tracker::get_keywords {
 ad_proc -private bug_tracker::get_keywords_flush {
     {-package_id ""}
 } {
-    if { ![exists_and_not_null package_id] } {
+    if { $package_id eq "" } {
         set package_id [ad_conn package_id]
     }
     util_memoize_flush [list bug_tracker::get_keywords_not_cached -package_id $package_id]
@@ -589,7 +589,7 @@ ad_proc -public bug_tracker::set_default_keyword {
 } {
     Set the default keyword for a given type (parent)
 } {
-    if { ![exists_and_not_null package_id] } {
+    if { $package_id eq "" } {
         set package_id [ad_conn package_id]
     }
 
@@ -613,7 +613,7 @@ ad_proc -public bug_tracker::get_default_keyword {
 } {
     Get the default keyword for a given type (parent)
 } {
-    if { ![exists_and_not_null package_id] } {
+    if { $package_id eq "" } {
         set package_id [ad_conn package_id]
     }
 
@@ -626,7 +626,7 @@ ad_proc -public bug_tracker::get_default_keyword_flush {
 } {
     Flush the cache for 
 } {
-    if { ![exists_and_not_null package_id] } {
+    if { $package_id eq "" } {
         set package_id [ad_conn package_id]
     }
 
@@ -740,7 +740,7 @@ ad_proc -public bug_tracker::delete_all_project_keywords {
 } {
     Deletes all the keywords in a project
 } {
-    if { ![exists_and_not_null package_id] } {
+    if { $package_id eq "" } {
         set package_id [ad_conn package_id]
     }
     db_exec_plsql keywords_delete {}
@@ -762,14 +762,14 @@ ad_proc -public bug_tracker::install_keywords_setup {
                                   -parent_id $root_keyword_id \
                                   -heading $category_type]
         
-        if { [empty_string_p $category_type_id] } {
+        if { $category_type_id eq "" } {
             set category_type_id [cr::keyword::new \
                                       -parent_id $root_keyword_id \
                                       -heading $category_type]
         }
         
         foreach category $categories {
-            if { [string equal [string index $category 0] "*"] } {
+            if {[string index $category 0] eq "*"} {
                 set default_p 1
                 set category [string range $category 1 end]
             } else {
@@ -780,7 +780,7 @@ ad_proc -public bug_tracker::install_keywords_setup {
                                  -parent_id $category_type_id \
                                  -heading $category]
             
-            if { [empty_string_p $category_id] } {
+            if { $category_id eq "" } {
                 set category_id [cr::keyword::new \
                                      -parent_id $category_type_id \
                                      -heading $category]
@@ -817,11 +817,11 @@ ad_proc -public bug_tracker::install_parameters_setup {
 #####
 
 ad_proc bug_tracker::version_get_options {
-    -package_id
+    {-package_id ""}
     -include_unknown:boolean
     -include_undecided:boolean
 } {
-    if { ![exists_and_not_null package_id] } {
+    if { $package_id eq "" } {
         set package_id [ad_conn package_id]
     }
 
@@ -868,7 +868,7 @@ ad_proc bug_tracker::versions_p {
 } { 
     Is the versions feature turned on?
 } {
-    if { ![exists_and_not_null package_id] } {
+    if { $package_id eq "" } {
         set package_id [ad_conn package_id]
     }
     
@@ -895,13 +895,13 @@ ad_proc bug_tracker::version_get_name {
     {-package_id ""}
     {-version_id:required}
 } {
-    if { [empty_string_p $version_id] } {
+    if { $version_id eq "" } {
         return {}
     }
     foreach elm [version_get_options -package_id $package_id] {
         set name [lindex $elm 0]
         set id [lindex $elm 1]
-        if { [string equal $id $version_id] } {
+        if {$id eq $version_id} {
             return $name
         }
     }
@@ -947,7 +947,7 @@ ad_proc bug_tracker::components_get_options {
     {-package_id ""}
     -include_unknown:boolean
 } {
-    if { ![exists_and_not_null package_id] } {
+    if { $package_id eq "" } {
         set package_id [ad_conn package_id]
     }
 
@@ -978,12 +978,12 @@ ad_proc bug_tracker::component_get_name {
     {-package_id ""}
     {-component_id:required}
 } {
-    if { [empty_string_p $component_id] } {
+    if { $component_id eq "" } {
         return {}
     }
     foreach elm [components_get_options -package_id $package_id] {
         set id [lindex $elm 1]
-        if { [string equal $id $component_id] } {
+        if {$id eq $component_id} {
             return [lindex $elm 0]
         }
     }
@@ -994,11 +994,11 @@ ad_proc bug_tracker::component_get_url_name {
     {-package_id ""}
     {-component_id:required}
 } {
-    if { [empty_string_p $component_id] } {
+    if { $component_id eq "" } {
         return {}
     }
     foreach { id url_name } [components_get_url_names -package_id $package_id] {
-        if { [string equal $id $component_id] } {
+        if {$id eq $component_id} {
             return $url_name
         }
     }
@@ -1008,7 +1008,7 @@ ad_proc bug_tracker::component_get_url_name {
 ad_proc bug_tracker::components_get_url_names {
     {-package_id ""}
 } {
-    if { ![exists_and_not_null package_id] } {
+    if { $package_id eq "" } {
         set package_id [ad_conn package_id]
     }
     return [util_memoize [list bug_tracker::components_get_url_names_not_cached -package_id $package_id]]
@@ -1078,9 +1078,9 @@ ad_proc bug_tracker::patch_action_pretty {
 #####
 
 ad_proc ::bug_tracker::users_get_options {
-    -package_id
+    {-package_id ""}
 } {
-    if { ![info exists package_id] } {
+    if { $package_id eq "" } {
         set package_id [ad_conn package_id]
     }
     
@@ -1267,7 +1267,7 @@ ad_proc bug_tracker::get_uploaded_patch_file_content {
 } {
     set patch_file [ns_queryget patch_file]
    
-    if { [empty_string_p $patch_file] } {
+    if { $patch_file eq "" } {
         # No patch file was uploaded
         return ""
     }
@@ -1322,7 +1322,7 @@ ad_proc bug_tracker::project_new { project_id } {
 } {
 
     if {![db_0or1row already_there {select 1 from bt_projects where  project_id = :project_id} ] } {
-	if [db_0or1row instance_info { *SQL* } ] {
+	if {[db_0or1row instance_info { *SQL* } ]} {
 	    set folder_id [content::folder::new -name "bug_tracker_$project_id" \
                                                 -package_id $project_id \
                                                 -parent_id $project_id \

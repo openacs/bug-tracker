@@ -15,8 +15,8 @@ ad_page_contract {
 
 permission::require_permission -object_id [ad_conn package_id] -privilege create
 
-if { [empty_string_p $return_url] } {
-    if { [exists_and_not_null bug_number] } {
+if { $return_url eq "" } {
+    if { ([info exists bug_number] && $bug_number ne "") } {
         set return_url "bug?[export_vars { bug_number }]"
     } else {
         set return_url "patch-list"
@@ -80,7 +80,7 @@ element create patch patch_file \
         -widget file \
         -label "[_ bug-tracker.Patch]" \
 
-if { [exists_and_not_null bug_number] } {
+if { ([info exists bug_number] && $bug_number ne "") } {
     # Export the bug number
     element create patch bug_number \
         -datatype integer \
@@ -102,7 +102,7 @@ if { [exists_and_not_null bug_number] } {
 if { [form is_request patch] } {
     # Form requested
 
-    if { [exists_and_not_null bug_number] } {
+    if { ([info exists bug_number] && $bug_number ne "") } {
         element set_properties patch bug_number -value $bug_number
     }
 
@@ -137,7 +137,7 @@ if { [form is_valid patch] } {
         set patch_number [db_string patch_number_for_id {}]
 
         # Redirect to the view page for the created patch by default
-        if { [empty_string_p $return_url] } {
+        if { $return_url eq "" } {
             set redirect_url "patch?[export_vars { patch_number }]"
         } else {
             set redirect_url $return_url

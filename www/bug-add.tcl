@@ -8,7 +8,7 @@ ad_page_contract {
     {return_url ""}
 }
 
-if { [empty_string_p $return_url] } {
+if { $return_url eq "" } {
     set return_url "."
 }
 

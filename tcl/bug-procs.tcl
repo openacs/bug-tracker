@@ -68,7 +68,7 @@ ad_proc -public bug_tracker::bug::get {
     # Get state information
     workflow::case::fsm::get -case_id $case_id -array case -enabled_action_id $enabled_action_id
     set row(pretty_state) $case(pretty_state)
-    if { ![empty_string_p $row(resolution)] } {
+    if { $row(resolution) ne "" } {
         append row(pretty_state) " ([bug_tracker::resolution_pretty $row(resolution)])"
     }
     set row(state_short_name) $case(state_short_name)
@@ -100,14 +100,14 @@ ad_proc -public bug_tracker::bug::insert {
     @return bug_id The same bug_id passed in, just for convenience.
     
 } {
-    if { ![exists_and_not_null user_agent] && [ad_conn isconnected] } {
+    if { (![info exists user_agent] || $user_agent eq "") && [ad_conn isconnected] } {
         set user_agent [ns_set get [ns_conn headers] "User-Agent"]
     }
 
     set comment_content $description
     set comment_format $desc_format
 
-    if { ![exists_and_not_null creation_date] } {
+    if { (![info exists creation_date] || $creation_date eq "") } {
         set creation_date [db_string select_sysdate {}]
     }
 
@@ -176,7 +176,7 @@ ad_proc -public bug_tracker::bug::new {
             content::keyword::item_assign -item_id $bug_id -keyword_id $keyword_id
         }
 	
-	if {![empty_string_p $assign_to]} {
+	if {$assign_to ne ""} {
 
 	    array set assign_array [list resolver $assign_to]
 	    
@@ -217,7 +217,7 @@ ad_proc -public bug_tracker::bug::update {
 } {
     upvar $array row
 
-    if { ![exists_and_not_null user_id] } {
+    if { (![info exists user_id] || $user_id eq "") } {
         set user_id [ad_conn user_id]
     }
 
@@ -278,7 +278,7 @@ ad_proc -public bug_tracker::bug::edit {
 
         # Update the keywords
         foreach {category_id category_name} [bug_tracker::category_types] {
-            if { [exists_and_not_null row($category_id)] } {
+            if { ([info exists row($category_id)] && $row($category_id) ne "") } {
                 content::keyword::item_assign -item_id $bug_id -keyword_id $row($category_id)
             }
             # LARS:
@@ -351,7 +351,7 @@ ad_proc -public bug_tracker::bug::get_watch_link {
                         -object_id $bug_id \
                         -user_id $user_id]
 
-    set subscribed_p [expr ![empty_string_p $request_id]]
+    set subscribed_p [expr {$request_id ne ""}] 
         
     if { !$subscribed_p } {
         set url [notification::display::subscribe_url \
@@ -490,7 +490,7 @@ ad_proc -private bug_tracker::bug::workflow_delete {} {
     Delete the 'bug' workflow for bug-tracker
 } {
     set workflow_id [get_package_workflow_id]
-    if { ![empty_string_p $workflow_id] } {
+    if { $workflow_id ne "" } {
         workflow::delete -workflow_id $workflow_id
     }
 }
@@ -510,7 +510,7 @@ ad_proc -public bug_tracker::bug::get_instance_workflow_id {
 } { 
     Return the workflow_id for the package (not instance) workflow
 } {
-    if { [empty_string_p $package_id] } {
+    if { $package_id eq "" } {
         set package_id [ad_conn package_id]
     }
     return [db_string get_instance_workflow_id {}]
@@ -792,7 +792,7 @@ ad_proc bug_tracker::bug::get_list {
                          -workflow_id $workflow_id \
                          -user_id $user_id \
                          -admin_p $admin_p]
-    set state_default_value [lindex [lindex $state_values 0] 1]
+    set state_default_value [lindex $state_values 0 1]
 
     set filters {
         project_id {}
@@ -928,7 +928,7 @@ ad_proc bug_tracker::bug::get_list {
     set bulk_action_export_vars [list [list workflow_id $workflow_id] [list return_url [ad_return_url]]]
 
     template::list::create \
-        -ulevel [expr $ulevel + 1] \
+        -ulevel [expr {$ulevel + 1}] \
         -name bugs \
         -multirow bugs \
         -key bug_id \

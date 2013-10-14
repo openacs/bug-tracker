@@ -30,7 +30,7 @@ if { ![db_0or1row get_related_file {}] } {
     ad_script_abort
 }
 
-if {![exists_and_not_null return_url]} {
+if {(![info exists return_url] || $return_url eq "")} {
     set return_url [export_vars -base "bug" {bug_number}]
 }
 
@@ -49,7 +49,7 @@ ad_form \
     } -on_request {
     } -validate {
         {upload_file
-            {[exists_and_not_null upload_file]}
+            {([info exists upload_file] && $upload_file ne "")}
             "[_ bug-tracker.Related_File_File_required]"
         }
     } -after_submit {
@@ -79,7 +79,7 @@ ad_form \
             foreach available_enabled_action_id [workflow::case::get_available_enabled_action_ids -case_id $case_id] {
                 workflow::case::enabled_action_get -enabled_action_id $available_enabled_action_id -array enabled_action
                 workflow::action::get -action_id $enabled_action(action_id) -array available_action
-                if { [string eq $available_action(short_name) "comment"] } {
+                if {$available_action(short_name) eq "comment"} {
                     set action_id $enabled_action(action_id)
                     array set row [list]
                     foreach field [workflow::action::get_element -action_id $action_id -element edit_fields] {

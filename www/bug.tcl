@@ -73,7 +73,7 @@ set enabled_action_id [form get_action bug]
 
 # Registration required for all actions
 set action_id ""
-if { ![empty_string_p $enabled_action_id] } {
+if { $enabled_action_id ne "" } {
     ns_log Notice "enabled_action if statement"
     auth::require_login
     workflow::case::enabled_action_get -enabled_action_id $enabled_action_id -array enabled_action    
@@ -92,7 +92,7 @@ ns_log Notice "actions: enabled_action_id: -${enabled_action_id}-"
 
 # Buttons
 set actions [list]
-if { [empty_string_p $enabled_action_id] } {
+if { $enabled_action_id eq "" } {
 
     ns_log Notice "actions: case_id: $case_id"
     ns_log Notice "actions: case_id: $case_id get_enabled_actions: [workflow::case::get_available_enabled_action_ids -case_id $case_id]"
@@ -119,7 +119,7 @@ if { [empty_string_p $enabled_action_id] } {
 # lets you use +var+ for a var to eval on the second round.  
 # cf http://openacs.org/bugtracker/openacs/bug?bug%5fnumber=1099
 
-if { [empty_string_p $enabled_action_id] } {
+if { $enabled_action_id eq "" } {
     set patch_label [ad_decode $show_patch_status \
                          "open" "[_ bug-tracker.Open] [bug_tracker::conn Patches] (<a href=\"[string map {+ %20} [export_vars -base [ad_conn url] -entire_form -override { { show_patch_status all } }]]\">[_ bug-tracker.show_all]</a>)" \
                          "all" "[_ bug-tracker.All] [bug_tracker::conn Patches] (<a href=\"[string map {+ %20} [export_vars -base [ad_conn url] -entire_form -override { { show_patch_status open } }]]\">[_ bug-tracker.show_only_open])" \
@@ -232,13 +232,13 @@ foreach name [bug_tracker::get_export_variables] {
 ad_form -extend -name bug -form $filters
 
 # Set editable fields
-if { ![empty_string_p $enabled_action_id] } {   
+if { $enabled_action_id ne "" } {   
     foreach field [workflow::action::get_element -action_id $action_id -element edit_fields] { 
 	element set_properties bug $field -mode edit 
     }
     
     # LARS: Hack! How do we set editing of dynamic fields?
-    if { [string equal [workflow::action::get_element -action_id $action_id -element short_name] edit] } {
+    if {[workflow::action::get_element -action_id $action_id -element short_name] eq "edit"} {
         foreach { category_id category_name } [bug_tracker::category_types] {
             element set_properties bug $category_id -mode edit
         }
@@ -251,7 +251,7 @@ ad_form -extend -name bug -on_submit {
 
     array set row [list] 
     
-    if { ![empty_string_p $enabled_action_id] } { 
+    if { $enabled_action_id ne "" } { 
         foreach field [workflow::action::get_element -action_id $action_id -element edit_fields] {
             set row($field) [element get_value bug $field]
         }
@@ -299,7 +299,7 @@ if { ![form is_valid bug] } {
     foreach {category_id category_name} [bug_tracker::category_types] {
         lappend element_names $category_id
         set bug($category_id) [cr::keyword::item_get_assigned -item_id $bug(bug_id) -parent_id $category_id]
-        if {[string compare $bug($category_id) ""] == 0} {
+        if {$bug($category_id) eq "" } {
             set bug($category_id) [bug_tracker::get_default_keyword -parent_id $category_id]
         }
     }
@@ -350,7 +350,7 @@ if { ![form is_valid bug] } {
         # check that the element exists
         if { [info exists bug:$element] && [info exists bug($element)] } {
             if {[form is_request bug] 
-                || [string equal [element get_property bug $element mode] display] } { 
+                || [string equal [element get_property bug $element mode] "display"] } { 
                 if { [string first "#" $bug($element)] == 0 } {
                     element set_value bug $element [lang::util::localize $bug($element)]
                 } else {
@@ -361,8 +361,8 @@ if { ![form is_valid bug] } {
     }
     
     # Add empty option to resolution code
-    if { ![empty_string_p $enabled_action_id] } {
-        if { [lsearch [workflow::action::get_element -action_id $action_id -element edit_fields] "resolution"] == -1 } {
+    if { $enabled_action_id ne "" } {
+        if {"resolution" ni [workflow::action::get_element -action_id $action_id -element edit_fields]} {
             element set_properties bug resolution -options [concat {{{} {}}} [element get_property bug resolution options]]
         }
     } else {
@@ -405,7 +405,7 @@ if { ![form is_valid bug] } {
     }
     
     # User agent show/hide URLs
-    if { [empty_string_p $enabled_action_id] } {
+    if { $enabled_action_id eq "" } {
         set show_user_agent_url [export_vars -base bug -entire_form -override { { user_agent_p 1 }}]
         set hide_user_agent_url [export_vars -base bug -entire_form -exclude { user_agent_p }]
     }
@@ -414,13 +414,13 @@ if { ![form is_valid bug] } {
     set login_url [ad_get_login_url]
     
     # Single-bug notifications 
-    if { [empty_string_p $enabled_action_id]  } {
+    if { $enabled_action_id eq ""  } {
         set notification_link [bug_tracker::bug::get_watch_link -bug_id $bug(bug_id)]
     }
 
 
     # Filter management
-    if { [empty_string_p $enabled_action_id] } {
+    if { $enabled_action_id eq "" } {
     
         set filter_bug_numbers [bug_tracker::bug::get_bug_numbers]
         set filter_bug_index [lsearch -exact $filter_bug_numbers $bug_number]
@@ -443,11 +443,11 @@ if { ![form is_valid bug] } {
         if { $filter_bug_index > 0 } {
             set first_bug_number [lindex $filter_bug_numbers 0]
             set first_url [export_vars -base bug -entire_form -override { { bug_number $first_bug_number } }]
-            set prev_bug_number [lindex $filter_bug_numbers [expr $filter_bug_index -1]]
+            set prev_bug_number [lindex $filter_bug_numbers $filter_bug_index-1]
             set prev_url [export_vars -base bug -entire_form -override { { bug_number $prev_bug_number } }]
         }
-        if { $filter_bug_index < [expr [llength $filter_bug_numbers]-1] } {
-            set next_bug_number [lindex $filter_bug_numbers [expr $filter_bug_index +1]]
+        if { $filter_bug_index < [expr {[llength $filter_bug_numbers]-1}] } {
+            set next_bug_number [lindex $filter_bug_numbers $filter_bug_index+1]
             set next_url [export_vars -base bug -entire_form -override { { bug_number $next_bug_number } }]
             set last_bug_number [lindex $filter_bug_numbers end]
             set last_url [export_vars -base bug -entire_form -override { { bug_number $last_bug_number } }]
@@ -457,7 +457,7 @@ if { ![form is_valid bug] } {
 
         if { $filter_bug_index != -1 } {
 
-            set next_bug_num [expr $filter_bug_index+1]
+            set next_bug_num [expr {$filter_bug_index+1}]
             set all_bugs [llength $filter_bug_numbers]
             multirow append navlinks \
                 $first_url \

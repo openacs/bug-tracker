@@ -22,22 +22,22 @@ set redirect_url [ad_decode $return_url "" "patch?patch_number=$patch_number" $r
 
 bug_tracker::get_pretty_names -array pretty_names
 
-if { [exists_and_not_null cancel] } {
+if { ([info exists cancel] && $cancel ne "") } {
     # The user chose to abort the mapping so redirect without further processing
     ad_returnredirect $redirect_url
     ad_script_abort
 }
 
 set write_p [permission::permission_p -object_id $package_id -privilege write]
-set user_is_submitter_p [expr $user_id == [bug_tracker::get_patch_submitter -patch_number $patch_number]]
+set user_is_submitter_p [expr {$user_id == [bug_tracker::get_patch_submitter -patch_number $patch_number]}]
 
-if { ![expr $user_is_submitter_p || $write_p] } {            
+if { ![expr {$user_is_submitter_p || $write_p}] } {            
     ad_return_forbidden "[_ bug-tracker.Permission]" "[_ bug-tracker.You_1]"            
     ad_script_abort
 }
 
 
-if { [exists_and_not_null bug_number] } {
+if { ([info exists bug_number] && $bug_number ne "") } {
     # Do the mapping
     foreach one_bug_number $bug_number {
         set bug_id [db_string get_bug_id_for_number {}]
@@ -55,7 +55,7 @@ set page_title "[_ bug-tracker.Mapping]"
 set context [list "$page_title"]
 
 # Build the component filter
-if { ![exists_and_not_null component_id] } {
+if { (![info exists component_id] || $component_id eq "") } {
     set component_id [db_string component_id_for_patch {}]
 }
 set component_where_clause ""
@@ -64,7 +64,7 @@ set component_filter ""
 set Component_name [bug_tracker::conn Component]
 set Components_name [bug_tracker::conn Components]
 
-if { ![empty_string_p $component_id] } {
+if { $component_id ne "" } {
     set component_name [bug_tracker::component_get_name -component_id $component_id]
     set component_filter_url "map-patch-to-bugs?[export_vars -url {patch_number component_id return_url offset show_only_open_p interval_size}]"
     if { $show_all_components_p } {

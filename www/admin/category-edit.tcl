@@ -8,7 +8,7 @@ ad_page_contract {
 
 set project_name [bug_tracker::conn project_name]
 
-if { (![info exists keyword_id] && ![info exists parent_id]) || [string equal $type_p "t"] } {
+if { (![info exists keyword_id] && ![info exists parent_id]) || $type_p == "t" } {
     set object_type_name [_ bug-tracker.Category_Type]
 } else {
     set object_type_name [_ bug-tracker.Category]
@@ -29,7 +29,7 @@ ad_form -name keyword -cancel_url categories -form {
     {parent_id:integer(hidden)}
     {heading:text {label $object_type_name}}
 } -new_request {
-    if { ![exists_and_not_null parent_id] } {
+    if { (![info exists parent_id] || $parent_id eq "") } {
         set parent_id [bug_tracker::conn project_root_keyword_id]
     }
 } -select_query {

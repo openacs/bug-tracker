@@ -42,7 +42,7 @@ ad_proc -public -callback acs_mail_lite::incoming_email -impl bug-tracker {
         set package_id [lindex $package_id_list 0]
         
         set user_id [party::get_by_email -email $email(from)]
-        if {[string equal $user_id ""]} {
+        if {$user_id eq ""} {
             # spam control
             return ""
         } elseif {![permission::permission_p -party_id $user_id -object_id $package_id -privilege create -no_login]} {
@@ -67,7 +67,7 @@ ad_proc -public -callback acs_mail_lite::incoming_email -impl bug-tracker {
         if {[llength $components_list] == 0} {
             set component_id {}
         } else {
-            set component_id [lindex [lindex $components_list 0] 1]
+            set component_id [lindex $components_list 0 1]
         }
         set found_in_version {}
         if {[llength $email(subject)] == 1} {

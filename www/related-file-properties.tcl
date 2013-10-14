@@ -23,7 +23,7 @@ if { ![db_0or1row get_bug_number {}] } {
     ad_script_abort
 }
 
-if {![exists_and_not_null return_url]} {
+if {(![info exists return_url] || $return_url eq "")} {
     set return_url [export_vars -base "bug" {bug_number}]
 }
 

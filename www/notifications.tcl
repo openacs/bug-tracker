@@ -9,7 +9,7 @@ set context [list $page_title]
 set package_id [ad_conn package_id]
 
 set workflow_id [bug_tracker::bug::get_instance_workflow_id]
-if { [exists_and_not_null bug_number] } {
+if { ([info exists bug_number] && $bug_number ne "") } {
     set bug_id [bug_tracker::get_bug_id \
                     -bug_number $bug_number \
                     -project_id [ad_conn package_id]]
@@ -41,7 +41,7 @@ foreach type $notification_types {
                        -workflow_id $workflow_id \
                        -case_id $case_id]
 
-    if { ![empty_string_p $object_id] } {
+    if { $object_id ne "" } {
         switch $type {
             workflow_assignee {
                 set pretty_name [_ bug-tracker.All_2]
@@ -66,7 +66,7 @@ foreach type $notification_types {
                             -object_id $object_id \
                             -user_id $user_id]
 
-        set subscribed_p [expr ![empty_string_p $request_id]]
+        set subscribed_p [expr {$request_id ne ""}] 
         
         if { $subscribed_p } {
             set url [notification::display::unsubscribe_url -request_id $request_id -url $return_url]
@@ -79,7 +79,7 @@ foreach type $notification_types {
                          -pretty_name $pretty_name]
         }
 
-        if { ![empty_string_p $url] } {
+        if { $url ne "" } {
             multirow append notifications \
                 $url \
                 [string totitle $pretty_name] \

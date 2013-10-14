@@ -39,7 +39,7 @@ set versions_p [bug_tracker::versions_p]
 
 regexp {/([^/]+)/[^/]*$} [ad_conn url] match last_dir
 
-if { [string equal $last_dir "admin"] } {
+if {$last_dir eq "admin"} {
     set url_prefix [ad_conn package_url]
 } else {
     set url_prefix ""

@@ -12,7 +12,7 @@ ad_page_contract {
     {primary_key "object_id"}
 }
 
-if {![empty_string_p $table_name] && ![db_0or1row table_name_check {
+if {$table_name ne "" && ![db_0or1row table_name_check {
     select oid from pg_class where lower(relname) = lower(:table_name)
 }]} {
     ad_returnredirect "formwizard"
@@ -44,7 +44,7 @@ db_foreach get_checks {
     set column_name ""
     while {[regexp {([A-Za-z_]+) = '([^']+)'(.*)$} $rcsrc match key val rcsrc]} {
 	lappend options [list $val $val]
-	if {$column_name == ""} {
+	if {$column_name eq ""} {
 	    set column_name $key
 	} elseif {$column_name != $key} {
 	    # bail out - this isn't what we think it is
@@ -99,7 +99,7 @@ db_foreach get_columns {
     } 
 
     # If we're using the ATS date widget, look up the format 
-    if {$widget == "date"} {
+    if {$widget eq "date"} {
 	set format "-format \"$date_format_map($typname)\""
     }
 
@@ -122,7 +122,7 @@ db_foreach get_columns {
     # If it's a boolean, add "Yes" and "No" options
     # Note: this is not necessarily the best UI choice.  
     # Checkbox and radio elements are also available.
-    if {$typname == "bool"} {
+    if {$typname eq "bool"} {
 	set options "-options {{Yes t} {No f}}"
     }
 
@@ -138,7 +138,7 @@ db_foreach get_columns {
 
     append insert_columns "$attname, "
 
-    if {$widget == "date"} {
+    if {$widget eq "date"} {
 	append get_values "    if {!\[empty_string_p \$$element_name\]} {
 	set $element_name \[template::util::date::get_property sql_date \$$element_name\]
     } else {	
@@ -165,7 +165,7 @@ if {[info exists insert_columns]} {
     # and expanding it.
 
     set user_id [ad_conn user_id]
-    if { [empty_string_p $user_id] || $user_id == 0 } {
+    if { $user_id eq "" || $user_id == 0 } {
         set author "formwizard.tcl"
     } else {
         set author [db_string author { select first_names || ' ' || last_name || ' (' || email || ')' from cc_users where user_id = :user_id }]
