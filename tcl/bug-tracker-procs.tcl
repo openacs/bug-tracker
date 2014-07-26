@@ -128,10 +128,10 @@ ad_proc bug_tracker::get_page_variables {
         {format "table"}
     }
     foreach { parent_id parent_heading } [bug_tracker::category_types] {
-        lappend filter_vars "f_category_$parent_id:optional"
+        lappend filter_vars "f_category_$parent_id:integer,optional"
     }
     foreach action_id [workflow::get_actions -workflow_id [bug_tracker::bug::get_instance_workflow_id]] {
-        lappend filter_vars "f_action_$action_id:optional"
+        lappend filter_vars "f_action_$action_id:integer,optional"
     }
 
     return [concat $filter_vars $extra_spec]
