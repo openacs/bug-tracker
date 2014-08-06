@@ -9,7 +9,7 @@ ad_page_contract {
     @cvs-id $Id$
 } {
     bug_number:integer,optional
-    component_id:optional
+    component_id:naturalnum,optional
     {return_url ""}
 }
 

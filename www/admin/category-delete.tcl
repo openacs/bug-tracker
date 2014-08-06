@@ -1,7 +1,7 @@
 ad_page_contract {
     Delete category
 } {
-    keyword_id:integer
+    keyword_id:naturalnum,notnull
 }
 
 content::keyword::delete \

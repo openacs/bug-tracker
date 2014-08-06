@@ -1,7 +1,7 @@
 ad_page_contract {
     Release version
 } {
-    version_id:integer
+    version_id:naturalnum,notnull
 }
 
 set page_title [_ bug-tracker.Release_1]

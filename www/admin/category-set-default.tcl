@@ -1,8 +1,8 @@
 ad_page_contract {
     Set default category
 } {
-    parent_id:integer
-    keyword_id:integer
+    parent_id:naturalnum,notnull
+    keyword_id:naturalnum,notnull
 }
 
 bug_tracker::set_default_keyword \

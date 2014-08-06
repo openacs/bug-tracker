@@ -4,7 +4,7 @@ ad_page_contract {
     @creation-date March 26, 2002
     @cvs-id $Id$
 } {
-    version_id:integer,optional
+    version_id:naturalnum,optional
     {return_url "."}
 }
 

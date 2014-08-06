@@ -7,7 +7,7 @@ ad_page_contract {
 } {
     patch_number:integer,notnull
     bug_number:integer,optional,multiple    
-    component_id:integer,optional
+    component_id:naturalnum,optional
     {show_all_components_p "0"}
     {show_only_open_p "1"}
     {offset:integer "0"}

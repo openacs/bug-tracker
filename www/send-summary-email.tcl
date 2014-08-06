@@ -8,8 +8,8 @@ ad_page_contract {
     @creation-date 2007-11-14
     @cvs-id $Id$
 } {
-    workflow_id:notnull
-    {bug_id:optional,multiple ""}
+    workflow_id:naturalnum,notnull
+    {bug_id:naturalnum,optional,multiple ""}
     return_url:optional
 }
 

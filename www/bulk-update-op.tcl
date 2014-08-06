@@ -8,9 +8,9 @@ ad_page_contract {
     @creation-date 2007-01-16
     @cvs-id $Id$
 } {
-    workflow_id:notnull
+    workflow_id:naturalnum,notnull
     op:notnull
-    bug_id:notnull,multiple
+    bug_id:naturalnum,notnull,multiple
     return_url:optional
 } -properties {
 } -validate {

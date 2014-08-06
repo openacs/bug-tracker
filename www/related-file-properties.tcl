@@ -8,8 +8,8 @@ ad_page_contract {
     @creation-date 2007-01-22
     @cvs-id $Id$
 } {
-    bug_id:notnull
-    related_object_id:notnull
+    bug_id:naturalnum,notnull
+    related_object_id:naturalnum,notnull
 } -properties {
 } -validate {
 } -errors {

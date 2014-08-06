@@ -3,7 +3,7 @@ ad_page_contract {
     @creation-date 2002-03-26
     @cvs-id $Id$
 } {
-    component_id:integer,optional
+    component_id:naturalnum,optional
     {return_url "."}
 }
 

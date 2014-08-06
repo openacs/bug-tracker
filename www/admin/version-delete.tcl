@@ -1,7 +1,7 @@
 ad_page_contract {
     Delete version
 } {
-    version_id:integer
+    version_id:naturalnum,notnull
 }
 
 db_dml delete_version {}

@@ -5,7 +5,7 @@ ad_page_contract {
     @creation-date 2002-03-28
 
 } {
-    { version_id "" }
+    { version_id:naturalnum "" }
     { return_url "" }
 }
 

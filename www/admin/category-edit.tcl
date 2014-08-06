@@ -1,8 +1,8 @@
 ad_page_contract {
     Add or edit a category.
 } {
-    keyword_id:integer,optional
-    parent_id:integer,optional
+    keyword_id:naturalnum,optional
+    parent_id:naturalnum,optional
     {type_p "f"}
 }
 
