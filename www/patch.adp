@@ -25,7 +25,7 @@
 </p>
 </center>
 <p>
-<table border=0" cellspacing="0" cellpadding="2" bgcolor="lightgrey" width="100%">
+<table border="0" cellspacing="0" cellpadding="2" bgcolor="lightgrey" width="100%">
   <tr>
     <td>
       <pre><%= [ad_quotehtml "$patch(content)"] %></pre>
