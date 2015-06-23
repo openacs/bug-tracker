@@ -17,17 +17,20 @@ for { set i 0 } { $i < [ns_set size $variable_set_to_export] } { incr i } {
     lappend export_var_list $var_name
 }
 
-set pagination_filter_base_url "[ad_conn url]?[export_vars -url -exclude { offset } [concat $export_var_list interval_size]]"
-set pagination_form_export_vars "[export_vars -form [concat $export_var_list offset]]"
+set pagination_filter_base_url [export_vars -base [ad_conn url] -exclude { offset } [concat $export_var_list interval_size]]
+set pagination_form_export_vars [export_vars -form [concat $export_var_list offset]]
 
 while { $interval_low <= $row_count } {    
 
     if { $interval_high > $row_count } {
         set interval_high $row_count
     }
-
+    set href "$pagination_filter_base_url&offset=[expr {$interval_low - 1}]"
     set interval_label [ad_decode $interval_low $row_count "$interval_high" "$interval_low - $interval_high"]
-    lappend pagination_filter_list [ad_decode [expr {1 + $offset}] $interval_low "$interval_label" "<a href=\"$pagination_filter_base_url&offset=[expr {$interval_low - 1}]\">$interval_label</a>"]
+    lappend pagination_filter_list [ad_decode [expr {1 + $offset}] \
+					$interval_low \
+					$interval_label \
+					[subst {<a href="[ns_quotehtml $href]">$interval_label</a>}]]
 
     set interval_high [expr {$interval_high + $interval_size}]
     set interval_low [expr {$interval_high - [expr {$interval_size - 1}]}]

@@ -1196,9 +1196,9 @@ ad_proc bug_tracker::get_bug_links {
             set bug_number [lindex $bug_item 1]
             set bug_summary [lindex $bug_item 0]
 
-            set unmap_url "unmap-patch-from-bug?[export_vars -url { patch_number bug_number } ]"
+            set unmap_url [export_vars -base unmap-patch-from-bug -url { patch_number bug_number } ]
             if { $write_or_submitter_p } {
-                set unmap_link "(<a href=\"$unmap_url\">[_ bug-tracker.unmap]</a>)"
+                set unmap_link [subst {(<a href="[ns_quotehtml $unmap_url]">[_ bug-tracker.unmap]</a>)}]
             } else {
                 set unmap_link ""
             }
@@ -1475,11 +1475,17 @@ ad_proc bug_tracker::get_related_files_links {
         set delete_url [export_vars -base "related-file-delete" {bug_id related_object_id return_url}]
         set new_version_url [export_vars -base "related-file-update" {bug_id related_object_id return_url}]
         if { ( $related_creation_user == $user_id ) || $admin_p } {
-            set extra_actions " | <a href=\"$new_version_url\">[_ bug-tracker.upload_new_version]</a> | <a href=\"$delete_url\">[_ bug-tracker.delete]</a>"
+            set extra_actions [subst { |
+		<a href="[ns_quotehtml $new_version_url]">[_ bug-tracker.upload_new_version]</a> |
+		<a href="[ns_quotehtml $delete_url]">[_ bug-tracker.delete]</a>
+	    }]
         } else {
             set extra_actions ""
         }
-        lappend related_files_list "$related_title <a href=\"${view_url}\">[_ bug-tracker.download]</a> | <a href=\"${properties_url}\">[_ bug-tracker.properties]</a>${extra_actions}"
+        lappend related_files_list [subst {$related_title
+	    <a href="[ns_quotehtml $view_url]">[_ bug-tracker.download]</a> |
+	    <a href="[ns_quotehtml $properties_url]">[_ bug-tracker.properties]</a>$extra_actions
+	}]
     } if_no_rows { 
         set related_files_string [_ bug-tracker.No_related_files]
     }
@@ -1520,11 +1526,17 @@ ad_proc bug_tracker::get_related_files_links {
         set delete_url [export_vars -base "related-file-delete" {bug_id related_object_id return_url}]
         set new_version_url [export_vars -base "related-file-update" {bug_id related_object_id return_url}]
         if { ( $related_creation_user == $user_id ) || $admin_p } {
-            set extra_actions " | <a href=\"$new_version_url\">upload new version</a> | <a href=\"$delete_url\">delete</a>"
+            set extra_actions [subst { |
+		<a href="[ns_quotehtml $new_version_url]">upload new version</a> |
+		<a href="[ns_quotehtml $delete_url]">delete</a>
+	    }]
         } else {
             set extra_actions ""
         }
-        lappend related_files_list "$related_title <a href=\"${view_url}\">download</a> | <a href=\"${properties_url}\">properties</a>${extra_actions}"
+        lappend related_files_list [subsr {$related_title
+	    <a href="[ns_quotehtml $view_url]">download</a> |
+	    <a href="[ns_quotehtml $properties_url]">properties</a>$extra_actions
+	}]
     } if_no_rows { 
         set related_files_string [_ bug-tracker.No_related_files]
     }

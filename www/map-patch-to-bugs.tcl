@@ -66,13 +66,17 @@ set Components_name [bug_tracker::conn Components]
 
 if { $component_id ne "" } {
     set component_name [bug_tracker::component_get_name -component_id $component_id]
-    set component_filter_url "map-patch-to-bugs?[export_vars -url {patch_number component_id return_url offset show_only_open_p interval_size}]"
+    set component_filter_url [export_vars -base map-patch-to-bugs {patch_number component_id return_url offset show_only_open_p interval_size}]
     if { $show_all_components_p } {
-        set component_filter "\[ <a href=\"$component_filter_url&show_all_components_p=0\">[_ bug-tracker.Only]</a> | [_ bug-tracker.All_1] \]"
+        set component_filter [subst {\[
+	    <a href="[ns_quotehtml $component_filter_url&show_all_components_p=0]">[_ bug-tracker.Only]</a> |
+	    [_ bug-tracker.All_1] \]}]
     } else {
         set component_where_clause "\n     and bt_bugs.component_id = :component_id"
     
-        set component_filter "\[ [_ bug-tracker.Only_1] | <a href=\"$component_filter_url&show_all_components_p=1\">[_ bug-tracker.All_1]</a> \]"
+        set component_filter [subst {\[
+	    [_ bug-tracker.Only_1] |
+	    <a href="[ns_quotehtml $component_filter_url&show_all_components_p=1]">[_ bug-tracker.All_1]</a> \]}]
     }
 }
 
@@ -80,15 +84,22 @@ if { $component_id ne "" } {
 set workflow_id [bug_tracker::bug::get_instance_workflow_id]
 set initial_state_id [workflow::fsm::get_initial_state -workflow_id $workflow_id]
 
-set open_filter_url "map-patch-to-bugs?[export_vars -url {patch_number component_id return_url offset show_all_components_p interval_size}]"
+set open_filter_url [export_vars -base map-patch-to-bugs {
+    patch_number component_id return_url offset show_all_components_p interval_size
+}]
 set only_open_label [_ bug-tracker.Only_2]
 set any_status_label [_ bug-tracker.Bugs]
 if { $show_only_open_p } {
     set open_where_clause "and cfsm.current_state = :initial_state_id"
-    set open_filter "$only_open_label | <a href=\"$open_filter_url&show_only_open_p=0\">$any_status_label</a>"
+    set open_filter [subst {$only_open_label |
+	<a href="[ns_quotehtml $open_filter_url&show_only_open_p=0]">$any_status_label</a>
+    }]
 } else {
     set open_where_clause ""
-    set open_filter "<a href=\"$open_filter_url&show_only_open_p=1\">$only_open_label</a> | $any_status_label"
+    set open_filter [subst {
+	<a href="[ns_quotehtml $open_filter_url&show_only_open_p=1]">$only_open_label</a> |
+	$any_status_label
+    }]
 }
 
 set sql_where_clause "bt_bugs.project_id = :package_id

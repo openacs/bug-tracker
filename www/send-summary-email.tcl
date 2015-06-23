@@ -81,12 +81,28 @@ ad_form -name bug -cancel_url $return_url -export { return_url workflow_id } -fo
     # TODO: currently hardcoded html
     # need to convert to something more configurable
     
-    set html_content "<p><b>[_ bug-tracker.send_summary_email_header]</b></p><table cellpadding=3><tr><td style=\"border:1px solid \#ddd;\">[bug_tracker::conn Bug] [_ bug-tracker.number_symbol]</td><td style=\"border:1px solid \#ddd;\">[_ bug-tracker.Summary]</td><td style=\"border:1px solid \#ddd;\">[_ bug-tracker.State]</td><td style=\"border:1px solid \#ddd;\">[_ bug-tracker.Assigned_To]</td><td style=\"border:1px solid \#ddd;\">Priority</td></tr>"
+    set html_content [subst {
+	<p><b>[_ bug-tracker.send_summary_email_header]</b></p>
+	<table cellpadding="3"><tr>
+	<td style="border:1px solid #ddd;">[bug_tracker::conn Bug] [_ bug-tracker.number_symbol]</td>
+	<td style="border:1px solid #ddd;">[_ bug-tracker.Summary]</td>
+	<td style="border:1px solid #ddd;">[_ bug-tracker.State]</td>
+	<td style="border:1px solid #ddd;">[_ bug-tracker.Assigned_To]</td>
+	<td style="border:1px solid #ddd;">Priority</td>
+	</tr>
+    }]
 
     db_foreach get_bugs "" {
         if {$cat_keyword_id == $p_keyword_id} {
             set bug_url [export_vars -base "[ad_url][ad_conn package_url]bug" {bug_number}]
-            append html_content "<tr><td style=\"border:1px solid \#ddd;\">$bug_number</td><td style=\"border:1px solid \#ddd;\"><a href=\"$bug_url\">$summary</a></td><td style=\"border:1px solid \#ddd;\">$pretty_state</td><td style=\"border:1px solid \#ddd;\">$assignee_first_names $assignee_last_name</td><td style=\"border:1px solid \#ddd;\">$heading</td></tr>"
+            append html_content [subst {<tr>
+		<td style="border:1px solid #ddd;">$bug_number</td>
+		<td style="border:1px solid #ddd;"><a href="[ns_quotehtml $bug_url]">$summary</a></td>
+		<td style="border:1px solid #ddd;">$pretty_state</td>
+		<td style="border:1px solid #ddd;">$assignee_first_names $assignee_last_name</td>
+		<td style="border:1px solid #ddd;">$heading</td>
+		</tr>
+	    }]
         }
     }
     append html_content "</table>"
