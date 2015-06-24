@@ -122,6 +122,10 @@ switch -- $mode {
     view {
         set edit_fields {}
     }
+    default {
+	ad_return_forbidden [_ bug-tracker.Permission] "Invalid mode specified"
+	ad_script_abort
+    }
 }
 
 foreach field $edit_fields {
