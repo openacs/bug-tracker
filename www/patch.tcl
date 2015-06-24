@@ -14,7 +14,7 @@ ad_page_contract {
     delete:optional    
     reopen:optional
     comment:optional
-    download:optional
+    download:boolean,optional
 }
 
 # Assert read permission (should this check be in the request processor?)
@@ -32,7 +32,7 @@ set user_is_submitter_p [expr { $submitter_id ne "" && $user_id == $submitter_id
 set write_or_submitter_p [expr {$write_p || $user_is_submitter_p}]
 set project_name [bug_tracker::conn project_name]
 set package_key [ad_conn package_key]
-set view_patch_url "[ad_conn url]?[export_vars -url { patch_number }]"
+set view_patch_url [export_vars -base [ad_conn url] { patch_number }]
 set patch_status [db_string patch_status {}]
 
 # Is this project using multiple versions?

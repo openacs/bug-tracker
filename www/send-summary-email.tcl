@@ -13,7 +13,7 @@ ad_page_contract {
     return_url:optional
 }
 
-set title "[_ bug-tracker.Send_Summary_Email]"
+set title [_ bug-tracker.Send_Summary_Email]
 set context [list $title]
 set package_id [ad_conn package_id]
 set user_id [auth::require_login]
@@ -24,7 +24,7 @@ if {(![info exists return_url] || $return_url eq "")} {
 }
 
 if {![llength $bug_id]} {
-    ad_returnredirect -message "[_ bug-tracker.No_selected_bugs]" $return_url
+    ad_returnredirect -message [_ bug-tracker.No_selected_bugs] $return_url
     ad_script_abort
 } elseif {[llength $bug_id] == 1} {
     set bug_id [split [lindex $bug_id 0]]
@@ -44,7 +44,7 @@ foreach one_bug_id $bug_id {
         lappend error_inform_text_list "[_ bug-tracker.send_email_error] [_ bug-tracker.Bug_not_found_2]"
     } else {
         bug_tracker::bug::get -bug_id $one_bug_id -array bug_info
-        lappend success_inform_text_list "[_ bug-tracker.send_email_success_inform]"
+        lappend success_inform_text_list [_ bug-tracker.send_email_success_inform]
     }
 }
 
@@ -70,7 +70,7 @@ ad_form -name bug -cancel_url $return_url -export { return_url workflow_id } -fo
 
     set p_keyword_id 0
     foreach {keyword_id keyword_label} [bug_tracker::category_types -package_id $package_id] {
-        if {$keyword_label eq "[_ bug-tracker.Priority]"} {
+        if {$keyword_label eq [_ bug-tracker.Priority]} {
             set p_keyword_id $keyword_id
         }
     }
@@ -117,7 +117,7 @@ ad_form -name bug -cancel_url $return_url -export { return_url workflow_id } -fo
     acs_mail_lite::send \
         -to_addr $final_recipient_list \
         -from_addr $sender_email \
-        -subject "[_ bug-tracker.send_summary_email_subject]" \
+        -subject [_ bug-tracker.send_summary_email_subject] \
         -body $html_content \
         -mime_type "text/html"
 

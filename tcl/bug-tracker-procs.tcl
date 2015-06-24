@@ -124,8 +124,8 @@ ad_proc bug_tracker::get_page_variables {
         f_state:integer,optional
         f_fix_for_version:integer,optional
         f_component:integer,optional
-        orderby:optional
-        {format "table"}
+        orderby:token,optional
+        {format:word "table"}
     }
     foreach { parent_id parent_heading } [bug_tracker::category_types] {
         lappend filter_vars "f_category_$parent_id:naturalnum,optional"

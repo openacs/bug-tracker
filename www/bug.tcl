@@ -7,7 +7,7 @@ ad_page_contract {
 } [bug_tracker::get_page_variables {
     bug_number:integer,notnull
     {user_agent_p:boolean 0}
-    {show_patch_status open}
+    {show_patch_status:word open}
 }]
 
 #####
