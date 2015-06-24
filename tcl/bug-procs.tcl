@@ -682,7 +682,7 @@ ad_proc -private bug_tracker::bug::notification_info::get_notification_info {
     foreach { category_id category_name } [bug_tracker::category_types -package_id $bug(project_id)] {
         lappend fields $category_id
         set value($category_id) [bug_tracker::category_heading \
-                                     -keyword_id [cr::keyword::item_get_assigned -item_id $bug(bug_id) -parent_id $category_id] \
+                                     -keyword_id [content::keyword::item_get_assigned -item_id $bug(bug_id) -parent_id $category_id] \
                                      -package_id $bug(project_id)]
         set label($category_id) $category_name
     }
