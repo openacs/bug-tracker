@@ -38,11 +38,11 @@ ad_form -name keyword -cancel_url categories -form {
     from   cr_keywords child
     where  child.keyword_id = :keyword_id
 } -edit_data {
-    cr::keyword::set_heading \
+    content::keyword::set_heading \
         -keyword_id $keyword_id \
         -heading $heading
 } -new_data {
-    cr::keyword::new \
+    content::keyword::new \
         -heading $heading \
         -parent_id $parent_id \
         -keyword_id $keyword_id

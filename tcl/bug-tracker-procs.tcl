@@ -758,12 +758,12 @@ ad_proc -public bug_tracker::install_keywords_setup {
     set root_keyword_id [bug_tracker::conn project_root_keyword_id -package_id $package_id]
 
     foreach { category_type categories } $spec {
-        set category_type_id [cr::keyword::get_keyword_id \
+        set category_type_id [content::keyword::get_keyword_id \
                                   -parent_id $root_keyword_id \
                                   -heading $category_type]
         
         if { $category_type_id eq "" } {
-            set category_type_id [cr::keyword::new \
+            set category_type_id [content::keyword::new \
                                       -parent_id $root_keyword_id \
                                       -heading $category_type]
         }
@@ -776,12 +776,12 @@ ad_proc -public bug_tracker::install_keywords_setup {
                 set default_p 0
             }                  
             
-            set category_id [cr::keyword::get_keyword_id \
+            set category_id [content::keyword::get_keyword_id \
                                  -parent_id $category_type_id \
                                  -heading $category]
             
             if { $category_id eq "" } {
-                set category_id [cr::keyword::new \
+                set category_id [content::keyword::new \
                                      -parent_id $category_type_id \
                                      -heading $category]
             }
