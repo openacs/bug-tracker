@@ -3,7 +3,7 @@ ad_page_contract {
 } {
     keyword_id:naturalnum,optional
     parent_id:naturalnum,optional
-    {type_p "f"}
+    {type_p:boolean "f"}
 }
 
 set project_name [bug_tracker::conn project_name]
