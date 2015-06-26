@@ -211,25 +211,25 @@ element create patch applied_to_version \
 switch -- $mode {
     edit - comment - accept - refuse - reopen - delete {
         element create patch description  \
-                -datatype text \
-                -widget comment \
-                -label "[_ bug-tracker.Description]" \
-                -html { cols 60 rows 13 } \
-                -optional
+	    -datatype text \
+	    -widget comment \
+	    -label "[_ bug-tracker.Description]" \
+	    -html { cols 60 rows 13 } \
+	    -optional
         
         element create patch desc_format \
-                -datatype text \
-                -widget select \
-                -label "[_ bug-tracker.Description_1]" \
+	    -datatype text \
+	    -widget select \
+	    -label "[_ bug-tracker.Description_1]" \
 	    -options { { "[_ bug-tracker.Plain]" plain } { "[_ bug-tracker.HTML]" html } { "[_ bug-tracker.Preformatted]" pre } }
 
     }
     default {
         # View mode
         element create patch description \
-                -datatype text \
-                -widget inform \
-                -label "[_ bug-tracker.Description]"
+	    -datatype text \
+	    -widget inform \
+	    -label "[_ bug-tracker.Description]"
     }
 }
 

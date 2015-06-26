@@ -125,6 +125,7 @@ ad_proc bug_tracker::get_page_variables {
         f_fix_for_version:integer,optional
         f_component:integer,optional
         orderby:token,optional
+	project_id:naturalnum,optional
         {format:word "table"}
     }
     foreach { parent_id parent_heading } [bug_tracker::category_types] {

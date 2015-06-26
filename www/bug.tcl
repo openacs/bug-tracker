@@ -29,7 +29,7 @@ set user_id [ad_conn user_id]
 set bug_name [bug_tracker::conn Bug]
 set page_title [_ bug-tracker.Bug_Title]
 
-set context [list [ad_quotehtml $page_title]]
+set context [list [ns_quotehtml $page_title]]
 
 # Is this project using multiple versions?
 set versions_p [bug_tracker::versions_p]
@@ -259,6 +259,12 @@ ad_form -extend -name bug -on_submit {
             set row($category_id) [element get_value bug $category_id]
         }
     }
+
+    if { $enabled_action_id eq ""} {
+	ns_log notice "====== reissleine ==== "
+	ad_complain "edit requires enabled_action_id, but no value was provided"
+	ad_script_abort
+    }
     
     set description [element get_value bug description]
     
@@ -399,9 +405,9 @@ if { ![form is_valid bug] } {
                          [list \
                               [export_vars -base . [bug_tracker::get_export_variables]] \
                               [_ bug-tracker.Filtered]] \
-                         [ad_quotehtml $page_title]]
+                         [ns_quotehtml $page_title]]
     } else {
-        set context [list [ad_quotehtml $page_title]]
+        set context [list [ns_quotehtml $page_title]]
     }
     
     # User agent show/hide URLs
