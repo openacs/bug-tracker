@@ -17,7 +17,7 @@ permission::require_permission -object_id [ad_conn package_id] -privilege create
 
 if { $return_url eq "" } {
     if { ([info exists bug_number] && $bug_number ne "") } {
-        set return_url "bug?[export_vars { bug_number }]"
+        set return_url [export_vars -base bug { bug_number }]
     } else {
         set return_url "patch-list"
     }
@@ -138,7 +138,7 @@ if { [form is_valid patch] } {
 
         # Redirect to the view page for the created patch by default
         if { $return_url eq "" } {
-            set redirect_url "patch?[export_vars { patch_number }]"
+            set redirect_url [export_vars -base patch { patch_number }]
         } else {
             set redirect_url $return_url
         }
@@ -156,7 +156,7 @@ if { [form is_valid patch] } {
             set select_bugs_p [element get_value patch select_bugs_p]
             
             if { $select_bugs_p } {
-                set redirect_url "map-patch-to-bugs?[export_vars -url { return_url patch_number component_id }]"
+                set redirect_url [export_vars -base map-patch-to-bugs { return_url patch_number component_id }]
             }
         }
     }

@@ -120,10 +120,12 @@ if { $enabled_action_id eq "" } {
 # cf http://openacs.org/bugtracker/openacs/bug?bug%5fnumber=1099
 
 if { $enabled_action_id eq "" } {
+    set patch_href1 [export_vars -base [ad_conn url] -entire_form -override { { show_patch_status all } }]
+    set patch_href2 [export_vars -base [ad_conn url] -entire_form -override { { show_patch_status open } }]
     set patch_label [ad_decode $show_patch_status \
-                         "open" "[_ bug-tracker.Open] [bug_tracker::conn Patches] (<a href=\"[string map {+ %20} [export_vars -base [ad_conn url] -entire_form -override { { show_patch_status all } }]]\">[_ bug-tracker.show_all]</a>)" \
-                         "all" "[_ bug-tracker.All] [bug_tracker::conn Patches] (<a href=\"[string map {+ %20} [export_vars -base [ad_conn url] -entire_form -override { { show_patch_status open } }]]\">[_ bug-tracker.show_only_open])" \
-                         "[bug_tracker::conn Patches]"]
+                         "open" [subst {[_ bug-tracker.Open] [bug_tracker::conn Patches] (<a href="[ns_quotehtml $patch_href1]">[_ bug-tracker.show_all]</a>)}] \
+                         "all" [subst {[_ bug-tracker.All] [bug_tracker::conn Patches] (<a href="[ns_quotehtml $path_href2]">[_ bug-tracker.show_only_open])}] \
+                         [bug_tracker::conn Patches]]
 } else {
     set patch_label [ad_decode $show_patch_status \
                          "open" "[_ bug-tracker.Open] [bug_tracker::conn Patches]" \
@@ -311,10 +313,14 @@ if { ![form is_valid bug] } {
     }
     
     # Display value for patches
-    set bug(patches_display) "[bug_tracker::get_patch_links -bug_id $bug(bug_id) -show_patch_status $show_patch_status] &nbsp; \[ <a href=\"patch-add?[export_vars { { bug_number $bug(bug_number) } { component_id $bug(component_id) } }]\">[_ bug-tracker.Upload_Patch]</a> \]"
+    set href_add [export_vars -base patch-add { { bug_number $bug(bug_number) } { component_id $bug(component_id) } }]
+    set bug(patches_display) [subst {[bug_tracker::get_patch_links -bug_id $bug(bug_id) -show_patch_status $show_patch_status]
+	&nbsp; \[ <a href="[ns_quotehtml $href_add]">[_ bug-tracker.Upload_Patch]</a> \]}]
 
     # Display value for related files
-    set bug(related_files_display) "[bug_tracker::get_related_files_links -bug_id $bug(bug_id)]<br>\[ <a href=\"related-file-add?[export_vars { { bug_number $bug(bug_number) } return_url }]\">[_ bug-tracker.Upload_related_file]</a> \]"
+    set href_rel [export_vars -base related-file-add { { bug_number $bug(bug_number) } return_url }]
+    set bug(related_files_display) [subsr {[bug_tracker::get_related_files_links -bug_id $bug(bug_id)]<br>
+	\[ <a href="[ns_quotehtmrm $href_rel]">[_ bug-tracker.Upload_related_file]</a> \]}]
 
     # Hide elements that should be hidden depending on the bug status
     foreach element $bug(hide_fields) {

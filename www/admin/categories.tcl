@@ -22,28 +22,28 @@ db_multirow -extend {
     set_default_url
 } categories select_categories {} {
     # set all the URLs
-    set edit_url "category-edit?[export_vars { { keyword_id $child_id } }]"
+    set edit_url [export_vars -base category-edit { { keyword_id $child_id } }]
     if { $num_bugs == 0 } {
-        set delete_url "category-delete?[export_vars { { keyword_id $child_id } }]"
+        set delete_url [export_vars -base category-delete { { keyword_id $child_id } }]
     } else {
         set delete_url {}
     }
-    set new_url "category-edit?[export_vars { parent_id }]"
+    set new_url [export_vars -base category-edit { parent_id }]
     
-    set type_edit_url "category-edit?[export_vars { { keyword_id $parent_id } { type_p t } }]"
+    set type_edit_url [export_vars -base category-edit { { keyword_id $parent_id } { type_p t } }]
     if { $is_leaf } {
-        set type_delete_url "category-delete?[export_vars { { keyword_id $parent_id } }]"
+        set type_delete_url [export_vars -base category-delete { { keyword_id $parent_id } }]
     } else {
         set type_delete_url {}
     }
 
     if { !$default_p } {
-        set set_default_url "category-set-default?[export_vars { parent_id { keyword_id $child_id } }]"
+        set set_default_url [export_vars -base category-set-default { parent_id { keyword_id $child_id } }]
     } else {
         set set_default_url {}
     }
     
-    set bugs_url "../?[export_vars { { filter.keyword $child_id } { filter.status any } }]"
+    set bugs_url [export_vars -base ../ { { filter.keyword $child_id } { filter.status any } }]
 }
 
 set type_new_url "category-edit"

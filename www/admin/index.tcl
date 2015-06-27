@@ -33,18 +33,21 @@ set categories_edit_url "categories"
 set permissions_edit_url "permissions"
 set workflow_url [site_node::get_package_url -package_key workflow]
 set workflow_edit_url [export_vars -base "${workflow_url}admin/workflow-edit" {workflow_id}]
-set parameters_edit_url "/shared/parameters?[export_vars { { return_url [ad_return_url] } { package_id {[ad_conn package_id]} } }]"
+set parameters_edit_url [export_vars -base /shared/parameters {
+    { return_url [ad_return_url] }
+    { package_id [ad_conn package_id] }
+}]
 set severity_codes_edit_url "severity-codes"
 set priority_codes_edit_url "priority-codes"
 set workflow_pretty_name [workflow::get_element -element pretty_name \
                              -workflow_id $workflow_id]
 db_multirow -extend { edit_url delete_url maintainer_url view_bugs_url } components components {} {
-    set edit_url "component-ae?[export_vars { component_id }]"
+    set edit_url [export_vars -base component-ae { component_id }]
     if { $num_bugs == 0 } {
-        set delete_url "component-delete?[export_vars { component_id }]"
+        set delete_url [export_vars -base component-delete { component_id }]
         set view_bugs_url {}
     } else {
-        set view_bugs_url "../?[export_vars { { filter.component_id $component_id } { filter.status any } }]"
+        set view_bugs_url [export_vars -base ../ { { filter.component_id $component_id } { filter.status any } }]
         set delete_url {}
     }
     set maintainer_url [acs_community_member_url -user_id $maintainer]

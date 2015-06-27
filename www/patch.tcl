@@ -141,10 +141,10 @@ if { $mode ne "view" } {
 # Create the form
 switch -- $mode {
       view {
-          form create patch -has_submit 1 -cancel_url "[ad_conn url]?[export_vars -url { patch_number }]"
+          form create patch -has_submit 1 -cancel_url [export_vars -base [ad_conn url] -url { patch_number }]
       } 
       default {
-          form create patch -html { enctype multipart/form-data } -cancel_url "[ad_conn url]?[export_vars -url { patch_number }]"
+          form create patch -html { enctype multipart/form-data } -cancel_url [export_vars -base [ad_conn url] -url { patch_number }]
       }
 }
 

@@ -651,7 +651,9 @@ ad_proc -private bug_tracker::bug::notification_info::get_notification_info {
 } {
     bug_tracker::bug::get -bug_id $object_id -array bug
 
-    set url "[ad_url][apm_package_url_from_id $bug(project_id)]bug?[export_vars { { bug_number $bug(bug_number) } }]"
+    set url [export_vars -base "[ad_url][apm_package_url_from_id $bug(project_id)]bug" {
+	{ bug_number $bug(bug_number) }
+    }]
 
     bug_tracker::get_pretty_names -array pretty_names
 
