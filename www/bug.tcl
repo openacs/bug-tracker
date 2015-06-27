@@ -320,7 +320,7 @@ if { ![form is_valid bug] } {
     # Display value for related files
     set href_rel [export_vars -base related-file-add { { bug_number $bug(bug_number) } return_url }]
     set bug(related_files_display) [subst {[bug_tracker::get_related_files_links -bug_id $bug(bug_id)]<br>
-	\[ <a href="[ns_quotehtmrm $href_rel]">[_ bug-tracker.Upload_related_file]</a> \]}]
+	\[ <a href="[ns_quotehtml $href_rel]">[_ bug-tracker.Upload_related_file]</a> \]}]
 
     # Hide elements that should be hidden depending on the bug status
     foreach element $bug(hide_fields) {
