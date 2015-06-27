@@ -1534,7 +1534,7 @@ ad_proc bug_tracker::get_related_files_links {
         } else {
             set extra_actions ""
         }
-        lappend related_files_list [subsr {$related_title
+        lappend related_files_list [subst {$related_title
 	    <a href="[ns_quotehtml $view_url]">download</a> |
 	    <a href="[ns_quotehtml $properties_url]">properties</a>$extra_actions
 	}]
