@@ -124,7 +124,7 @@ if { $enabled_action_id eq "" } {
     set patch_href2 [export_vars -base [ad_conn url] -entire_form -override { { show_patch_status open } }]
     set patch_label [ad_decode $show_patch_status \
                          "open" [subst {[_ bug-tracker.Open] [bug_tracker::conn Patches] (<a href="[ns_quotehtml $patch_href1]">[_ bug-tracker.show_all]</a>)}] \
-                         "all" [subst {[_ bug-tracker.All] [bug_tracker::conn Patches] (<a href="[ns_quotehtml $path_href2]">[_ bug-tracker.show_only_open])}] \
+                         "all" [subst {[_ bug-tracker.All] [bug_tracker::conn Patches] (<a href="[ns_quotehtml $patch_href2]">[_ bug-tracker.show_only_open])}] \
                          [bug_tracker::conn Patches]]
 } else {
     set patch_label [ad_decode $show_patch_status \
