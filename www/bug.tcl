@@ -179,7 +179,7 @@ foreach {category_id category_name} [bug_tracker::category_types] {
 
 
 ad_form -extend -name bug -form {
-    {found_in_version:text(select),optional
+    {found_in_version:integer(select),optional
 	{label "[_ bug-tracker.Found_in_Version]"}
 	{options {[bug_tracker::version_get_options -include_unknown]}}
 	{mode display}
@@ -203,12 +203,12 @@ ad_form -extend -name bug -form {
 	{label "[_ bug-tracker.User_Agent]"}
 	{mode display}
     }
-    {fix_for_version:text(select),optional
+    {fix_for_version:integer(select),optional
 	{label "[_ bug-tracker.Fix_for_Version]"}
 	{options {[bug_tracker::version_get_options -include_undecided]}}
 	{mode display}
     }
-    {fixed_in_version:text(select),optional
+    {fixed_in_version:integer(select),optional
 	{label "[_ bug-tracker.Fixed_in_Version]"}
 	{options {[bug_tracker::version_get_options -include_undecided]}}
 	{mode display}
