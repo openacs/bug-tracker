@@ -1,6 +1,6 @@
 <master src="../../lib/master">
 <property name="doc(title)">@project_name;noquote@ Versions</property>
-<property name="context_bar">@context_bar;noquote@</property>
+<property name="context_bar">@context_bar;literal@</property>
 
 <h3>#bug-tracker.In_Development#</h3>
 

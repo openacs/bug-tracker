@@ -1,6 +1,6 @@
 <master src="../lib/master">
-<property name="doc(title)">@page_title;noquote@</property>
-<property name="context">@context;noquote@</property>
+<property name="doc(title)">@page_title;literal@</property>
+<property name="context">@context;literal@</property>
 
 <table cellspacing="1" cellpadding="3" class="bt_listing">
   <tr class="bt_listing_header">

@@ -1,9 +1,9 @@
 <master src="../lib/master">
-<property name="doc(title)">@page_title;noquote@</property>
-<property name="context">@context;noquote@</property>
-<property name="displayed_object_id">@bug.bug_id;noquote@</property>
+<property name="doc(title)">@page_title;literal@</property>
+<property name="context">@context;literal@</property>
+<property name="displayed_object_id">@bug.bug_id;literal@</property>
 
-<if @notification_link@ not nil><property name="notification_link">@notification_link;noquote@</property></if>
+<if @notification_link@ not nil><property name="notification_link">@notification_link;literal@</property></if>
 
 <p>
   <formtemplate id="bug"></formtemplate>
