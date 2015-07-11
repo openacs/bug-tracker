@@ -15,7 +15,7 @@
 </p>
 
 <p>
-<include src="../lib/pagination" row_count="@bug_count;noquote@" offset="@offset;noquote@" interval_size="@interval_size;noquote@" variable_set_to_export="@pagination_export_var_set;noquote@" pretty_plural="@pretty_names.bugs;noquote@">
+<include src="../lib/pagination" row_count="@bug_count;literal@" offset="@offset;literal@" interval_size="@interval_size;literal@" variable_set_to_export="@pagination_export_var_set;literal@" pretty_plural="@pretty_names.bugs;literal@">
 </p>
 
 <blockquote>

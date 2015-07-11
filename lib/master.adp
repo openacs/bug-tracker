@@ -11,6 +11,6 @@
     <property name="context">@context;literal@</property>
   </if>
 
-<include src="nav-bar" notification_link="@notification_link;noquote@">
+<include src="nav-bar" notification_link="@notification_link;literal@">
 <slave>
-<include src="nav-bar" notification_link="@notification_link;noquote@">
+<include src="nav-bar" notification_link="@notification_link;literal@">
