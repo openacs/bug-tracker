@@ -16,8 +16,6 @@ ad_page_contract {
 #
 #####
 
-ns_log Notice "********************************************************"
-
 set return_url [export_vars -base [ad_conn url] [bug_tracker::get_export_variables { bug_number }]]
 
 set project_name [bug_tracker::conn project_name]
@@ -29,7 +27,7 @@ set user_id [ad_conn user_id]
 set bug_name [bug_tracker::conn Bug]
 set page_title [_ bug-tracker.Bug_Title]
 
-set context [list [ns_quotehtml $page_title]]
+set context [list $page_title]
 
 # Is this project using multiple versions?
 set versions_p [bug_tracker::versions_p]
@@ -70,11 +68,10 @@ set admin_p [permission::permission_p -object_id $bug(bug_id) -party_id $user_id
 
 set enabled_action_id [form get_action bug]
 
-
 # Registration required for all actions
 set action_id ""
 if { $enabled_action_id ne "" } {
-    ns_log Notice "enabled_action if statement"
+    ns_log Notice "bug.tcl: enabled_action '$enabled_action_id'"
     auth::require_login
     workflow::case::enabled_action_get -enabled_action_id $enabled_action_id -array enabled_action    
     set action_id $enabled_action(action_id)
@@ -87,15 +84,14 @@ if { ![workflow::case::action::available_p -enabled_action_id $enabled_action_id
 }
 
 
-ns_log Notice "actions: enabled_action_id: -${enabled_action_id}-"
-
+ns_log Notice "actions: enabled_action_id: '${enabled_action_id}'"
 
 # Buttons
 set actions [list]
 if { $enabled_action_id eq "" } {
 
-    ns_log Notice "actions: case_id: $case_id"
-    ns_log Notice "actions: case_id: $case_id get_enabled_actions: [workflow::case::get_available_enabled_action_ids -case_id $case_id]"
+    #ns_log Notice "actions: case_id: $case_id"
+    #ns_log Notice "actions: case_id: $case_id get_enabled_actions: [workflow::case::get_available_enabled_action_ids -case_id $case_id]"
 
     foreach available_enabled_action_id [workflow::case::get_available_enabled_action_ids -case_id $case_id] {
         # TODO: avoid the enabled_action_get query by caching it, or caching only the enabled_action_id -> action_id lookup?
@@ -124,13 +120,13 @@ if { $enabled_action_id eq "" } {
     set patch_href2 [export_vars -base [ad_conn url] -entire_form -override { { show_patch_status open } }]
     set patch_label [ad_decode $show_patch_status \
                          "open" [subst {[_ bug-tracker.Open] [bug_tracker::conn Patches] (<a href="[ns_quotehtml $patch_href1]">[_ bug-tracker.show_all]</a>)}] \
-                         "all" [subst {[_ bug-tracker.All] [bug_tracker::conn Patches] (<a href="[ns_quotehtml $patch_href2]">[_ bug-tracker.show_only_open])}] \
+                         "all"  [subst {[_ bug-tracker.All]  [bug_tracker::conn Patches] (<a href="[ns_quotehtml $patch_href2]">[_ bug-tracker.show_only_open]</a>)}] \
                          [bug_tracker::conn Patches]]
 } else {
     set patch_label [ad_decode $show_patch_status \
                          "open" "[_ bug-tracker.Open] [bug_tracker::conn Patches]" \
-                         "all" "[_ bug-tracker.All] [bug_tracker::conn Patches]" \
-                         "[bug_tracker::conn Patches]"]
+                         "all"  "[_ bug-tracker.All] [bug_tracker::conn Patches]" \
+                         [bug_tracker::conn Patches]]
 }
 
 ad_form -name bug -cancel_url $return_url -mode display -has_edit 1 -actions $actions -form  {
@@ -411,9 +407,9 @@ if { ![form is_valid bug] } {
                          [list \
                               [export_vars -base . [bug_tracker::get_export_variables]] \
                               [_ bug-tracker.Filtered]] \
-                         [ns_quotehtml $page_title]]
+                         $page_title]
     } else {
-        set context [list [ns_quotehtml $page_title]]
+        set context [list $page_title]
     }
     
     # User agent show/hide URLs
