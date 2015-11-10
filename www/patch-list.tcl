@@ -8,7 +8,7 @@ ad_page_contract {
 } {
     {component_id:naturalnum,optional}
     {apply_to_version:integer,optional}
-    {status:trim,optional}
+    {status:word,trim,optional}
 }
 
 set package_id [ad_conn package_id]
