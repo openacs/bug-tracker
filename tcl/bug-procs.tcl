@@ -749,6 +749,7 @@ ad_proc bug_tracker::bug::get_list {
         summary {
             label "[_ bug-tracker.Summary]"
             link_url_eval {[export_vars -base bug -entire_form -override { bug_number }]}
+	    display_template {@bugs.summary;noi18n@}
             aggregate_label {[_ bug-tracker.Number]}
 	}
 	comment {
