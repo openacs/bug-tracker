@@ -34,10 +34,14 @@ set project_id [ad_conn package_id]
 # TODO: Get /com/* URLs working again
 # TODO: Other important suggestions from threads, etc.
 # TODO: Bulk actions (set fix for version, reassign, etc.)
+# TODO: the input validity checking should be improved.
 
-
-bug_tracker::bug::get_list -user_id $user_id
-
-bug_tracker::bug::get_multirow -user_id $user_id
+if {[catch {
+    bug_tracker::bug::get_list -user_id $user_id
+} errorMsg]} {
+    ns_return 422 text/plain "invalid input: $errorMsg"
+} else {
+    bug_tracker::bug::get_multirow -user_id $user_id
+}
 
 

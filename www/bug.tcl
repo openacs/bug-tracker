@@ -6,7 +6,7 @@ ad_page_contract {
     @cvs-id $Id$
 } [bug_tracker::get_page_variables {
     bug_number:integer,notnull
-    {user_agent_p:boolean 0}
+    {user_agent_p:boolean,notnull false}
     {show_patch_status:word open}
 }]
 
@@ -310,7 +310,8 @@ if { ![form is_valid bug] } {
     
     # Display value for patches
     set href_add [export_vars -base patch-add { { bug_number $bug(bug_number) } { component_id $bug(component_id) } }]
-    set bug(patches_display) [subst {[bug_tracker::get_patch_links -bug_id $bug(bug_id) -show_patch_status $show_patch_status]
+    set bug(patches_display) [subst {
+	[bug_tracker::get_patch_links -bug_id $bug(bug_id) -show_patch_status $show_patch_status]
 	&nbsp; \[ <a href="[ns_quotehtml $href_add]">[_ bug-tracker.Upload_Patch]</a> \]}]
 
     # Display value for related files
