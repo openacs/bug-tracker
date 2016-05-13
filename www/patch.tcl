@@ -468,10 +468,11 @@ if { [form is_valid patch] } {
         }
         set action_id [db_nextval "acs_object_id_seq"]
 
-	set description [element get_value patch $description]
-	if {[info exists desc_format]} {
-	    set desc_format [element get_value patch $desc_format]
-	}
+	foreach column { description desc_format } {
+	    if {[info exists $column]} {
+		set $column [element get_value patch $column]
+	    }
+        }
 
         set action $mode
         db_dml patch_action {}
