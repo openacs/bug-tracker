@@ -1,5 +1,5 @@
 <master>
-  <property name="doc(title)">@title;literal@</property>
+  <property name="&doc">doc</property>
   <if @signatory@ not nil><property name="signatory">@signatory;literal@</property></if>
   <if @focus@ not nil><property name="focus">@focus;literal@</property></if>
   <if @displayed_object_id@ not nil><property name="displayed_object_id">@displayed_object_id;literal@</property></if>
