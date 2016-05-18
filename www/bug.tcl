@@ -7,8 +7,14 @@ ad_page_contract {
 } [bug_tracker::get_page_variables {
     bug_number:integer,notnull
     {user_agent_p:boolean,notnull false}
-    {show_patch_status:word open}
-}]
+    {show_patch_status:word,notnull open}
+}] -validate {
+    check_show_patch_status -requires show_patch_status {
+	if {$show_patch_status ni {"open" "all"}} {
+	    ad_complain "invalid value for show_patch_status"
+	}
+    }
+}
 
 #####
 #
