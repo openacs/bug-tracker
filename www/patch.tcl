@@ -15,6 +15,7 @@ ad_page_contract {
     reopen:optional
     comment:optional
     download:boolean,optional
+    {desc_format "text/html"}
 }
 
 # Assert read permission (should this check be in the request processor?)
