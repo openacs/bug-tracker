@@ -17,7 +17,7 @@ INPUT.bt_navbar { font-family: tahoma,verdana,arial,helvetica; font-weight: bold
 <a href="/">Home</a> : OpenACS Bug-Tracker
 <hr>
 
-<table border=0" cellspacing="0" cellpadding="2" bgcolor="#41329c" width="100%">
+<table border="0" cellspacing="0" cellpadding="2" bgcolor="#41329c" width="100%">
   <form action="#" method="get" name="navbar1">
     <tr>
       <td align="left">
@@ -34,7 +34,11 @@ INPUT.bt_navbar { font-family: tahoma,verdana,arial,helvetica; font-weight: bold
               <a href="#" class="bt_navbar">Patches</a><span class="bt_navbar">&nbsp;|&nbsp;</span>
               <a href="#" class="bt_navbar">Prefs</a><span class="bt_navbar">&nbsp;|&nbsp;</span>
               <a href="#" class="bt_navbar">Project admin</a><span class="bt_navbar">&nbsp;|&nbsp;</span>
-              <input name="bug_no" type="text" size="5" class="bt_navbar" value="Bug #" onFocus="javascript:document.navbar1.bug_no.value='';"> <input type="submit" value="Go" class="bt_navbar">
+              <input name="bug_no" type="text" size="5"
+  class="bt_navbar" value="Bug #"
+  onFocus="javascript:document.navbar1.bug_no.value='';"> <input
+	      type="submit" value="Go" class="bt_navbar">
+	       <if @::__csrf_token@ defined><input type="hidden" name="__csrf_token" value="@::__csrf_token;literal@"></if>
             </td>
           </tr>
         </table>
