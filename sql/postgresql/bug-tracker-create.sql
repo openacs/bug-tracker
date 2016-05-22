@@ -342,6 +342,7 @@ create index bt_bugs_fix_for_version_idx on bt_bugs(fix_for_version);
 
 create index bt_bugs_proj_id_crea_date_idx on bt_bugs(project_id, creation_date);
 create index bt_bugs_creation_date_idx on bt_bugs(creation_date);
+create index bt_bugs_creation_user_idx on bt_bugs(creation_user);
 
 -- Create the bug content item object type
 
