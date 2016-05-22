@@ -17,8 +17,8 @@ INPUT.bt_navbar { font-family: tahoma,verdana,arial,helvetica; font-weight: bold
 <a href="/">Home</a> : OpenACS Bug-Tracker
 <hr>
 
-<table border="0" cellspacing="0" cellpadding="2" bgcolor="#41329c" width="100%">
-  <form action="#" method="get" name="navbar1">
+<form action="#" method="get" name="navbar1">
+  <table border="0" cellspacing="0" cellpadding="2" bgcolor="#41329c" width="100%">
     <tr>
       <td align="left">
         <span class="bt_navbar">Your version: </span><a href="#" class="bt_navbar">4.3</a><span class="bt_navbar"> | Latest: 4.5</span>
@@ -44,9 +44,8 @@ INPUT.bt_navbar { font-family: tahoma,verdana,arial,helvetica; font-weight: bold
         </table>
       </td>
     </tr>
-  </form>
-</table>
-
+  </table>
+</form>
 <p>
 
 
