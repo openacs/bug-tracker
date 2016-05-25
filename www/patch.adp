@@ -1,7 +1,7 @@
 <master src="../lib/master">
 <property name="doc(title)">@page_title;literal@</property>
 <property name="context">@context;literal@</property>
-<property name="displayed_object_id">@patch.patch_id;literal@</property>
+<if @patch.patch_id@ defined><property name="displayed_object_id">@patch.patch_id;literal@</property></if>
 
 <formtemplate id="patch"></formtemplate>
 

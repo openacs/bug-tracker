@@ -10,7 +10,8 @@
       <form action="@form_search_url@" method="get" name="search">
         <input name="q" type="text" size="15" class="bt_navbar" value="#bug-tracker.Search#" 
           onFocus="javascript:this.value='';">
-        <input name="search_package_id" type="hidden" value="@package_id@">
+          <input name="search_package_id" type="hidden" value="@package_id@">
+          <if @::__csrf_token@ defined><input type="hidden" name="__csrf_token" value="@::__csrf_token;literal@"></if>
           <input type="submit" value="#bug-tracker.Search#" class="bt_navbar_btn">
       </form>
   </if>

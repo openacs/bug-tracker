@@ -14,6 +14,11 @@ ad_page_contract {
 	    ad_complain "invalid value for show_patch_status"
 	}
     }
+    check_bug_number -requires bug_number:integer {
+	if {$bug_number > 2**31} {
+	    ad_complain "invalid bug number"
+	}
+    }
 }
 
 #####

@@ -6,7 +6,7 @@ ad_page_contract {
     @cvs-id $Id$
 } {
     patch_number:integer,notnull
-    mode:optional
+    mode:word,optional
     cancel_edit:optional    
     edit:optional
     accept:optional
@@ -40,7 +40,7 @@ set patch_status [db_string patch_status {}]
 set versions_p [bug_tracker::versions_p]
 
 # Abort editing and return to view mode if the user hit cancel on the edit form
-if { ([info exists cancel_edit] && $cancel_edit ne "") } {
+if { [info exists cancel_edit] && $cancel_edit ne "" } {
     ad_returnredirect $view_patch_url
     ad_script_abort
 }
@@ -58,17 +58,17 @@ if { ([info exists download] && $download ne "") } {
 # Initialize the page mode variable
 # We are in view mode per default
 if { ![info exists mode] } {
-    if { ([info exists edit] && $edit ne "") } {
+    if { [info exists edit] && $edit ne "" } {
         set mode edit
-    } elseif { ([info exists accept] && $accept ne "") } {        
+    } elseif { [info exists accept] && $accept ne "" } {        
         set mode accept
-    } elseif { ([info exists refuse] && $refuse ne "") } {
+    } elseif { [info exists refuse] && $refuse ne "" } {
         set mode refuse
-    } elseif { ([info exists delete] && $delete ne "") } {
+    } elseif { [info exists delete] && $delete ne "" } {
         set mode delete
-    } elseif { ([info exists reopen] && $reopen ne "") } {
+    } elseif { [info exists reopen] && $reopen ne "" } {
         set mode reopen
-    } elseif { ([info exists comment] && $comment ne "") } {
+    } elseif { [info exists comment] && $comment ne "" } {
         set mode comment
     } else {
         set mode view
@@ -416,7 +416,7 @@ if { [form is_request patch] } {
     }
 }
 
-if { [form is_valid patch] } {
+if { [form is_valid patch] && $mode ne "view"} {
     # A valid submit of the form
 
     set update_exprs [list]
