@@ -9,7 +9,7 @@
 <if @button_form_export_vars@ not nil>
   <blockquote>
     <form method="GET" action="patch">
-      @button_form_export_vars;noquote@
+      @button_form_export_vars;literal@
       <multiple name="button">
         <input type="submit" name="@button.name@" value="     @button.label@     ">
       </multiple>
@@ -18,24 +18,24 @@
 </if>
 </p>
 
-<if @mode@ eq "view" and @deleted_p@ eq 0>
+<if @mode;literal@ eq "view" and @deleted_p@ defined and @deleted_p;literal@ eq 0>
 <center>
 <p>
-<a href="patch?patch_number=@patch_number@&download=1">#bug-tracker.Download_patch_content#</a>
+<a href="patch?patch_number=@patch_number;noi18n@&download=1">#bug-tracker.Download_patch_content#</a>
 </p>
 </center>
 <p>
 <table border="0" cellspacing="0" cellpadding="2" bgcolor="lightgrey" width="100%">
   <tr>
     <td>
-      <pre><%= [ad_quotehtml "$patch(content)"] %></pre>
+      <pre>@patch.content;noi18n@</pre>
     </td>
   </tr>
 </table>
 </p>
 <center>
 <p>
-<a href="patch?patch_number=@patch_number@&download=1">#bug-tracker.Download_patch_content#</a>
+<a href="patch?patch_number=@patch_number;noi18n@&download=1">#bug-tracker.Download_patch_content#</a>
 </p>
 </center>
 </if>
