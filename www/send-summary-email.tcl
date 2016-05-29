@@ -10,7 +10,14 @@ ad_page_contract {
 } {
     workflow_id:naturalnum,notnull
     {bug_id:naturalnum,optional,multiple ""}
-    return_url:optional
+    {return_url:optional,trim,notnull "./"}
+} -validate {
+    valid_return_url -requires return_url {
+	# actually, one should use the page filter localurl from OpenACS 5.9
+	if {[util::external_url_p $return_url]} {
+	    ad_complain "invalid return_url"
+	}
+    }
 }
 
 set title [_ bug-tracker.Send_Summary_Email]
@@ -18,10 +25,6 @@ set context [list $title]
 set package_id [ad_conn package_id]
 set user_id [auth::require_login]
 set sender_email [acs_user::get_element -user_id $user_id -element email]
-
-if {(![info exists return_url] || $return_url eq "")} {
-    set return_url "./"
-}
 
 if {![llength $bug_id]} {
     ad_returnredirect -message [_ bug-tracker.No_selected_bugs] $return_url

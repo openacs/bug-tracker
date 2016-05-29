@@ -5,7 +5,7 @@ ad_page_contract {
     @date 2002-09-04
     @cvs-id $Id$
 } {
-    patch_number:integer,notnull
+    patch_number:naturalnum,notnull
     mode:word,optional
     cancel_edit:optional    
     edit:optional
@@ -16,6 +16,12 @@ ad_page_contract {
     comment:optional
     download:boolean,optional
     {desc_format "text/html"}
+} -validate {
+    valid_patch_number -requires patch_number:integer {
+	if {$patch_number > 2**31} {
+	    ad_complain "patch number out of range"
+	}
+    }
 }
 
 # Assert read permission (should this check be in the request processor?)

@@ -6,7 +6,14 @@ ad_page_contract {
     @creation-date March 28, 2002
     @cvs-id $Id$
 } {
-    {return_url "."}
+    {return_url:trim,notnull "."}
+} -validate {
+    valid_return_url -requires return_url {
+	# actually, one should use the page filter localurl from OpenACS 5.9
+	if {[util::external_url_p $return_url]} {
+	    ad_complain "invalid return_url"
+	}
+    }
 }
 
 # User needs to be logged in here

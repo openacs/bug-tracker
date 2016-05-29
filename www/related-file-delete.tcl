@@ -10,9 +10,15 @@ ad_page_contract {
 } {
     bug_id:naturalnum,notnull
     related_object_id:naturalnum,notnull
-    return_url:optional
+    return_url:optional,trim,notnull
 } -properties {
 } -validate {
+    valid_return_url -requires return_url {
+	# actually, one should use the page filter localurl from OpenACS 5.9
+	if {[util::external_url_p $return_url]} {
+	    ad_complain "invalid return_url"
+	}
+    }
 } -errors {
 }
 
@@ -24,7 +30,7 @@ if { ![db_0or1row get_bug_number {}] } {
     ad_script_abort
 }
 
-if {(![info exists return_url] || $return_url eq "")} {
+if {![info exists return_url]} {
     set return_url [export_vars -base "bug" {bug_number}]
 }
 

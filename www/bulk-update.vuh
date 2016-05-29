@@ -1,4 +1,4 @@
-# packages/bug-tracker/www/bulk-update.vuh
+# -*- tcl -*- packages/bug-tracker/www/bulk-update.vuh
 #
 ad_page_contract {
 
@@ -10,18 +10,21 @@ ad_page_contract {
     @creation-date 2007-01-16
     @cvs-id $Id$
 } {
-    workflow_id:notnull
+    workflow_id:naturalnum,notnull
     {bug_id:optional,multiple ""}
-    return_url:optional
+    {return_url:optional,notnull "./"}
+} -validate {
+    valid_return_url -requires return_url {
+	# actually, one should use the page filter localurl from OpenACS 5.9
+	if {[util::external_url_p $return_url]} {
+	    ad_complain "invalid return_url"
+	}
+    }
 }
 
 if {![regexp {^/(.+)?/*} [ad_conn path_info] match short_name]} {
     ad_return_warning "[_ bug-tracker.Invalid_operation]" "[_ bug-tracker.The_operation_you_1]"
     return
-}
-
-if {![exists_and_not_null return_url]} {
-    set return_url "./"
 }
 
 if {![llength $bug_id]} {

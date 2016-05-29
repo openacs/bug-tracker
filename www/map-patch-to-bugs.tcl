@@ -13,8 +13,16 @@ ad_page_contract {
     {offset:integer "0"}
     {interval_size "50"}
     cancel:optional
-    {return_url ""}
+    {return_url:trim,notnull ""}
+} -validate {
+    valid_return_url -requires return_url {
+	# actually, one should use the page filter localurl from OpenACS 5.9
+	if {[util::external_url_p $return_url]} {
+	    ad_complain "invalid return_url"
+	}
+    }
 }
+
 
 set package_id [ad_conn package_id]
 set user_id [ad_conn user_id]

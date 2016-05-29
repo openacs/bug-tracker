@@ -10,7 +10,14 @@ ad_page_contract {
 } {
     bug_number:integer,optional
     component_id:naturalnum,optional
-    {return_url ""}
+    {return_url:notnull,trim ""}
+} -validate {
+    valid_return_url -requires return_url {
+	# actually, one should use the page filter localurl from OpenACS 5.9
+	if {[util::external_url_p $return_url]} {
+	    ad_complain "invalid return_url"
+	}
+    }
 }
 
 permission::require_permission -object_id [ad_conn package_id] -privilege create

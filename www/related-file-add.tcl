@@ -8,16 +8,22 @@ ad_page_contract {
     @creation-date 2007-01-15
     @cvs-id $Id$
 } {
-    bug_number:notnull
-    return_url:optional
+    bug_number:integer,notnull
+    return_url:optional,trim,notnull
 } -properties {
 } -validate {
+    valid_return_url -requires return_url {
+	# actually, one should use the page filter localurl from OpenACS 5.9
+	if {[util::external_url_p $return_url]} {
+	    ad_complain "invalid return_url"
+	}
+    }
 } -errors {
 }
 
 set package_id [ad_conn package_id]
 
-if {(![info exists return_url] || $return_url eq "")} {
+if {![info exists return_url]} {
     set return_url [export_vars -base "bug" {bug_number}]
 }
 

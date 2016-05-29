@@ -11,18 +11,20 @@ ad_page_contract {
     workflow_id:naturalnum,notnull
     op:notnull
     bug_id:naturalnum,notnull,multiple
-    return_url:optional
+    {return_url:optional,trim,notnull "./"}
 } -properties {
 } -validate {
+    valid_return_url -requires return_url {
+	# actually, one should use the page filter localurl from OpenACS 5.9
+	if {[util::external_url_p $return_url]} {
+	    ad_complain "invalid return_url"
+	}
+    }
 } -errors {
 }
 
 set user_id [auth::require_login]
 set package_id [ad_conn package_id]
-
-if {(![info exists return_url] || $return_url eq "")} {
-    set return_url "./"
-}
 
 if {[llength $bug_id] == 1} {
     set bug_id [split [lindex $bug_id 0]]
