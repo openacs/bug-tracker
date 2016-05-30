@@ -22,6 +22,11 @@ ad_page_contract {
 	    ad_complain "patch number out of range"
 	}
     }
+    valid_method {
+	if {[ns_conn method] eq "POST" && [ad_conn user_id] == 0} {
+	    ad_complain "POST requests are allowed only from logged-in userse"
+	}
+    }
 }
 
 # Assert read permission (should this check be in the request processor?)
@@ -228,7 +233,7 @@ switch -- $mode {
 	    -datatype text \
 	    -widget select \
 	    -label "[_ bug-tracker.Description_1]" \
-	    -options { { "[_ bug-tracker.Plain]" plain } { "[_ bug-tracker.HTML]" html } { "[_ bug-tracker.Preformatted]" pre } }
+	    -options [list [list  "[_ bug-tracker.Plain]" plain ] [list "[_ bug-tracker.HTML]" html ] [list "[_ bug-tracker.Preformatted]" pre ] ]
 
     }
     default {
