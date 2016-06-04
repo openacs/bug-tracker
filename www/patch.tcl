@@ -14,27 +14,35 @@ ad_page_contract {
     delete:optional    
     reopen:optional
     comment:optional
-    download:boolean,optional
+    download:boolean,optional,notnull
     {desc_format "text/html"}
 } -validate {
+
     valid_patch_number -requires patch_number:integer {
+	set package_id [ad_conn package_id]
 	if {$patch_number > 2**31} {
 	    ad_complain "patch number out of range"
-	}
+	} elseif {![db_0or1row note_exists {
+            select 1 from bt_patches
+	    where patch_number = :patch_number and project_id = :package_id
+        }]} {
+            ad_complain "Invalid patch_number"
+        }
     }
     valid_method {
 	if {[ns_conn method] eq "POST" && [ad_conn user_id] == 0} {
-	    ad_complain "POST requests are allowed only from logged-in userse"
+	    ad_complain "POST requests are allowed only from logged-in users"
 	}
     }
 }
 
-# Assert read permission (should this check be in the request processor?)
-permission::require_permission -object_id [ad_conn package_id] -privilege read
-
 # Initialize variables related to the request that we'll need
 set package_id [ad_conn package_id]
 set user_id [ad_conn user_id]
+
+# Assert read permission (should this check be in the request processor?)
+permission::require_permission -object_id $package_id -privilege read
+
 # Does the user have write privilege on the project?
 set write_p [permission::permission_p -object_id $package_id -privilege write]
 
@@ -43,7 +51,7 @@ set submitter_id [bug_tracker::get_patch_submitter -patch_number $patch_number]
 set user_is_submitter_p [expr { $submitter_id ne "" && $user_id == $submitter_id }]
 set write_or_submitter_p [expr {$write_p || $user_is_submitter_p}]
 set project_name [bug_tracker::conn project_name]
-set package_key [ad_conn package_key]
+#set package_key [ad_conn package_key]
 set view_patch_url [export_vars -base [ad_conn url] { patch_number }]
 set patch_status [db_string patch_status {}]
 
@@ -57,7 +65,7 @@ if { [info exists cancel_edit] && $cancel_edit ne "" } {
 }
 
 # If the download link was clicked - return the text content of the patch
-if { ([info exists download] && $download ne "") } {
+if { [info exists download] } {
     
     set patch_content [db_string get_patch_content {}]
     set outputheaders [ns_conn outputheaders]
@@ -279,8 +287,12 @@ if { [form is_request patch] } {
     # The form was requested
 
     db_1row patch {} -column_array patch
-    set patch(generated_from_version_name) [ad_decode $patch(generated_from_version) "" "[_ bug-tracker.Unknown]" [bug_tracker::version_get_name -version_id $patch(generated_from_version)]]
-    set patch(apply_to_version_name) [ad_decode $patch(apply_to_version) "" "[_ bug-tracker.Undecided]" [bug_tracker::version_get_name -version_id $patch(apply_to_version)]]
+    set patch(generated_from_version_name) [ad_decode $patch(generated_from_version) \
+						"" [_ bug-tracker.Unknown] \
+						[bug_tracker::version_get_name -version_id $patch(generated_from_version)]]
+    set patch(apply_to_version_name) [ad_decode $patch(apply_to_version) \
+					  "" [_ bug-tracker.Undecided] \
+					  [bug_tracker::version_get_name -version_id $patch(apply_to_version)]]
     set patch(applied_to_version_name) [bug_tracker::version_get_name -version_id $patch(applied_to_version)]
 
     if {$user_id != 0} {
