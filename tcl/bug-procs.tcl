@@ -894,6 +894,14 @@ ad_proc bug_tracker::bug::get_list {
     }
 
     upvar \#[template::adp_level] format format
+    #
+    # For now, use just "table" format, this there is a broken
+    # substitution in the list variant, leading to
+    # "package_key.message_key' does not exist in en_US", when the
+    # message key is used in one of the <listelements> (such as "summary
+    # or "comment").
+    #
+    set format table
     
     foreach var [bug_tracker::get_export_variables -package_id $package_id] { 
         upvar \#[template::adp_level] $var $var
