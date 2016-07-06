@@ -239,5 +239,13 @@ where q.bug_id = km.item_id (+)
       </querytext>
   </partialquery>
 
-
+  <partialquery name="bug_tracker::user_bugs_only_where_clause.user_bugs_only">
+      <querytext>
+       and exists (select 1
+                     from acs_object_party_privilege_map
+                    where object_id = b.bug_id
+                      and party_id = :user_id
+                      and privilege = 'read')
+      </querytext>
+  </partialquery>
 </queryset>

@@ -229,5 +229,11 @@ on (q.case_id = assign_info.case_id)
                  )
       </querytext>
   </partialquery>
- 
+
+  <partialquery name="bug_tracker::user_bugs_only_where_clause.user_bugs_only">
+    <querytext>
+       and acs_permission__permission_p(b.bug_id, :user_id, 'read')
+      </querytext>
+  </partialquery>
+  
 </queryset>
