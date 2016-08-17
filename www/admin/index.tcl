@@ -34,8 +34,8 @@ set permissions_edit_url "permissions"
 set workflow_url [site_node::get_package_url -package_key workflow]
 set workflow_edit_url [export_vars -base "${workflow_url}admin/workflow-edit" {workflow_id}]
 set parameters_edit_url [export_vars -base /shared/parameters {
-    { return_url [ad_return_url] }
-    { package_id [ad_conn package_id] }
+    { return_url "[ad_return_url]" }
+    { package_id "[ad_conn package_id]" }
 }]
 set severity_codes_edit_url "severity-codes"
 set priority_codes_edit_url "priority-codes"
