@@ -114,7 +114,9 @@ ad_proc -public bug_tracker::bug::insert {
     set extra_vars [ns_set create]
     oacs_util::vars_to_ns_set \
         -ns_set $extra_vars \
-        -var_list { bug_id package_id component_id found_in_version summary user_agent comment_content comment_format creation_date fix_for_version assign_to}
+        -var_list { bug_id package_id component_id found_in_version summary
+	    user_agent comment_content comment_format creation_date
+	    fix_for_version assign_to}
 
 
     set bug_id [package_instantiate_object \
