@@ -5,26 +5,26 @@
 
 -- Triggers for the bug item table.
 
-create or replace function bt_bug_search__itrg ()
-returns trigger as '
-begin
-  perform search_observer__enqueue(new.bug_id,''INSERT'');
+CREATE OR REPLACE FUNCTION bt_bug_search__itrg () RETURNS trigger AS $$
+BEGIN
+  perform search_observer__enqueue(new.bug_id,'INSERT');
   return new;
-end;' language 'plpgsql';
+END;
+$$ LANGUAGE plpgsql;
 
-create or replace function bt_bug_search__utrg ()
-returns trigger as '
-begin
-  perform search_observer__enqueue(new.bug_id,''UPDATE'');
+CREATE OR REPLACE FUNCTION bt_bug_search__utrg () RETURNS trigger AS $$
+BEGIN
+  perform search_observer__enqueue(new.bug_id,'UPDATE');
   return old;
-end;' language 'plpgsql';
+END;
+$$ LANGUAGE plpgsql;
 
-create or replace function bt_bug_search__dtrg ()
-returns trigger as '
-begin
-  perform search_observer__enqueue(old.bug_id,''DELETE'');
+CREATE OR REPLACE FUNCTION bt_bug_search__dtrg () RETURNS trigger AS $$
+BEGIN
+  perform search_observer__enqueue(old.bug_id,'DELETE');
   return old;
-end;' language 'plpgsql';
+END;
+$$ LANGUAGE plpgsql;
 
 create trigger bt_bug_search__itrg after insert on bt_bugs
 for each row execute procedure bt_bug_search__itrg (); 

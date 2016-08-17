@@ -27,19 +27,25 @@ create table bt_projects (
                                 references cr_keywords(keyword_id)
 );
 
-create or replace function bt_project__new(
-    integer                      -- package_id
-) returns integer 
-as '
-declare
-    p_package_id                alias for $1;
+
+
+-- added
+select define_function_args('bt_project__new','package_id');
+
+--
+-- procedure bt_project__new/1
+--
+CREATE OR REPLACE FUNCTION bt_project__new(
+   p_package_id integer
+) RETURNS integer AS $$
+DECLARE
     v_count                     integer;
     v_instance_name             varchar;
     v_creation_user             integer;
     v_creation_ip               varchar;
     v_folder_id                 integer;
     v_keyword_id                integer;
-begin
+BEGIN
     select count(*)
     into   v_count
     from   bt_projects
@@ -57,7 +63,7 @@ begin
 
     -- create a root CR folder
     v_folder_id := content_folder__new(
-        ''bug_tracker_''||p_package_id,        -- name
+        'bug_tracker_' || p_package_id,        -- name
         v_instance_name,                       -- label
         null,                                  -- description
         content_item_globals.c_root_folder_id, -- parent_id
@@ -66,7 +72,7 @@ begin
         now(),                                 -- creation_date
         v_creation_user,                       -- creation_user
         v_creation_ip,                         -- creation_ip,
-        ''t'',                                 -- security_inherit_p
+        't',                                 -- security_inherit_p
         p_package_id                           -- package_id
     );
 
@@ -76,8 +82,8 @@ begin
     -- register our content type
     PERFORM content_folder__register_content_type (
         v_folder_id,          -- folder_id
-        ''bt_bug_revision'',  -- content_type
-        ''t''                 -- include_subtypes
+        'bt_bug_revision',  -- content_type
+        't'                 -- include_subtypes
     );
 
     -- create the instance root keyword
@@ -89,7 +95,7 @@ begin
         current_timestamp,              -- creation_date
         v_creation_user,                -- creation_user
         v_creation_ip,                  -- creation_ip
-        ''content_keyword''             -- object_type
+        'content_keyword'             -- object_type
     );
 
     -- insert the row into bt_projects
@@ -100,24 +106,31 @@ begin
 
     -- Create a General component to start with
     insert into bt_components (component_id, project_id, component_name)
-    select acs_object_id_seq.nextval, p_package_id, ''General'';
+    select acs_object_id_seq.nextval, p_package_id, 'General';
 
     return 0;
-end;
-' language 'plpgsql';
+END;
+
+$$ LANGUAGE plpgsql;
 
 
-create or replace function bt_project__delete(
-    integer                 -- project_id
-) returns integer
-as '
-declare
-    p_project_id          alias for $1;
+
+
+-- added
+select define_function_args('bt_project__delete','project_id');
+
+--
+-- procedure bt_project__delete/1
+--
+CREATE OR REPLACE FUNCTION bt_project__delete(
+   p_project_id integer
+) RETURNS integer AS $$
+DECLARE
     v_folder_id           integer;
     v_root_keyword_id     integer;
     v_workflow_id         integer;
     rec                   record;
-begin
+BEGIN
     -- get the content folder and workflow_id for this instance
     select folder_id, root_keyword_id, workflow_id
     into   v_folder_id, v_root_keyword_id, v_workflow_id
@@ -142,11 +155,11 @@ begin
     end loop;
 
     -- delete the content folder
-    raise notice ''about to delete content_folder.'';
+    raise notice 'about to delete content_folder.';
     perform content_folder__delete(v_folder_id);
 
     -- delete the projects keywords
-    perform bt_project__keywords_delete(p_project_id, ''t'');
+    perform bt_project__keywords_delete(p_project_id, 't');
 
     -- These tables should really be set up to cascade
     delete from bt_versions where project_id = p_project_id;
@@ -156,20 +169,25 @@ begin
     delete from bt_projects where project_id = p_project_id;   
 
     return 0;
-end;
-' language 'plpgsql';
+END;
 
-create or replace function bt_project__keywords_delete(
+$$ LANGUAGE plpgsql;
+
+
+
+--
+-- procedure bt_project__keywords_delete/1
+--
+CREATE OR REPLACE FUNCTION bt_project__keywords_delete(
     integer,                 -- project_id
     bool                     -- delete_root_p
-) returns integer
-as '
-declare
+) RETURNS integer AS $$
+DECLARE
     p_project_id          alias for $1;
     p_delete_root_p       alias for $1;
     v_root_keyword_id     integer;
     rec                   record;
-begin
+BEGIN
     -- get the content folder for this instance
     select root_keyword_id
     into   v_root_keyword_id
@@ -197,8 +215,9 @@ begin
     end loop;
 
     return 0;
-end;
-' language 'plpgsql';
+END;
+
+$$ LANGUAGE plpgsql;
 
 
 create table bt_versions (
@@ -234,26 +253,33 @@ create table bt_versions (
 
 -- but we just make a stored function that alters the active version
 
-create or replace function bt_version__set_active (
-   integer                       -- active_version_id
-) returns integer 
-as '
-declare
-    new__active_version_id alias for $1;
+
+
+-- added
+select define_function_args('bt_version__set_active','active_version_id');
+
+--
+-- procedure bt_version__set_active/1
+--
+CREATE OR REPLACE FUNCTION bt_version__set_active(
+   new__active_version_id integer
+) RETURNS integer AS $$
+DECLARE
     v_project_id integer;
-begin
+BEGIN
     select project_id
     into   v_project_id
     from   bt_versions 
     where  version_id = new__active_version_id;
 
     if found then
-        update bt_versions set active_version_p=''f'' where project_id = v_project_id;
+        update bt_versions set active_version_p='f' where project_id = v_project_id;
     end if;
-    update bt_versions set active_version_p=''t'' where version_id = new__active_version_id;
+    update bt_versions set active_version_p='t' where version_id = new__active_version_id;
     return 0;
-end;
-' language 'plpgsql';
+END;
+
+$$ LANGUAGE plpgsql;
 
 create table bt_components (
   component_id                  integer not null
@@ -399,48 +425,42 @@ select content_type__create_type (
     'content_revision.revision_name'
 );
 
-select define_function_args ('bt_bug__new','bug_id,bug_number,package_id,component_id,found_in_version,summary,user_agent,comment_content,comment_formt,creation_date,creation_user,creation_ip,fix_for_version,item_subtype;bt_bug,content_type;bt_bug_revision');
 
-create or replace function bt_bug__new(
-    integer,     -- bug_id
-    integer,     -- bug_number
-    integer,     -- package_id
-    integer,     -- component_id
-    integer,     -- found_in_version
-    varchar,     -- summary
-    varchar,     -- user_agent
-    text,        -- comment_content
-    varchar,     -- comment_format
-    timestamptz, -- creation_date
-    integer,     -- creation_user
-    varchar,     -- creation_ip
-    integer,	-- fix_for_version	 
-    varchar,     -- item_subtype
-    varchar      -- content_type
-) returns int
-as '
-declare
-    p_bug_id                    alias for $1;
-    p_bug_number                alias for $2;
-    p_package_id                alias for $3;
-    p_component_id              alias for $4;
-    p_found_in_version          alias for $5;
-    p_summary                   alias for $6;
-    p_user_agent                alias for $7;
-    p_comment_content           alias for $8;
-    p_comment_format            alias for $9;
-    p_creation_date             alias for $10;
-    p_creation_user             alias for $11;
-    p_creation_ip               alias for $12;
-    p_fix_for_version		alias for $13;
-    p_item_subtype              alias for $14;	
-    p_content_type              alias for $15;
+-- old define_function_args ('bt_bug__new','bug_id,bug_number,package_id,component_id,found_in_version,summary,user_agent,comment_content,comment_formt,creation_date,creation_user,creation_ip,fix_for_version,item_subtype;bt_bug,content_type;bt_bug_revision')
+-- new
+select define_function_args('bt_bug__new','bug_id,bug_number,package_id,component_id,found_in_version,summary,user_agent,comment_content,comment_format,creation_date,creation_user,creation_ip,fix_for_version,item_subtype;bt_bug,content_type;bt_bug_revision');
+
+
+
+
+--
+-- procedure bt_bug__new/15
+--
+CREATE OR REPLACE FUNCTION bt_bug__new(
+   p_bug_id integer,
+   p_bug_number integer,
+   p_package_id integer,
+   p_component_id integer,
+   p_found_in_version integer,
+   p_summary varchar,
+   p_user_agent varchar,
+   p_comment_content text,
+   p_comment_format varchar,
+   p_creation_date timestamptz,
+   p_creation_user integer,
+   p_creation_ip varchar,
+   p_fix_for_version integer,
+   p_item_subtype varchar, -- default 'bt_bug'
+   p_content_type varchar  -- default 'bt_bug_revision'
+
+) RETURNS int AS $$
+DECLARE
     
     v_bug_id                    integer;
     v_revision_id               integer;
     v_bug_number                integer;
     v_folder_id                 integer;
-begin
+BEGIN
     -- get the content folder for this instance
     select folder_id
     into   v_folder_id
@@ -500,19 +520,26 @@ begin
     );
 
     return v_bug_id;
-end;
-' language 'plpgsql';
+END;
+
+$$ LANGUAGE plpgsql;
 
 
-create or replace function bt_bug__delete(
-   integer                      -- bug_id
-) returns integer
-as '
-declare
-    p_bug_id                    alias for $1;
+
+
+-- added
+select define_function_args('bt_bug__delete','bug_id');
+
+--
+-- procedure bt_bug__delete/1
+--
+CREATE OR REPLACE FUNCTION bt_bug__delete(
+   p_bug_id integer
+) RETURNS integer AS $$
+DECLARE
     v_case_id                   integer;
     rec                         record;
-begin
+BEGIN
     -- Every bug is associated with a workflow case
     select case_id 
     into   v_case_id 
@@ -522,7 +549,7 @@ begin
     perform workflow_case_pkg__delete(v_case_id);
 
     -- Every bug may have notifications attached to it
-    -- and there is one column in the notificaitons datamodel that doesn''t
+    -- and there is one column in the notificaitons datamodel that doesn't
     -- cascade
     for rec in select notification_id from notifications 
                where response_id = p_bug_id loop
@@ -539,43 +566,39 @@ begin
     perform content_item__delete(p_bug_id);
 
     return 0;
-end;
-' language 'plpgsql';
+END;
+
+$$ LANGUAGE plpgsql;
 
 
 
 
-create or replace function bt_bug_revision__new(
-    integer,        -- bug_revision_id
-    integer,        -- bug_id
-    integer,        -- component_id
-    integer,        -- found_in_version
-    integer,        -- fix_for_version
-    integer,        -- fixed_in_version
-    varchar,        -- resolution
-    varchar,        -- user_agent
-    varchar,        -- summary
-    timestamptz,    -- creation_date
-    integer,        -- creation_user
-    varchar        -- creation_ip
-) returns int
-as '
-declare
-    p_bug_revision_id       alias for $1;
-    p_bug_id                alias for $2;
-    p_component_id          alias for $3;
-    p_found_in_version      alias for $4;
-    p_fix_for_version       alias for $5;
-    p_fixed_in_version      alias for $6;
-    p_resolution            alias for $7;
-    p_user_agent            alias for $8;
-    p_summary               alias for $9;
-    p_creation_date         alias for $10;
-    p_creation_user         alias for $11;
-    p_creation_ip           alias for $12;
+
+
+-- added
+select define_function_args('bt_bug_revision__new','bug_revision_id,bug_id,component_id,found_in_version,fix_for_version,fixed_in_version,resolution,user_agent,summary,creation_date,creation_user,creation_ip');
+
+--
+-- procedure bt_bug_revision__new/12
+--
+CREATE OR REPLACE FUNCTION bt_bug_revision__new(
+   p_bug_revision_id integer,
+   p_bug_id integer,
+   p_component_id integer,
+   p_found_in_version integer,
+   p_fix_for_version integer,
+   p_fixed_in_version integer,
+   p_resolution varchar,
+   p_user_agent varchar,
+   p_summary varchar,
+   p_creation_date timestamptz,
+   p_creation_user integer,
+   p_creation_ip varchar
+) RETURNS int AS $$
+DECLARE
 
     v_revision_id               integer;
-begin
+BEGIN
     -- create the initial revision
     v_revision_id := content_revision__new(
         p_summary,              -- title
@@ -616,26 +639,34 @@ begin
     update acs_objects set title = bt_bug__name(p_bug_id) where object_id = p_bug_id;
 
     return v_revision_id;
-end;
-' language 'plpgsql';
+END;
+
+$$ LANGUAGE plpgsql;
 
 
-create or replace function bt_bug__name(
-   integer                      -- bug_id
-) returns varchar
-as '
-declare
-   p_bug_id                 alias for $1;
+
+
+-- added
+select define_function_args('bt_bug__name','bug_id');
+
+--
+-- procedure bt_bug__name/1
+--
+CREATE OR REPLACE FUNCTION bt_bug__name(
+   p_bug_id integer
+) RETURNS varchar AS $$
+DECLARE
    v_name                     varchar;
-begin
-   select ''Bug #''||bug_number||'': ''||summary 
+BEGIN
+   select 'Bug #'||bug_number||': '||summary 
           into v_name 
    from bt_bugs 
    where bug_id = p_bug_id;
 
    return v_name;
-end;
-' language 'plpgsql';
+END;
+
+$$ LANGUAGE plpgsql;
 
 
 create table bt_user_prefs (
@@ -724,39 +755,36 @@ select acs_object_type__create_type (
 );
 
 
-create or replace function bt_patch__new(
-    integer,     -- patch_id
-    integer,     -- project_id
-    integer,     -- component_id
-    text,        -- summary
-    text,        -- description
-    text,        -- description_format
-    text,        -- content
-    integer,     -- generated_from_version
-    integer,     -- creation_user
-    varchar      -- creation_ip
-) returns int
-as '
-declare
-    p_patch_id                    alias for $1;
-    p_project_id                  alias for $2;
-    p_component_id                alias for $3;
-    p_summary                     alias for $4;
-    p_description                 alias for $5;
-    p_description_format          alias for $6;
-    p_content                     alias for $7;
-    p_generated_from_version      alias for $8;
-    p_creation_user               alias for $9;
-    p_creation_ip                 alias for $10;
+
+
+-- added
+select define_function_args('bt_patch__new','patch_id,project_id,component_id,summary,description,description_format,content,generated_from_version,creation_user,creation_ip');
+
+--
+-- procedure bt_patch__new/10
+--
+CREATE OR REPLACE FUNCTION bt_patch__new(
+   p_patch_id integer,
+   p_project_id integer,
+   p_component_id integer,
+   p_summary text,
+   p_description text,
+   p_description_format text,
+   p_content text,
+   p_generated_from_version integer,
+   p_creation_user integer,
+   p_creation_ip varchar
+) RETURNS int AS $$
+DECLARE
 
     v_patch_id                    integer;
     v_patch_number                integer;
     v_action_id                 integer;
-begin
+BEGIN
 
     v_patch_id := acs_object__new(
         p_patch_id,             -- object_id
-        ''bt_patch'',           -- object_type
+        'bt_patch',           -- object_type
         current_timestamp,      -- creation_date
         p_creation_user,        -- creation_user
         p_creation_ip,          -- creation_ip
@@ -789,47 +817,62 @@ begin
 
     update acs_objects set title = bt_patch__name(v_patch_id) where object_id = v_patch_id;
 
-    select nextval(''t_acs_object_id_seq'') 
+    select nextval('t_acs_object_id_seq') 
     into   v_action_id;
 
     insert into bt_patch_actions
         (action_id, patch_id, action, actor, comment_text, comment_format)
      values
-        (v_action_id, v_patch_id, ''open'', p_creation_user, p_description, p_description_format);
+        (v_action_id, v_patch_id, 'open', p_creation_user, p_description, p_description_format);
 
     return v_patch_id;
-end;
-' language 'plpgsql';
+END;
 
-create or replace function bt_patch__name(
-   integer                      -- patch_id
-) returns varchar
-as '
-declare
-   p_patch_id                 alias for $1;
+$$ LANGUAGE plpgsql;
+
+
+
+-- added
+select define_function_args('bt_patch__name','patch_id');
+
+--
+-- procedure bt_patch__name/1
+--
+CREATE OR REPLACE FUNCTION bt_patch__name(
+   p_patch_id integer
+) RETURNS varchar AS $$
+DECLARE
    v_name                     varchar;
-begin
-   select ''Patch #''||patch_number||'': ''||summary
+BEGIN
+   select 'Patch #' || patch_number || ': ' || summary
    into   v_name
    from   bt_patches
    where  patch_id = p_patch_id;
 
    return v_name;
-end;
-' language 'plpgsql';
+END;
 
-create or replace function bt_patch__delete(
-   integer                      -- patch_id
-) returns integer
-as '
-declare
-    p_patch_id              alias for $1;
-begin
+$$ LANGUAGE plpgsql;
+
+
+
+-- added
+select define_function_args('bt_patch__delete','patch_id');
+
+--
+-- procedure bt_patch__delete/1
+--
+CREATE OR REPLACE FUNCTION bt_patch__delete(
+   p_patch_id integer
+) RETURNS integer AS $$
+DECLARE
+BEGIN
     perform acs_object__delete(p_patch_id);
 
     return 0;
-end;
-' language 'plpgsql';
+END;
+
+$$ LANGUAGE plpgsql;
 
 -- There is a many to many relationship between patches and bugs
 create table bt_patch_bug_map (
