@@ -130,14 +130,14 @@ in which the bug has been fixed has actually shipped. We won&#39;t
 go there in this version of the bug-tracker.</p>
 <p>The RESOLUTION code to one of the following:</p>
 <ul>
-<li>Fixed</li><li>By design</li><li>Won&#39;t fix</li><li>Postponed</li><li>Duplicate</li><li>Not reproducable</li>
+<li>Fixed</li><li>By design</li><li>Won&#39;t fix</li><li>Postponed</li><li>Duplicate</li><li>Not reproducible</li>
 </ul>
 
 Again, BugZilla is more rigorous than most: They have an
 "invalid" resolution step, with the comment "the
 problem described is not a bug". I don&#39;t think we need
 this -- if it&#39;s not a bug, tell us what it is: By design, not
-reproducable, or some other reason?
+reproducible, or some other reason?
 <h3>Other Bug Classifications</h3>
 <h4>Type of bug (hard-coded)</h4>
 <ul>

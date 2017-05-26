@@ -1309,7 +1309,7 @@ ad_proc bug_tracker::project_delete { project_id } {
 
     @author Peter Marklund
 } {
-    #manually delete all bugs to avoid wierd integrity constraints
+    #manually delete all bugs to avoid weird integrity constraints
     while { [set bug_id [db_string min_bug_id {}]] > 0 } {
         bug_tracker::bug::delete $bug_id
     }
