@@ -6,7 +6,7 @@
 
 <p>
 
-<if @admin_p@>
+<if @admin_p;literal@ true>
   #bug-tracker.Please_visit_admin_page#
 </if>
 <else>

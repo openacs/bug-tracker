@@ -1,4 +1,4 @@
-<if @versions_p@ true>
+<if @versions_p;literal@ true>
   <div class="bt_navbar" style="clear: right; float: right; padding: 4px; background-color: #41329c; text-align: center;">
 
     <if @user_id@ ne 0>

@@ -67,7 +67,7 @@ ad_form \
             set old_filename [content::item::get_title -item_id $related_object_id -is_live t]
 
             # prevent cross-site scripting
-            set description [ad_html_to_text -showtags -no_format $description]
+            set description [ad_html_to_text -showtags -no_format -- $description]
             
             content::revision::new \
                 -item_id $related_object_id \

@@ -5,7 +5,7 @@
     <input name="bug_number" type="text" size="5" class="bt_navbar" placeholder="@pretty_names.Bug@ #">
     <input type="submit" value="Go" class="bt_navbar_btn">
   </form>
-  <if @search_mounted_p@>
+  <if @search_mounted_p;literal@ true>
       <form action="@form_search_url@" method="get" name="search">
         <input name="q" type="text" size="15" class="bt_navbar" placeholder="#bug-tracker.Search#">
         <input name="search_package_id" type="hidden" value="@package_id@">

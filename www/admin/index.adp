@@ -4,7 +4,7 @@
 
 <blockquote>
 
-<if @bugs_exist_p@ false>
+<if @bugs_exist_p;literal@ false>
   <div style="background-color: #ccccff; padding: 12px; border: dashed 1px #6666ff;">
     <p>
       <b>#bug-tracker.This_is_a_new_project#</b>
@@ -58,7 +58,7 @@
     </td>
   </tr>
 
-  <if @versions_p@ true>
+  <if @versions_p;literal@ true>
     <tr bgcolor="#cccccc">
       <td colspan="3">
         #bug-tracker.Versions#

@@ -17,7 +17,7 @@
 
 <if @enabled_action_id@ nil>
   <div style="font-size: 75%;" align="right">
-    <if @user_agent_p@ false>
+    <if @user_agent_p;literal@ false>
       (<a href="@show_user_agent_url@">#bug-tracker.show_user_agent#</a>)
     </if>
     <else>

@@ -6,7 +6,7 @@
   <i>#bug-tracker.This_project_is_empty#</i>
 </p>
 
-<if @admin_p@ true>
+<if @admin_p;literal@ true>
   <p>
     <b>&raquo;</b> <a href="admin/">#bug-tracker.Project_administration#</a>
   </p>

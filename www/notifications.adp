@@ -16,7 +16,7 @@
       <tr class="bt_listing_even">
     </else>
       <td align="center" class="bt_listing_narrow">
-        <if @notifications.subscribed_p@ true>
+        <if @notifications.subscribed_p;literal@ true>
           <b>&raquo;</b>
         </if>
         <else>
@@ -27,12 +27,12 @@
         @notifications.label@
       </td>
       <td class="bt_listing">
-        <if @notifications.subscribed_p@ false>
+        <if @notifications.subscribed_p;literal@ false>
           <a href="@notifications.url@" title="@notifications.title@">#bug-tracker.Subscribe#</a>
         </if>
       </td>
       <td class="bt_listing">
-        <if @notifications.subscribed_p@ true>
+        <if @notifications.subscribed_p;literal@ true>
           <a href="@notifications.url@" title="@notifications.title@">#bug-tracker.Unsubscribe#</a>
         </if>
       </td>

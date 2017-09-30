@@ -65,7 +65,7 @@ ad_form \
                                  -upload_file $upload_file]
 
             # prevent cross-site scripting
-            set description [ad_html_to_text -showtags -no_format $description]
+            set description [ad_html_to_text -showtags -no_format -- $description]
             db_dml update_revision_description {}
 
             set target_object_id [content::revision::item_id -revision_id $revision_id]

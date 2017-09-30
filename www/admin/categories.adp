@@ -52,9 +52,9 @@
           </else>
             <td>&nbsp;</td>
             <td class="bt_listing">
-              <if @categories.default_p@ true><b></if>
+              <if @categories.default_p;literal@ true><b></if>
               @categories.child_heading@
-              <if @categories.default_p@ true></b></if>
+              <if @categories.default_p;literal@ true></b></if>
             </td>
             <td class="bt_listing">
               <if @categories.num_bugs@ gt 0>
@@ -65,7 +65,7 @@
               </else>
             </td>
             <td class="bt_listing" align="center">
-              <if @categories.default_p@ true><b>*</b></if>
+              <if @categories.default_p;literal@ true><b>*</b></if>
               <if @categories.set_default_url@ not nil><a href="@categories.set_default_url@">#bug-tracker.set#</a></if>
             </td>
             <td class="bt_listing" align="center">
