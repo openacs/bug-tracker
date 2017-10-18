@@ -4,8 +4,8 @@
 <master>
 <h2>Bug-tracker Specification</h2>
 
-By <a href="http://pinds.com/lars/">Lars Pind</a>
-.
+By <a href="https://www.linkedin.com/in/truecalvin">Calvin Correli, former known as Lars Pind</a>.
+
 <h3>Overview</h3>
 
 The bug-tracker will be a software tool for tracking bugs and
