@@ -352,10 +352,9 @@
 
   <fullquery name="bug_tracker::bugs_exist_p_not_cached.select_bugs_exist_p">      
       <querytext>
-        select 1 
+        select 1 from dual where exists (select 1 
         from  bt_bugs 
-        where project_id = :package_id 
-        limit 1
+        where project_id = :package_id)
       </querytext>
   </fullquery>
 
