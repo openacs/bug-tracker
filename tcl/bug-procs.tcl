@@ -323,12 +323,8 @@ ad_proc bug_tracker::bug::delete { bug_id } {
 
     set case_id [db_string get_case_id {}]
     db_exec_plsql delete_bug_case {}
-    set notifications [db_list get_notifications {}]
-    foreach notification_id $notifications {
-        db_exec_plsql delete_notification {}
-    }
-    db_dml unset_revisions {}
-    db_exec_plsql delete_cr_item {}
+
+    content::item::delete -item_id $bug_id
 }
 
 
@@ -996,14 +992,12 @@ ad_proc bug_tracker::bug::get_query {
 
     # Needed to handle ordering by categories
     set from_bug_clause "bt_bugs b"
-    set orderby_category_where_clause {}
     
     # Lars: This is a little hack because we actually need to alter the query to sort by category
     # but list builder currently doesn't support that.
 
     if { [info exists orderby] && [regexp {^category_(.*),.*$} $orderby match orderby_parent_id] } {
         append from_bug_clause [db_map orderby_category_from_bug_clause]
-        set orderby_category_where_clause [db_map orderby_category_where_clause]
 
         # Branimir: The ORDER BY clause needs to be at the very end of the
         # query. That also means that we need to have in the select list every
