@@ -62,5 +62,37 @@ select content from bt_patches where patch_number = :patch_number and project_id
           where action_id=:action_id and case_id=:case_id
       </querytext>
 </fullquery>
-  
+
+<fullquery name="patch">
+  <querytext>
+     select bt_patches.patch_id,
+            bt_patches.patch_number,
+            bt_patches.project_id,
+            bt_patches.component_id,
+            bt_patches.summary,
+            bt_patches.content,
+            bt_patches.generated_from_version,
+            bt_patches.apply_to_version,
+            bt_patches.applied_to_version,
+            bt_patches.status,
+            bt_components.component_name,
+            acs_objects.creation_user as submitter_user_id,
+            submitter.first_names as submitter_first_names,
+            submitter.last_name as submitter_last_name,
+            submitter.email as submitter_email,
+            acs_objects.creation_date,
+            to_char(acs_objects.creation_date, 'YYYY-MM-DD HH24:MI:SS') as creation_date_pretty,
+            to_char(current_timestamp, 'YYYY-MM-DD HH24:MI:SS') as now_pretty
+     from bt_patches,
+          acs_objects,
+          acs_users_all submitter,
+          bt_components
+     where bt_patches.patch_number = :patch_number
+       and bt_patches.project_id = :package_id
+       and bt_patches.patch_id = acs_objects.object_id
+       and bt_patches.component_id = bt_components.component_id
+       and submitter.user_id = acs_objects.creation_user
+  </querytext>
+</fullquery>
+
 </queryset>
