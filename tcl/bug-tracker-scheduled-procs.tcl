@@ -10,7 +10,7 @@ ad_library {
     @cvs-id $Id$
 }
 
-namespace eval bug_tacker {}
+namespace eval bug_tracker {}
 namespace eval bug_tracker::scheduled {}
 
 ad_proc -public bug_tracker::scheduled::close_bugs {
