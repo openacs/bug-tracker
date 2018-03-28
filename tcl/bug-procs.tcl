@@ -1001,7 +1001,7 @@ ad_proc bug_tracker::bug::get_query {
 
         # Branimir: The ORDER BY clause needs to be at the very end of the
         # query. That also means that we need to have in the select list every
-        # column we want to order by.  Which colums we can afford to have in
+        # column we want to order by.  Which columns we can afford to have in
         # the select list depends on which tables are we joining against.  BTW,
         # all these kludges are consequence of the initial (bad, IMHO) decision
         # to do the joins against cr_keywords in memory rather then in SQL.
