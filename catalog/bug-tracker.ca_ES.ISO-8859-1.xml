@@ -127,7 +127,7 @@
   <msg key="No_user_in_database">No s'ha pogut trobar l'usuari en la base de dades</msg>
   <msg key="None">Cap </msg>
   <msg key="Not_logged_in">No esteu registrat. Per a tindre més opcions, &lt;a href=&quot;%login_url%&quot;&gt;registreu-vos ara&lt;/a&gt;.</msg>
-  <msg key="Not_Reproducable">No reproduïble </msg>
+  <msg key="Not_Reproducible">No reproduïble </msg>
   <msg key="Notification">marcador</msg>
   <msg key="Notifications">Notificacions</msg>
   <msg key="Notifications_for">Notificacions per a</msg>

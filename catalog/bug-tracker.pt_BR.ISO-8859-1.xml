@@ -125,7 +125,7 @@
   <msg key="No_user_in_database">Não foi possível localizar o usuário no banco de dados</msg>
   <msg key="None">Nenhum</msg>
   <msg key="Not_logged_in">você não está na sua sessão. Para mais opções, &lt;a href=&quot;%login_url%&quot;&gt; entre na sua sessão agora &lt;/a&gt;.</msg>
-  <msg key="Not_Reproducable">Não Reproduzível</msg>
+  <msg key="Not_Reproducible">Não Reproduzível</msg>
   <msg key="Notification">marcação</msg>
   <msg key="Notifications">Notificações</msg>
   <msg key="Notifications_for">Notificações para</msg>

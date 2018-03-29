@@ -154,7 +154,7 @@
   <msg key="No_user_in_database">Couldn't find user in database</msg>
   <msg key="None">None</msg>
   <msg key="Not_logged_in">You're not logged in. For more options, &lt;a href=&quot;%login_url%&quot;&gt;log in now&lt;/a&gt;.</msg>
-  <msg key="Not_Reproducable">Not Reproducable</msg>
+  <msg key="Not_Reproducible">Not Reproducible</msg>
   <msg key="Notification">tag</msg>
   <msg key="Notifications">Notifications</msg>
   <msg key="Notifications_for">Notifications for</msg>

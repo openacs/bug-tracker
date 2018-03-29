@@ -128,7 +128,7 @@
   <msg key="No_user_in_database">No se encuentra el usuario en la basde de datos</msg>
   <msg key="None">Ninguno</msg>
   <msg key="Not_logged_in">No ha entrado. Para más opciones, &lt;a href=&quot;%login_url%&quot;&gt;entrar ahora&lt;/a&gt;.</msg>
-  <msg key="Not_Reproducable">No reproducible</msg>
+  <msg key="Not_Reproducible">No reproducible</msg>
   <msg key="Notification">etiqueta</msg>
   <msg key="Notifications">Notificaciones</msg>
   <msg key="Notifications_for">Notificaciones para</msg>

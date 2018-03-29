@@ -393,7 +393,7 @@ ad_proc bug_tracker::resolution_get_options {} {
              [list [_ bug-tracker.Wont_Fix] wontfix ] \
              [list [_ bug-tracker.Postponed] postponed ] \
              [list [_ bug-tracker.Duplicate] duplicate ] \
-             [list [_ bug-tracker.Not_Reproducable] norepro ] \
+             [list [_ bug-tracker.Not_Reproducible] norepro ] \
              [list [_ bug-tracker.Need_Info] needinfo ] \
             ]
 
@@ -408,7 +408,7 @@ ad_proc bug_tracker::resolution_pretty {
         wontfix bug-tracker.Wont_Fix
         postponed bug-tracker.Postponed
         duplicate bug-tracker.Duplicate
-        norepro bug-tracker.Not_Reproducable
+        norepro bug-tracker.Not_Reproducible
         needinfo bug-tracker.Need_Info
     }
     if { [info exists resolution_codes($resolution)] } {

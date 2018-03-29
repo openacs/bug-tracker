@@ -127,7 +127,7 @@
   <msg key="No_user_in_database">Kan gebruiker niet in database vinden</msg>
   <msg key="None">Geen</msg>
   <msg key="Not_logged_in">U bent niet ingelogd. Voor meer opties, &lt;a href=&quot;%login_url%&quot;&gt;kunt u nu inloggen&lt;/a&gt;.</msg>
-  <msg key="Not_Reproducable">Niet reproduceerbaar</msg>
+  <msg key="Not_Reproducible">Niet reproduceerbaar</msg>
   <msg key="Notification">markering</msg>
   <msg key="Notifications">Kennisgevingen</msg>
   <msg key="Notifications_for">Kennisgevingen voor</msg>

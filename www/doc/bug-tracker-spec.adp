@@ -90,7 +90,7 @@ though.</li><li>Patches: This is a must-have, but not for the initial
 release.</li><li>We&#39;re not going to use workflow. We want the UI to be just
 right, so we won&#39;t let workflow get in the way. We do want to
 use this bug-tracker as a prime driver for getting ACS workflow
-finsihed, the way it was originally intended to.</li><li>We&#39;re not going to let you define your own status,
+finished, the way it was originally intended to.</li><li>We&#39;re not going to let you define your own status,
 resolution, or other codes, because integrating custom codes with
 the UI is hard, and we emphasize usability over flexibility in this
 release.</li><li>We&#39;re not going to include triage (before-resolution) or QA
