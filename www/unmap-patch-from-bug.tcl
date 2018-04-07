@@ -15,7 +15,7 @@ set user_id [ad_conn user_id]
 set write_p [permission::permission_p -object_id $package_id -privilege write]
 set user_is_submitter_p [expr {$user_id == [bug_tracker::get_patch_submitter -patch_number $patch_number]}]
 
-if { ![expr {$user_is_submitter_p || $write_p}] } {            
+if { !($user_is_submitter_p || $write_p) } {            
     ad_return_forbidden "[_ bug-tracker.Permission]" "[_ bug-tracker.You_7]"            
     ad_script_abort
 }

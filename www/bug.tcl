@@ -466,7 +466,7 @@ if { ![form is_valid bug] } {
             set prev_bug_number [lindex $filter_bug_numbers $filter_bug_index-1]
             set prev_url [export_vars -base bug -entire_form -override { { bug_number $prev_bug_number } }]
         }
-        if { $filter_bug_index < [expr {[llength $filter_bug_numbers]-1}] } {
+        if { $filter_bug_index < [llength $filter_bug_numbers]-1 } {
             set next_bug_number [lindex $filter_bug_numbers $filter_bug_index+1]
             set next_url [export_vars -base bug -entire_form -override { { bug_number $next_bug_number } }]
             set last_bug_number [lindex $filter_bug_numbers end]

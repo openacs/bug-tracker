@@ -98,7 +98,7 @@ if { ![info exists mode] } {
 # And check that the user is permitted to take the chosen action
 switch -- $mode {
     edit {
-        if { ![expr {$write_p || $user_is_submitter_p}] } {
+        if { !($write_p || $user_is_submitter_p) } {
             ad_return_forbidden "[_ bug-tracker.Permission]" "[_ bug-tracker.You_2]"
             ad_script_abort
         }
