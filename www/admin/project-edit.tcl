@@ -38,7 +38,7 @@ ad_form -name project -cancel_url $return_url -form {
 
         bug_tracker::set_project_name $name
     }
-    site_nodes_sync
+    site_node::init_cache
     bug_tracker::get_project_info_flush
 } -after_submit {
     ad_returnredirect $return_url
