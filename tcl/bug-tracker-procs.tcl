@@ -1188,7 +1188,7 @@ ad_proc bug_tracker::get_bug_links {
     set bug_list [get_mapped_bugs -patch_number $patch_number]
     set bug_link_list [list]
 
-    if { [llength $bug_list] == "0"} {
+    if { [llength $bug_list] == 0} {
         return ""
     } else {
         

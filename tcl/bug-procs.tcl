@@ -922,7 +922,7 @@ ad_proc bug_tracker::bug::get_list {
     set bulk_actions {}
     if { !$no_bulk_actions_p } {
         foreach action_id [workflow::get_actions -workflow_id $workflow_id] {
-            if {[lsearch $enabled_actions_for_this_state $action_id] != -1} {
+            if {$action_id in $enabled_actions_for_this_state} {
                 # this particular action is enabled
                 # add to bulk actions
                 workflow::action::get -action_id $action_id -array bulk_action_array_info

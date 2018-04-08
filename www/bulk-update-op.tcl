@@ -79,7 +79,7 @@ foreach one_bug_id $bug_id {
                 
         # check cached list first
         set action_id_list [workflow::case::get_enabled_actions -case_id $case_id]
-        if {[lsearch $action_id_list $action_id] != -1} {
+        if {$action_id in $action_id_list} {
             set enabled_action_id [workflow::case::action::get_enabled_action_id \
                                        -case_id $case_id \
                                        -action_id $action_id \
@@ -162,7 +162,7 @@ ad_form -extend -name bug -form {
                              -workflow_short_name [bug_tracker::bug::workflow_short_name]]
             
             set action_id_list [workflow::case::get_enabled_actions -case_id $case_id]
-            if {[lsearch $action_id_list $action_id] != -1} {
+            if {$action_id in $action_id_list} {
                 set enabled_action_id [workflow::case::action::get_enabled_action_id \
                                            -case_id $case_id \
                                            -action_id $action_id \
@@ -209,7 +209,7 @@ if { ![form is_valid bug] } {
     }
     
     foreach field $all_fields {
-        if {[lsearch $present_fields $field] == -1 || $dummy_case_id eq ""} {
+        if {$field ni $present_fields || $dummy_case_id eq ""} {
             element set_properties bug $field -widget hidden
         }
     }
