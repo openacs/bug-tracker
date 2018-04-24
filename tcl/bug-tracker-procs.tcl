@@ -32,7 +32,7 @@ ad_proc bug_tracker::conn { args } {
                 return $bt_conn($var)
             } else {
                 switch -- $var {
-                    bug - bugs - Bug - Bugs - 
+                    bug - bugs - Bug - Bugs -
                     component - components - Component - Components -
                     patch - patches - Patch - Patches {
                         if { ![info exists bt_conn($var)] } {
@@ -40,8 +40,8 @@ ad_proc bug_tracker::conn { args } {
                         }
                         return $bt_conn($var)
                     }
-                    project_name - project_description - 
-                    project_root_keyword_id - project_folder_id - 
+                    project_name - project_description -
+                    project_root_keyword_id - project_folder_id -
                     current_version_id - current_version_name {
                         array set info [get_project_info]
                         foreach name [array names info] {
@@ -60,9 +60,9 @@ ad_proc bug_tracker::conn { args } {
                             return $bt_conn($var)
                         }
                     }
-                    component_id - 
-                    filter - filter_human_readable - 
-                    filter_where_clauses - 
+                    component_id -
+                    filter - filter_human_readable -
+                    filter_where_clauses -
                     filter_order_by_clause - filter_from_bug_clause {
                         return {}
                     }
@@ -79,7 +79,7 @@ ad_proc bug_tracker::conn { args } {
     }
 }
 
-ad_proc bug_tracker::get_pretty_names { 
+ad_proc bug_tracker::get_pretty_names {
     -array:required
     {-package_id ""}
 } {
@@ -112,11 +112,11 @@ ad_proc bug_tracker::get_bug_id {
 }
 
 
-ad_proc bug_tracker::get_page_variables { 
+ad_proc bug_tracker::get_page_variables {
     {extra_spec ""}
 } {
     Adds the bug listing filter variables for use in the page contract.
-    
+
     ad_page_contract { doc } [bug_tracker::get_page_variables { foo:integer { bar "" } }]
 } {
     set filter_vars {
@@ -125,7 +125,7 @@ ad_proc bug_tracker::get_page_variables {
         f_fix_for_version:integer,optional
         f_component:integer,optional
         orderby:token,optional
-	project_id:naturalnum,optional
+        project_id:naturalnum,optional
         {format:word "table"}
     }
     foreach { parent_id parent_heading } [bug_tracker::category_types] {
@@ -138,7 +138,7 @@ ad_proc bug_tracker::get_page_variables {
     return [concat $filter_vars $extra_spec]
 }
 
-ad_proc bug_tracker::get_export_variables { 
+ad_proc bug_tracker::get_export_variables {
     {-package_id ""}
     {extra_vars ""}
 } {
@@ -170,14 +170,14 @@ ad_proc bug_tracker::get_export_variables {
 #####
 #
 # Cached project info procs
-# 
+#
 #####
 
 ad_proc bug_tracker::get_project_info_internal {
     package_id
 } {
     db_1row project_info {} -column_array result
-    
+
     return [array get result]
 }
 
@@ -208,13 +208,13 @@ ad_proc bug_tracker::set_project_name {
     if { $package_id eq "" } {
         set package_id [ad_conn package_id]
     }
-    
+
     db_dml project_name_update {}
-    
+
     # Flush cache
     util_memoize_flush [list bug_tracker::get_project_info_internal $package_id]]
 }
-   
+
 
 
 #####
@@ -222,7 +222,7 @@ ad_proc bug_tracker::set_project_name {
 # Stats procs
 #
 #####
- 
+
 
 ad_proc -public bug_tracker::bugs_exist_p {
     {-package_id {}}
@@ -235,7 +235,7 @@ ad_proc -public bug_tracker::bugs_exist_p {
 
     return [util_memoize [list bug_tracker::bugs_exist_p_not_cached -package_id $package_id]]
 }
-    
+
 ad_proc -public bug_tracker::bugs_exist_p_set_true {
     {-package_id {}}
 } {
@@ -247,7 +247,7 @@ ad_proc -public bug_tracker::bugs_exist_p_set_true {
 
     return [util_memoize_seed [list bug_tracker::bugs_exist_p_not_cached -package_id $package_id] 1]
 }
-    
+
 ad_proc -public bug_tracker::bugs_exist_p_not_cached {
     -package_id:required
 } {
@@ -255,9 +255,9 @@ ad_proc -public bug_tracker::bugs_exist_p_not_cached {
 } {
     return [db_string select_bugs_exist_p {} -default 0]
 }
-    
-    
-    
+
+
+
 #####
 #
 # Cached user prefs procs
@@ -313,8 +313,8 @@ ad_proc bug_tracker::get_user_prefs_flush {
 
     util_memoize_flush [list bug_tracker::get_user_prefs_internal $package_id $user_id]
 }
-    
-    
+
+
 #####
 #
 # Status
@@ -349,7 +349,7 @@ ad_proc bug_tracker::status_pretty {
     }
 
     workflow::state::fsm::get -state_id $state_id -array state
-    
+
     return $state(pretty_name)
 }
 
@@ -369,7 +369,7 @@ ad_proc bug_tracker::patch_status_pretty {
     array set status_codes {
         open      bug-tracker.Open
         accepted  bug-tracker.Accepted
-        refused   bug-tracker.Refused 
+        refused   bug-tracker.Refused
         deleted   bug-tracker.Deleted
     }
     if { [info exists status_codes($status)] } {
@@ -454,11 +454,8 @@ ad_proc bug_tracker::category_heading {
     -keyword_id:required
 } {
     foreach elm [get_keywords -package_id $package_id] {
-        set child_id [lindex $elm 0]
-        set child_heading [lindex $elm 1]
-        set parent_id [lindex $elm 2]
-        set parent_heading [lindex $elm 3]
- 
+        lassign $elm child_id child_heading parent_id parent_heading
+
         if { $child_id == $keyword_id } {
             return $child_heading
         } elseif { $parent_id == $keyword_id } {
@@ -475,21 +472,18 @@ ad_proc bug_tracker::category_types {
 } {
     array set heading [list]
     set parent_ids [list]
-    
+
     set last_parent_id {}
     foreach elm [get_keywords -package_id $package_id] {
-        set child_id [lindex $elm 0]
-        set child_heading [lindex $elm 1]
-        set parent_id [lindex $elm 2]
-        set parent_heading [lindex $elm 3]
- 
+        lassign $elm child_id child_heading parent_id parent_heading
+
         if { $parent_id != $last_parent_id } {
             set heading($parent_id) $parent_heading
             lappend parent_ids $parent_id
             set last_parent_id $parent_id
         }
     }
-    
+
     set result [list]
     foreach parent_id $parent_ids {
         lappend result $parent_id $heading($parent_id)
@@ -541,10 +535,8 @@ ad_proc bug_tracker::category_get_options {
 } {
     set options [list]
     foreach elm [get_keywords -package_id $package_id] {
-        set elm_child_id [lindex $elm 0]
-        set elm_child_heading [lindex $elm 1]
-        set elm_parent_id [lindex $elm 2]
- 
+        lassign $elm elm_child_id elm_child_heading elm_parent_id
+
         if { $elm_parent_id == $parent_id } {
             lappend options [list $elm_child_heading $elm_child_id]
         }
@@ -594,14 +586,14 @@ ad_proc -public bug_tracker::set_default_keyword {
         set package_id [ad_conn package_id]
     }
 
-    db_dml delete_existing { 
+    db_dml delete_existing {
         delete
-        from   bt_default_keywords 
-        where  project_id = :package_id 
+        from   bt_default_keywords
+        where  project_id = :package_id
         and    parent_id = :parent_id
     }
-    
-    db_dml insert_new { 
+
+    db_dml insert_new {
         insert into bt_default_keywords (project_id, parent_id, keyword_id)
         values (:package_id, :parent_id, :keyword_id)
     }
@@ -625,7 +617,7 @@ ad_proc -public bug_tracker::get_default_keyword_flush {
     {-package_id ""}
     {-parent_id:required}
 } {
-    Flush the cache for 
+    Flush the cache for
 } {
     if { $package_id eq "" } {
         set package_id [ad_conn package_id]
@@ -641,7 +633,7 @@ ad_proc -private bug_tracker::get_default_keyword_not_cached {
 } {
     Get the default keyword for a given type (parent), not cached.
 } {
-    return [db_string default { 
+    return [db_string default {
         select keyword_id
         from   bt_default_keywords
         where  project_id = :package_id
@@ -666,7 +658,7 @@ ad_proc -public bug_tracker::get_default_configurations {} {
                     "[_ bug-tracker.Prio_Norm_Cat]" \
                     "[_ bug-tracker.Prio_Low_Cat]" \
                 ] \
-		"[_ bug-tracker.Severity]" [list \
+                "[_ bug-tracker.Severity]" [list \
                     "[_ bug-tracker.Sev_Critical_Cat]" \
                     "[_ bug-tracker.Sev_Major_Cat]" \
                     "[_ bug-tracker.Sev_Normal_Cat]" \
@@ -700,30 +692,30 @@ ad_proc -public bug_tracker::get_default_configurations {} {
                 TicketPrettyPlural "tickets"
                 ComponentPrettyName "area"
                 ComponentPrettyPlural "areas"
-                PatchesP "0" 
+                PatchesP "0"
                 VersionsP "0"
                 RelatedFilesP "1"
             } \
         ] \
         [_ bug-tracker.Support_Center] [list \
-	    categories [list \
-		"[_ bug-tracker.Message_Type]" [list \
+            categories [list \
+                "[_ bug-tracker.Message_Type]" [list \
                     "[_ bug-tracker.Support_Problem]" \
                     "[_ bug-tracker.Support_Suggestion]" \
                     "[_ bug-tracker.Support_Error]" \
                 ] \
-    	        "[_ bug-tracker.Priority]" [list \
-	            "[_ bug-tracker.Prio_High_Cat]" \
-		    "[_ bug-tracker.Prio_Norm_Cat]" \
-		    "[_ bug-tracker.Prio_Low_Cat]" \
-		] \
+                "[_ bug-tracker.Priority]" [list \
+                    "[_ bug-tracker.Prio_High_Cat]" \
+                    "[_ bug-tracker.Prio_Norm_Cat]" \
+                    "[_ bug-tracker.Prio_Low_Cat]" \
+                ] \
             ] \
             parameters {
                 TicketPrettyName "message"
                 TicketPrettyPlural "messages"
                 ComponentPrettyName "area"
                 ComponentPrettyPlural "areas"
-                PatchesP "0" 
+                PatchesP "0"
                 VersionsP "0"
                 RelatedFilesP "1"
             } \
@@ -753,7 +745,7 @@ ad_proc -public bug_tracker::install_keywords_setup {
     -spec:required
 } {
     @param spec is an array-list of { Type1 { cat1 cat2 cat3 } Type2 { cat1 cat2 cat3 } }
-    Default category within type is denoted by letting the name start with a *, 
+    Default category within type is denoted by letting the name start with a *,
     which is removed before creating the keyword.
 } {
     set root_keyword_id [bug_tracker::conn project_root_keyword_id -package_id $package_id]
@@ -762,25 +754,25 @@ ad_proc -public bug_tracker::install_keywords_setup {
         set category_type_id [content::keyword::get_keyword_id \
                                   -parent_id $root_keyword_id \
                                   -heading $category_type]
-        
+
         if { $category_type_id eq "" } {
             set category_type_id [content::keyword::new \
                                       -parent_id $root_keyword_id \
                                       -heading $category_type]
         }
-        
+
         foreach category $categories {
             if {[string index $category 0] eq "*"} {
                 set default_p 1
                 set category [string range $category 1 end]
             } else {
                 set default_p 0
-            }                  
-            
+            }
+
             set category_id [content::keyword::get_keyword_id \
                                  -parent_id $category_type_id \
                                  -heading $category]
-            
+
             if { $category_id eq "" } {
                 set category_id [content::keyword::new \
                                      -parent_id $category_type_id \
@@ -846,33 +838,33 @@ ad_proc bug_tracker::assignee_get_options {
     -include_undecided:boolean
 } {
     Returns an option list containing all users that have submitted or assigned to a bug.
-    Used for the add bug form. Added because the workflow api requires a case_id.  
+    Used for the add bug form. Added because the workflow api requires a case_id.
     (an item to evaluate is refactoring workflow to provide an assignee widget without a case_id)
 } {
-   
+
     set assignee_list [db_list_of_lists assignees {}]
 
     if { $include_unknown_p } {
         set assignee_list [concat { { "Unknown" "" } } $assignee_list]
-    } 
-    
+    }
+
     if { $include_undecided_p } {
         set assignee_list [concat { { "Undecided" "" } } $assignee_list]
-    } 
-    
+    }
+
     return $assignee_list
 }
 
 
 ad_proc bug_tracker::versions_p {
     {-package_id ""}
-} { 
+} {
     Is the versions feature turned on?
 } {
     if { $package_id eq "" } {
         set package_id [ad_conn package_id]
     }
-    
+
     return [parameter::get -package_id $package_id -parameter "VersionsP" -default 1]
 }
 
@@ -886,7 +878,7 @@ ad_proc bug_tracker::version_get_options_not_cached {
     package_id
 } {
     set versions_list [db_list_of_lists versions {}]
-    
+
     return $versions_list
 }
 
@@ -900,8 +892,7 @@ ad_proc bug_tracker::version_get_name {
         return {}
     }
     foreach elm [version_get_options -package_id $package_id] {
-        set name [lindex $elm 0]
-        set id [lindex $elm 1]
+        lassign $elm name id
         if {$id eq $version_id} {
             return $name
         }
@@ -956,8 +947,8 @@ ad_proc bug_tracker::components_get_options {
 
     if { $include_unknown_p } {
         set components_list [concat [list [list "[_ bug-tracker.Unknown]" {} ]] $components_list]
-    } 
-    
+    }
+
     return $components_list
 }
 
@@ -1084,27 +1075,27 @@ ad_proc ::bug_tracker::users_get_options {
     if { $package_id eq "" } {
         set package_id [ad_conn package_id]
     }
-    
+
     set user_id [ad_conn user_id]
-    
+
     # This picks out users who are already assigned to some bug in this
     set sql {
-        select first_names || ' ' || last_name || ' (' || email || ')'  as name, 
+        select first_names || ' ' || last_name || ' (' || email || ')'  as name,
                user_id
         from   cc_users
         where  user_id in (
                       select maintainer
                       from   bt_projects
                       where  project_id = :package_id
-                      
+
                       union
-                      
+
                       select maintainer
                       from   bt_versions
                       where  project_id = :package_id
-                      
+
                       union
-                      
+
                       select maintainer
                       from   bt_components
                       where  project_id = :package_id
@@ -1112,9 +1103,9 @@ ad_proc ::bug_tracker::users_get_options {
         or     user_id = :user_id
         order  by name
     }
-    
+
     set users_list [db_list_of_lists users $sql]
-    
+
     set users_list [concat [list [list [_ bug-tracker.Unassigned] "" ]] $users_list]
     lappend users_list [list [_ bug-tracker.Search] ":search:"]
 
@@ -1128,7 +1119,7 @@ ad_proc ::bug_tracker::users_get_options {
 #
 #####
 
-ad_proc bug_tracker::patches_p {} { 
+ad_proc bug_tracker::patches_p {} {
     Is the patch submission feature turned on?
 } {
     return [parameter::get -package_id [ad_conn package_id] -parameter "PatchesP" -default 1]
@@ -1163,11 +1154,11 @@ ad_proc bug_tracker::get_mapped_bugs {
         set workflow_id [bug_tracker::bug::get_instance_workflow_id]
         set initial_state [workflow::fsm::get_initial_state -workflow_id $workflow_id]
 
-        set open_clause "\n        and exists (select 1 
-                                               from workflow_cases cas, 
-                                                    workflow_case_fsm cfsm 
-                                               where cas.case_id = cfsm.case_id 
-                                                 and cas.object_id = b.bug_id 
+        set open_clause "\n        and exists (select 1
+                                               from workflow_cases cas,
+                                                    workflow_case_fsm cfsm
+                                               where cas.case_id = cfsm.case_id
+                                                 and cas.object_id = b.bug_id
                                                  and cfsm.current_state = :initial_state)"
     } else {
         set open_clause ""
@@ -1191,11 +1182,10 @@ ad_proc bug_tracker::get_bug_links {
     if { [llength $bug_list] == 0} {
         return ""
     } else {
-        
+
         foreach bug_item $bug_list {
 
-            set bug_number [lindex $bug_item 1]
-            set bug_summary [lindex $bug_item 0]
+            lassign $bug_item bug_summary bug_number
 
             set unmap_url [export_vars -base unmap-patch-from-bug -url { patch_number bug_number } ]
             if { $write_or_submitter_p } {
@@ -1204,12 +1194,12 @@ ad_proc bug_tracker::get_bug_links {
                 set unmap_link ""
             }
             lappend bug_link_list "<a href=\"bug?bug_number=$bug_number \">$bug_summary</a> $unmap_link"
-        } 
+        }
 
         if { [llength $bug_link_list] != 0 } {
             set bugs_string [join $bug_link_list "<br>"]
         } else {
-	    set bugs_name [bug_tracker::conn bugs]
+            set bugs_name [bug_tracker::conn bugs]
             set bugs_string [_ bug-tracker.No_Bugs]
         }
 
@@ -1227,17 +1217,17 @@ ad_proc bug_tracker::get_patch_links {
         open {
             set status_where_clause "and bt_patches.status = :show_patch_status"
         }
-	default {
+        default {
             set status_where_clause ""
         }
     }
 
     db_foreach get_patches_for_bug {} {
-        
+
         set status_indicator [ad_decode $show_patch_status "all" "($status)" ""]
         lappend patch_list "<a href=\"patch?patch_number=$patch_number\" title=\"patch $patch_number\">[ns_quotehtml $summary]</a> $status_indicator"
-    } if_no_rows { 
-	set patches_name [bug_tracker::conn patches]
+    } if_no_rows {
+        set patches_name [bug_tracker::conn patches]
         set patches_string [_ bug-tracker.No_patches]
     }
 
@@ -1252,7 +1242,7 @@ ad_proc bug_tracker::get_patch_submitter {
     {-patch_number:required}
 } {
     set package_id [ad_conn package_id]
-    return [db_string patch_submitter_id {}] 
+    return [db_string patch_submitter_id {}]
 }
 
 ad_proc bug_tracker::update_patch_status {
@@ -1264,10 +1254,10 @@ ad_proc bug_tracker::update_patch_status {
 }
 
 ad_proc bug_tracker::get_uploaded_patch_file_content {
-    
+
 } {
     set patch_file [ns_queryget patch_file]
-   
+
     if { $patch_file eq "" } {
         # No patch file was uploaded
         return ""
@@ -1323,22 +1313,22 @@ ad_proc bug_tracker::project_new { project_id } {
 } {
 
     if {![db_0or1row already_there {select 1 from bt_projects where  project_id = :project_id} ] } {
-	if {[db_0or1row instance_info { *SQL* } ]} {
-	    set folder_id [content::folder::new -name "bug_tracker_$project_id" \
+        if {[db_0or1row instance_info { *SQL* } ]} {
+            set folder_id [content::folder::new -name "bug_tracker_$project_id" \
                                                 -package_id $project_id \
                                                 -parent_id $project_id \
                                                 -context_id $project_id]
-	    content::folder::register_content_type -folder_id $folder_id -content_type {bt_bug_revision} -include_subtypes t
+            content::folder::register_content_type -folder_id $folder_id -content_type {bt_bug_revision} -include_subtypes t
             content::folder::register_content_type -folder_id $folder_id -content_type "content_revision"
             content::folder::register_content_type -folder_id $folder_id -content_type "image"
-	    
-	    set keyword_id [content::keyword::new -heading "$instance_name"]
-	    
-	    # Inserts into bt_projects
-	    set component_id [db_nextval acs_object_id_seq]
-	    db_dml bt_projects_insert {}
-	    db_dml bt_components_insert {}
-	}
+
+            set keyword_id [content::keyword::new -heading "$instance_name"]
+
+            # Inserts into bt_projects
+            set component_id [db_nextval acs_object_id_seq]
+            db_dml bt_projects_insert {}
+            db_dml bt_components_insert {}
+        }
     }
 }
 
@@ -1369,7 +1359,7 @@ ad_proc bug_tracker::version_get_filter_data {
                              -package_id $package_id \
                              -user_id $user_id \
                              -admin_p $admin_p \
-                             -user_bugs_only_p $user_bugs_only_p]] 
+                             -user_bugs_only_p $user_bugs_only_p]]
 }
 
 ad_proc bug_tracker::assignee_get_filter_data_not_cached {
@@ -1453,7 +1443,7 @@ ad_proc bug_tracker::state_get_filter_data {
 #
 #####
 
-ad_proc bug_tracker::related_files_p {} { 
+ad_proc bug_tracker::related_files_p {} {
     Is the related files submission feature turned on?
 } {
     return [parameter::get -package_id [ad_conn package_id] -parameter "RelatedFilesP" -default 1]
@@ -1477,24 +1467,24 @@ ad_proc bug_tracker::get_related_files_links {
         set new_version_url [export_vars -base "related-file-update" {bug_id related_object_id return_url}]
         if { ( $related_creation_user == $user_id ) || $admin_p } {
             set extra_actions [subst { |
-		<a href="[ns_quotehtml $new_version_url]">[_ bug-tracker.upload_new_version]</a> |
-		<a href="[ns_quotehtml $delete_url]">[_ bug-tracker.delete]</a>
-	    }]
+                <a href="[ns_quotehtml $new_version_url]">[_ bug-tracker.upload_new_version]</a> |
+                <a href="[ns_quotehtml $delete_url]">[_ bug-tracker.delete]</a>
+            }]
         } else {
             set extra_actions ""
         }
         lappend related_files_list [subst {$related_title
-	    <a href="[ns_quotehtml $view_url]">[_ bug-tracker.download]</a> |
-	    <a href="[ns_quotehtml $properties_url]">[_ bug-tracker.properties]</a>$extra_actions
-	}]
-    } if_no_rows { 
+            <a href="[ns_quotehtml $view_url]">[_ bug-tracker.download]</a> |
+            <a href="[ns_quotehtml $properties_url]">[_ bug-tracker.properties]</a>$extra_actions
+        }]
+    } if_no_rows {
         set related_files_string [_ bug-tracker.No_related_files]
     }
-    
+
     if { [llength $related_files_list] != 0 } {
         set related_files_string [join $related_files_list "<br>"]
     }
-    
+
     return $related_files_string
 }
 
@@ -1504,7 +1494,7 @@ ad_proc bug_tracker::get_related_files_links {
 #
 #####
 
-ad_proc bug_tracker::related_files_p {} { 
+ad_proc bug_tracker::related_files_p {} {
     Is the related files submission feature turned on?
 } {
     return [parameter::get -package_id [ad_conn package_id] -parameter "RelatedFilesP" -default 1]
@@ -1528,24 +1518,24 @@ ad_proc bug_tracker::get_related_files_links {
         set new_version_url [export_vars -base "related-file-update" {bug_id related_object_id return_url}]
         if { ( $related_creation_user == $user_id ) || $admin_p } {
             set extra_actions [subst { |
-		<a href="[ns_quotehtml $new_version_url]">upload new version</a> |
-		<a href="[ns_quotehtml $delete_url]">delete</a>
-	    }]
+                <a href="[ns_quotehtml $new_version_url]">upload new version</a> |
+                <a href="[ns_quotehtml $delete_url]">delete</a>
+            }]
         } else {
             set extra_actions ""
         }
         lappend related_files_list [subst {$related_title
-	    <a href="[ns_quotehtml $view_url]">download</a> |
-	    <a href="[ns_quotehtml $properties_url]">properties</a>$extra_actions
-	}]
-    } if_no_rows { 
+            <a href="[ns_quotehtml $view_url]">download</a> |
+            <a href="[ns_quotehtml $properties_url]">properties</a>$extra_actions
+        }]
+    } if_no_rows {
         set related_files_string [_ bug-tracker.No_related_files]
     }
-    
+
     if { [llength $related_files_list] != 0 } {
         set related_files_string [join $related_files_list "<br>"]
     }
-    
+
     return $related_files_string
 }
 
@@ -1571,18 +1561,18 @@ ad_proc -private bug_tracker::set_access_policy {
     set all_users [db_list get_all_users {}]
     if {$all_bugs_p} {
         set bug_ids [db_list get_all_bugs {}]
-        foreach user_id $all_users {            
-  	    foreach bug_id $bug_ids {
-	        bug_tracker::inherit -bug_id $bug_id -party_id $user_id
-	    }
-        }	
+        foreach user_id $all_users {
+            foreach bug_id $bug_ids {
+                bug_tracker::inherit -bug_id $bug_id -party_id $user_id
+            }
+        }
     } elseif {$user_bugs_p} {
         foreach user_id $all_users {
             set bug_ids [db_list get_user_bugs {}]
             foreach bug_id $bug_ids {
                 bug_tracker::grant_direct_read_permission -bug_id $bug_id -party_id $user_id
             }
-	}
+        }
     }
 
 }

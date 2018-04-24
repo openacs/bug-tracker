@@ -16,7 +16,7 @@ set admin_p [permission::permission_p \
                  -object_id $package_id \
                  -privilege admin]
 
-if { [ad_conn untrusted_user_id] == 0 } { 
+if { [ad_conn untrusted_user_id] == 0 } {
     set create_p 1
 } else {
     set create_p [permission::permission_p \
@@ -27,9 +27,7 @@ if { [ad_conn untrusted_user_id] == 0 } {
 
 bug_tracker::get_pretty_names -array pretty_names
 
-set notification_url [lindex $notification_link 0]
-set notification_label [lindex $notification_link 1]
-set notification_title [lindex $notification_link 2]
+lassign $notification_link notification_url notification_label notification_title
 
 # Paches enabled for this project?
 set patches_p [bug_tracker::patches_p]
@@ -73,11 +71,11 @@ if { [ad_conn untrusted_user_id] != 0 } {
 
 if { $patches_p } {
     multirow append links "[bug_tracker::conn Patches]" \
-	[export_vars -no_empty \
-	     -base "[ad_conn package_url]patch-list" {
-		 { status open }
-		 { apply_to_version "[bug_tracker::conn current_version_id]" }
-	     }]
+        [export_vars -no_empty \
+             -base "[ad_conn package_url]patch-list" {
+             { status open }
+             { apply_to_version "[bug_tracker::conn current_version_id]" }
+         }]
 
     if { $create_p } {
         multirow append links "[_ bug-tracker.New] [bug_tracker::conn Patches]" "[ad_conn package_url]patch-add"
