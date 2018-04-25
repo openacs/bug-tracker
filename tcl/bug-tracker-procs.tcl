@@ -331,7 +331,7 @@ ad_proc bug_tracker::status_get_options {
     set workflow_id [bug_tracker::bug::get_instance_workflow_id -package_id $package_id]
     set state_ids [workflow::fsm::get_states -workflow_id $workflow_id]
 
-    set option_list [list]
+    set option_list {}
     foreach state_id $state_ids {
         workflow::state::fsm::get -state_id $state_id -array state
         lappend option_list [list "$state(pretty_name)" $state(short_name)]
@@ -470,8 +470,8 @@ ad_proc bug_tracker::category_types {
     @return Returns the category types for this instance as an
     array-list of { parent_id1 heading1 parent_id2 heading2 ... }
 } {
-    array set heading [list]
-    set parent_ids [list]
+    array set heading {}
+    set parent_ids {}
 
     set last_parent_id {}
     foreach elm [get_keywords -package_id $package_id] {
@@ -484,7 +484,7 @@ ad_proc bug_tracker::category_types {
         }
     }
 
-    set result [list]
+    set result {}
     foreach parent_id $parent_ids {
         lappend result $parent_id $heading($parent_id)
     }
@@ -533,7 +533,7 @@ ad_proc bug_tracker::category_get_options {
     @param parent_id The category type's keyword_id
     @return options-list for a select widget for the given category type
 } {
-    set options [list]
+    set options {}
     foreach elm [get_keywords -package_id $package_id] {
         lassign $elm elm_child_id elm_child_heading elm_parent_id
 
@@ -1147,7 +1147,7 @@ ad_proc bug_tracker::get_mapped_bugs {
     Return a list of lists with the bug number in the first element and the bug
     summary in the second.
 } {
-    set bug_list [list]
+    set bug_list {}
     set package_id [ad_conn package_id]
 
     if { $only_open_p } {
@@ -1177,7 +1177,7 @@ ad_proc bug_tracker::get_bug_links {
     {-write_or_submitter_p:required}
 } {
     set bug_list [get_mapped_bugs -patch_number $patch_number]
-    set bug_link_list [list]
+    set bug_link_list {}
 
     if { [llength $bug_list] == 0} {
         return ""
@@ -1211,7 +1211,7 @@ ad_proc bug_tracker::get_patch_links {
     {-bug_id:required}
     {-show_patch_status open}
 } {
-    set patch_list [list]
+    set patch_list {}
 
     switch -- $show_patch_status {
         open {
@@ -1452,7 +1452,7 @@ ad_proc bug_tracker::related_files_p {} {
 ad_proc bug_tracker::get_related_files_links {
     {-bug_id:required}
 } {
-    set related_files_list [list]
+    set related_files_list {}
     set user_id [ad_conn user_id]
     set admin_p [permission::permission_p \
                      -party_id $user_id \
@@ -1503,7 +1503,7 @@ ad_proc bug_tracker::related_files_p {} {
 ad_proc bug_tracker::get_related_files_links {
     {-bug_id:required}
 } {
-    set related_files_list [list]
+    set related_files_list {}
     set user_id [ad_conn user_id]
     set admin_p [permission::permission_p \
                      -party_id $user_id \

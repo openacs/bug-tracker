@@ -262,7 +262,7 @@ ad_proc -public bug_tracker::bug::edit {
 } {
     upvar $array row
     
-    array set assignments [list]
+    array set assignments {}
     
     set role_prefix "role_"
     foreach name [array names row "${role_prefix}*"] {
@@ -710,7 +710,7 @@ ad_proc -private bug_tracker::bug::notification_info::get_notification_info {
     }
     
     # Build up the details list
-    set details_list [list]
+    set details_list {}
     foreach field $fields {
         lappend details_list $label($field) $value($field)
     }
@@ -824,7 +824,7 @@ ad_proc bug_tracker::bug::get_list {
         }
     }
 
-    set category_defaults [list]
+    set category_defaults {}
 
 
     foreach { parent_id parent_heading } [bug_tracker::category_types] {
@@ -1048,7 +1048,7 @@ ad_proc bug_tracker::bug::get_multirow {
         fixed_in_version_name
     }
 
-    set category_defaults [list]
+    set category_defaults {}
 
     foreach { parent_id parent_heading } [bug_tracker::category_types] {
         lappend category_defaults $parent_id {}
@@ -1115,7 +1115,7 @@ ad_proc bug_tracker::bug::get_bug_numbers {} {
     bug_tracker::bug::get_list -ulevel 2
     bug_tracker::bug::get_multirow
     
-    set filter_bug_numbers [list]
+    set filter_bug_numbers {}
     template::multirow foreach bugs {
         lappend filter_bug_numbers $bug_number
     }

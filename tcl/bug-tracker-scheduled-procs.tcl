@@ -32,7 +32,7 @@ ad_proc -public bug_tracker::scheduled::close_bugs {
 		    workflow::action::get -action_id $enabled_action(action_id) -array available_action
 		    if {$available_action(short_name) eq "resolve"} {
 			set action_id $enabled_action(action_id)
-			array set row [list]
+			array set row {}
 			foreach field [workflow::action::get_element -action_id $action_id -element edit_fields] {
 			    set row($field) ""
 			}
@@ -52,7 +52,7 @@ ad_proc -public bug_tracker::scheduled::close_bugs {
 		    workflow::action::get -action_id $enabled_action(action_id) -array available_action
 		    if {$available_action(short_name) eq "close"} {
 			set action_id $enabled_action(action_id)
-			array set row [list]
+			array set row {}
 			foreach field [workflow::action::get_element -action_id $action_id -element edit_fields] {
 			    set row($field) ""
 			}

@@ -258,7 +258,7 @@ if { $enabled_action_id ne "" } {
 # on_submit block
 ad_form -extend -name bug -on_submit {
 
-    array set row [list] 
+    array set row {} 
     
     if { $enabled_action_id ne "" } { 
         foreach field [workflow::action::get_element -action_id $action_id -element edit_fields] {
