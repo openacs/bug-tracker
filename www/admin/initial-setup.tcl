@@ -8,7 +8,7 @@ set context_bar [ad_context_bar $page_title]
 
 array set default_configs [bug_tracker::get_default_configurations]
 
-set options [list]
+set options {}
 
 foreach name [lsort -ascii [array names default_configs]] {
     lappend options [list $name $name]

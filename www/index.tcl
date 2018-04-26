@@ -7,7 +7,7 @@ ad_page_contract {
 } [bug_tracker::get_page_variables]
 
 set page_title [ad_conn instance_name]
-set context [list]
+set context {}
 set admin_p [permission::permission_p -object_id [ad_conn package_id] -privilege admin]
 set user_id [ad_conn user_id]
 bug_tracker::get_pretty_names -array pretty_names
