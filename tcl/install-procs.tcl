@@ -46,7 +46,7 @@ ad_proc -private bug_tracker::install::package_upgrade {
                 # This is the upgrade that converts Bug Tracker to using the workflow package
                 ns_log Notice "bug_tracker::install::package_upgrade - Upgrading Bug Tracker from 09d1 to 1.2d2"
 
-                # This sets up the the but tracker package type workflow instance
+                # This sets up the bug tracker package type workflow instance
                 package_install
 
                 # Create a workflow instance for each Bug Tracker project

@@ -1004,7 +1004,7 @@ ad_proc bug_tracker::bug::get_query {
         # column we want to order by.  Which columns we can afford to have in
         # the select list depends on which tables are we joining against.  BTW,
         # all these kludges are consequence of the initial (bad, IMHO) decision
-        # to do the joins against cr_keywords in memory rather then in SQL.
+        # to do the joins against cr_keywords in memory rather than in SQL.
         set more_columns ", kw_order.heading as heading"
     } else {
         set more_columns ""

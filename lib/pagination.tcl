@@ -1,5 +1,5 @@
 # @arg row_count                The total number of rows.
-# @arg offset                   The current row offset, i.e. the number of rows to skip. Must be an URL parameter.
+# @arg offset                   The current row offset, i.e. the number of rows to skip. Must be a URL parameter.
 # @arg interval_size            The number of rows per page. Must be an optional URL parameter
 # @arg variable_set_to_export   An ns_set that should exclude the offset and interval_size variables. You may
 #                               use ad_tcl_vars_to_ns_set to create this set.

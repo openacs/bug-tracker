@@ -65,7 +65,7 @@ ad_proc -private bug_tracker::search::bug::datasource { bug_id } {
 }
 
 ad_proc -private bug_tracker::search::bug::url { bug_id } {
-    returns a url for a given bug_id
+    returns a URL for a given bug_id
 
     @param bug_id
     @author Jeff Davis davis@xarg.net
@@ -157,7 +157,7 @@ ad_proc -private bug_tracker::search::patch::datasource { patch_id } {
 
 
 ad_proc -private bug_tracker::search::patch::url { patch_id } {
-    returns a url for a given patch_id
+    returns a URL for a given patch_id
 
     @param patch_id
     @author Jeff Davis davis@xarg.net
