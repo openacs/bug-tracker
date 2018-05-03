@@ -139,7 +139,7 @@ db_foreach get_columns {
     append insert_columns "$attname, "
 
     if {$widget eq "date"} {
-	append get_values "    if {!\[empty_string_p \$$element_name\]} {
+	append get_values "    if {\$$element_name\ ne \"\"} {
 	set $element_name \[template::util::date::get_property sql_date \$$element_name\]
     } else {	
 	set $element_name NULL
@@ -208,7 +208,7 @@ template::element create $form_name return_url -widget hidden -datatype text -va
 
 if { \[template::form is_request $form_name\] } {
 
-    if {\[empty_string_p \$$primary_key\]} {    
+    if {\$$primary_key\ eq \"\"} {
 	set insert_or_update insert
 	template::element set_properties $form_name insert_or_update -value insert
 	# TODO: If the form contains hidden elements that represent 
