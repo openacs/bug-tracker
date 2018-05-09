@@ -98,7 +98,7 @@ if { ![workflow::case::action::available_p -enabled_action_id $enabled_action_id
 ns_log Notice "actions: enabled_action_id: '${enabled_action_id}'"
 
 # Buttons
-set actions {}
+set actions [list]
 if { $enabled_action_id eq "" } {
 
     #ns_log Notice "actions: case_id: $case_id"
@@ -232,7 +232,7 @@ ad_form -extend -name bug -form {
 }
 
 # TODO: Export filters
-set filters {}
+set filters [list]
 foreach name [bug_tracker::get_export_variables] { 
     if { [info exists $name] } {
         lappend filters [list "${name}:text(hidden),optional" [list value [set $name]]]
@@ -258,7 +258,7 @@ if { $enabled_action_id ne "" } {
 # on_submit block
 ad_form -extend -name bug -on_submit {
 
-    array set row {} 
+    array set row [list] 
     
     if { $enabled_action_id ne "" } { 
         foreach field [workflow::action::get_element -action_id $action_id -element edit_fields] {

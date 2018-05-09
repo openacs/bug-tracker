@@ -87,7 +87,7 @@ ad_form \
                 workflow::action::get -action_id $enabled_action(action_id) -array available_action
                 if {$available_action(short_name) eq "comment"} {
                     set action_id $enabled_action(action_id)
-                    array set row {}
+                    array set row [list]
                     foreach field [workflow::action::get_element -action_id $action_id -element edit_fields] {
                         set row($field) ""
                     }
