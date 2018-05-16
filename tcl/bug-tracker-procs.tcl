@@ -442,7 +442,8 @@ ad_proc bug_tracker::category_parent_element {
         set child_id [lindex $elm 0]
 
         if { $child_id == $keyword_id } {
-            lassign $elm . . parent(id) parent(heading)
+            set parent(id)      [lindex $elm 2]
+            set parent(heading) [lindex $elm 3]
             return $parent($element)
         }
     }
