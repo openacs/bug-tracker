@@ -129,7 +129,7 @@ db_foreach get_columns {
     # TODO: If I could figure out that this attribute references the
     # primary key of another table, I would like to make a select
     # widget and populate it with a database query.  Unfortunately
-    # I don't know how to get that info from postgresql.
+    # I don't know how to get that info from PostgreSQL.
 
     append form_elements "template::element create $form_name $element_name -label \"$label\" -widget $widget -datatype $datatype $optional $format $options\n"
 
