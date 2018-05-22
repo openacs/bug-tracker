@@ -1543,7 +1543,7 @@ ad_proc -public bug_tracker::user_bugs_only_p {} {
     Is the user bugs only feature turned on?
     Admins always see all bugs.
 } {
-    return [expr [string equal [lindex [bug_tracker::access_policy] 1] "user_bugs"]]
+    return [expr {[lindex [bug_tracker::access_policy] 1] eq "user_bugs"}]
 }
 
 ad_proc -private bug_tracker::set_access_policy {
