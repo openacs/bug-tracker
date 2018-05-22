@@ -18,7 +18,7 @@
 </if>
 </p>
 
-<if @mode;literal@ eq "view" and @deleted_p@ defined and @deleted_p;literal@ eq 0>
+<if @mode;literal@ eq "view" and @deleted_p@ defined and @deleted_p;literal@ false>
 <center>
 <p>
 <a href="patch?patch_number=@patch_number;noi18n@&download=1">#bug-tracker.Download_patch_content#</a>
