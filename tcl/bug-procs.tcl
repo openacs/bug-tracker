@@ -100,7 +100,7 @@ ad_proc -public bug_tracker::bug::insert {
     @return bug_id The same bug_id passed in, just for convenience.
     
 } {
-    if { (![info exists user_agent] || $user_agent eq "") && [ad_conn isconnected] } {
+    if { $user_agent eq "" && [ad_conn isconnected] } {
         set user_agent [ns_set get [ns_conn headers] "User-Agent"]
     }
 
@@ -219,7 +219,7 @@ ad_proc -public bug_tracker::bug::update {
 } {
     upvar $array row
 
-    if { (![info exists user_id] || $user_id eq "") } {
+    if { $user_id eq "" } {
         set user_id [ad_conn user_id]
     }
 
