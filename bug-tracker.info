@@ -20,9 +20,8 @@
 
         <provides url="bug-tracker" version="1.6d5"/>
         <requires url="acs-content-repository" version="5.2.0d2"/>
-        <requires url="acs-kernel" version="5.2.0d2"/>
-        <requires url="acs-tcl" version="5.8.3d3"/>
-        <requires url="notifications" version="5.0.0b4"/>
+        <requires url="acs-kernel" version="5.10.0"/>
+	<requires url="acs-templating" version="5.10.0d7"/>
         <requires url="workflow" version="2.0.0b3"/>
 
         <callbacks>

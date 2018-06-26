@@ -25,7 +25,7 @@ ad_proc -public bug_tracker::bug::cache_flush {
     package instance.
 } {
     set project_id [db_string get_project_id {}]
-    cache flush "bugs,project_id=$project_id,*"
+    template::cache flush "bugs,project_id=$project_id,*"
     util_memoize_flush_regexp -log "^bug_tracker::.*_get_filter_data_not_cached -package_id $project_id"
 }
 
