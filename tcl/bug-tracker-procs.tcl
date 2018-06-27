@@ -123,6 +123,7 @@ ad_proc bug_tracker::get_page_variables {
         page:naturalnum,optional
         f_state:integer,optional
         f_fix_for_version:integer,optional
+        f_distribution:integer,optional
         f_component:integer,optional
         orderby:token,optional
         project_id:naturalnum,optional
@@ -131,10 +132,15 @@ ad_proc bug_tracker::get_page_variables {
     foreach { parent_id parent_heading } [bug_tracker::category_types] {
         lappend filter_vars "f_category_$parent_id:naturalnum,optional"
     }
-    foreach action_id [workflow::get_actions -workflow_id [bug_tracker::bug::get_instance_workflow_id]] {
-        lappend filter_vars "f_action_$action_id:naturalnum,optional"
+    try {
+        bug_tracker::bug::get_instance_workflow_id
+    } on ok {workflow_id} {
+        foreach action_id [workflow::get_actions -workflow_id $workflow_id] {
+             lappend filter_vars "f_action_$action_id:naturalnum,optional"
+         }
+    } on error {errorMsg} {
+        ns_log notice "bug_tracker::get_page_variables called on non-workflow package"
     }
-
     return [concat $filter_vars $extra_spec]
 }
 
