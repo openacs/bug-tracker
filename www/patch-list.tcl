@@ -3,7 +3,7 @@ ad_page_contract {
     project.
 
     @author Peter Marklund (peter@collaboraid.biz)
-    @date 2002-09-10
+    @creation-date 2002-09-10
     @cvs-id $Id$
 } {
     {component_id:naturalnum,optional}

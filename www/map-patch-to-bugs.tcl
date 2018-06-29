@@ -2,7 +2,7 @@ ad_page_contract {
     Page for viewing and editing one patch.
 
     @author Peter Marklund (peter@collaboraid.biz)
-    @date 2002-09-04
+    @creation-date 2002-09-04
     @cvs-id $Id$
 } {
     patch_number:integer,notnull

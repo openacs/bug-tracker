@@ -5,7 +5,7 @@ ad_page_contract {
     that the patch covers can be chosen.
 
     @author Peter Marklund (peter@collaboraid.biz)
-    @date 2002-09-10
+    @creation-date 2002-09-10
     @cvs-id $Id$
 } {
     bug_number:integer,optional

@@ -2,7 +2,7 @@ ad_page_contract {
     Unmapping a patch from a bug.
 
     @author Peter Marklund (peter@collaboraid.biz)
-    @date 2002-09-06
+    @creation-date 2002-09-06
     @cvs-id $Id$
 } {
     patch_number:integer,notnull
