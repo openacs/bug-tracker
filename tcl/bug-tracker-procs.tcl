@@ -1471,7 +1471,7 @@ ad_proc bug_tracker::get_related_files_links {
         set properties_url [export_vars -base "related-file-properties" {bug_id related_object_id}]
         set delete_url [export_vars -base "related-file-delete" {bug_id related_object_id return_url}]
         set new_version_url [export_vars -base "related-file-update" {bug_id related_object_id return_url}]
-        if { ( $related_creation_user == $user_id ) || $admin_p } {
+        if { $related_creation_user == $user_id || $admin_p } {
             set extra_actions [subst { |
                 <a href="[ns_quotehtml $new_version_url]">[_ bug-tracker.upload_new_version]</a> |
                 <a href="[ns_quotehtml $delete_url]">[_ bug-tracker.delete]</a>
@@ -1522,7 +1522,7 @@ ad_proc bug_tracker::get_related_files_links {
         set properties_url [export_vars -base "related-file-properties" {bug_id related_object_id}]
         set delete_url [export_vars -base "related-file-delete" {bug_id related_object_id return_url}]
         set new_version_url [export_vars -base "related-file-update" {bug_id related_object_id return_url}]
-        if { ( $related_creation_user == $user_id ) || $admin_p } {
+        if { $related_creation_user == $user_id || $admin_p } {
             set extra_actions [subst { |
                 <a href="[ns_quotehtml $new_version_url]">upload new version</a> |
                 <a href="[ns_quotehtml $delete_url]">delete</a>

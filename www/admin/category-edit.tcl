@@ -29,7 +29,7 @@ ad_form -name keyword -cancel_url categories -form {
     {parent_id:integer(hidden)}
     {heading:text {label $object_type_name}}
 } -new_request {
-    if { (![info exists parent_id] || $parent_id eq "") } {
+    if { ![info exists parent_id] || $parent_id eq "" } {
         set parent_id [bug_tracker::conn project_root_keyword_id]
     }
 } -select_query {

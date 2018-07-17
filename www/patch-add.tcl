@@ -23,7 +23,7 @@ ad_page_contract {
 permission::require_permission -object_id [ad_conn package_id] -privilege create
 
 if { $return_url eq "" } {
-    if { ([info exists bug_number] && $bug_number ne "") } {
+    if { [info exists bug_number] && $bug_number ne "" } {
         set return_url [export_vars -base bug { bug_number }]
     } else {
         set return_url "patch-list"
@@ -87,7 +87,7 @@ element create patch patch_file \
         -widget file \
         -label "[_ bug-tracker.Patch]" \
 
-if { ([info exists bug_number] && $bug_number ne "") } {
+if { [info exists bug_number] && $bug_number ne "" } {
     # Export the bug number
     element create patch bug_number \
         -datatype integer \
@@ -109,7 +109,7 @@ if { ([info exists bug_number] && $bug_number ne "") } {
 if { [form is_request patch] } {
     # Form requested
 
-    if { ([info exists bug_number] && $bug_number ne "") } {
+    if { [info exists bug_number] && $bug_number ne "" } {
         element set_properties patch bug_number -value $bug_number
     }
 

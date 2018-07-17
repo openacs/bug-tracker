@@ -107,7 +107,7 @@ ad_proc -public bug_tracker::bug::insert {
     set comment_content $description
     set comment_format $desc_format
 
-    if { (![info exists creation_date] || $creation_date eq "") } {
+    if { ![info exists creation_date] || $creation_date eq "" } {
         set creation_date [db_string select_sysdate {}]
     }
 
@@ -280,7 +280,7 @@ ad_proc -public bug_tracker::bug::edit {
 
         # Update the keywords
         foreach {category_id category_name} [bug_tracker::category_types] {
-            if { ([info exists row($category_id)] && $row($category_id) ne "") } {
+            if { [info exists row($category_id)] && $row($category_id) ne "" } {
                 content::keyword::item_assign -item_id $bug_id -keyword_id $row($category_id)
             }
             # LARS:

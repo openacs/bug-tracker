@@ -30,7 +30,7 @@ set redirect_url [ad_decode $return_url "" "patch?patch_number=$patch_number" $r
 
 bug_tracker::get_pretty_names -array pretty_names
 
-if { ([info exists cancel] && $cancel ne "") } {
+if { [info exists cancel] && $cancel ne "" } {
     # The user chose to abort the mapping so redirect without further processing
     ad_returnredirect $redirect_url
     ad_script_abort
@@ -45,7 +45,7 @@ if { !($user_is_submitter_p || $write_p) } {
 }
 
 
-if { ([info exists bug_number] && $bug_number ne "") } {
+if { [info exists bug_number] && $bug_number ne "" } {
     # Do the mapping
     foreach one_bug_number $bug_number {
         set bug_id [db_string get_bug_id_for_number {}]
@@ -63,7 +63,7 @@ set page_title "[_ bug-tracker.Mapping]"
 set context [list "$page_title"]
 
 # Build the component filter
-if { (![info exists component_id] || $component_id eq "") } {
+if { ![info exists component_id] || $component_id eq "" } {
     set component_id [db_string component_id_for_patch {}]
 }
 set component_where_clause ""

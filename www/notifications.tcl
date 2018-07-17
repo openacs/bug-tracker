@@ -9,7 +9,7 @@ set context [list $page_title]
 set package_id [ad_conn package_id]
 
 set workflow_id [bug_tracker::bug::get_instance_workflow_id]
-if { ([info exists bug_number] && $bug_number ne "") } {
+if { [info exists bug_number] && $bug_number ne "" } {
     set bug_id [bug_tracker::get_bug_id \
                     -bug_number $bug_number \
                     -project_id [ad_conn package_id]]
