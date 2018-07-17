@@ -66,8 +66,8 @@ foreach type $notification_types {
                             -object_id $object_id \
                             -user_id $user_id]
 
-        set subscribed_p [expr {$request_id ne ""}] 
-        
+        set subscribed_p [expr {$request_id ne ""}]
+
         if { $subscribed_p } {
             set url [notification::display::unsubscribe_url -request_id $request_id -url $return_url]
         } else {
@@ -90,3 +90,9 @@ foreach type $notification_types {
 }
 
 set manage_url "[apm_package_url_from_key [notification::package_key]]manage"
+
+# Local variables:
+#    mode: tcl
+#    tcl-indent-level: 4
+#    indent-tabs-mode: nil
+# End:

@@ -1122,3 +1122,9 @@ ad_proc bug_tracker::bug::get_bug_numbers {} {
 
     return $filter_bug_numbers
 }
+
+# Local variables:
+#    mode: tcl
+#    tcl-indent-level: 4
+#    indent-tabs-mode: nil
+# End:

@@ -6,7 +6,7 @@ ad_page_contract {
     @cvs-id $Id$
 } {
     patch_number:integer,notnull
-    bug_number:integer,optional,multiple    
+    bug_number:integer,optional,multiple
     component_id:naturalnum,optional
     {show_all_components_p:boolean "0"}
     {show_only_open_p:boolean "1"}
@@ -16,10 +16,10 @@ ad_page_contract {
     {return_url:trim,notnull ""}
 } -validate {
     valid_return_url -requires return_url {
-	# actually, one should use the page filter localurl from OpenACS 5.9
-	if {[util::external_url_p $return_url]} {
-	    ad_complain "invalid return_url"
-	}
+        # actually, one should use the page filter localurl from OpenACS 5.9
+        if {[util::external_url_p $return_url]} {
+            ad_complain "invalid return_url"
+        }
     }
 }
 
@@ -39,8 +39,8 @@ if { [info exists cancel] && $cancel ne "" } {
 set write_p [permission::permission_p -object_id $package_id -privilege write]
 set user_is_submitter_p [expr {$user_id == [bug_tracker::get_patch_submitter -patch_number $patch_number]}]
 
-if { !($user_is_submitter_p || $write_p) } {            
-    ad_return_forbidden "[_ bug-tracker.Permission]" "[_ bug-tracker.You_1]"            
+if { !($user_is_submitter_p || $write_p) } {
+    ad_return_forbidden "[_ bug-tracker.Permission]" "[_ bug-tracker.You_1]"
     ad_script_abort
 }
 
@@ -77,14 +77,14 @@ if { $component_id ne "" } {
     set component_filter_url [export_vars -base map-patch-to-bugs {patch_number component_id return_url offset show_only_open_p interval_size}]
     if { $show_all_components_p } {
         set component_filter [subst {\[
-	    <a href="[ns_quotehtml $component_filter_url&show_all_components_p=0]">[_ bug-tracker.Only]</a> |
-	    [_ bug-tracker.All_1] \]}]
+            <a href="[ns_quotehtml $component_filter_url&show_all_components_p=0]">[_ bug-tracker.Only]</a> |
+            [_ bug-tracker.All_1] \]}]
     } else {
         set component_where_clause "\n     and bt_bugs.component_id = :component_id"
-    
+
         set component_filter [subst {\[
-	    [_ bug-tracker.Only_1] |
-	    <a href="[ns_quotehtml $component_filter_url&show_all_components_p=1]">[_ bug-tracker.All_1]</a> \]}]
+            [_ bug-tracker.Only_1] |
+            <a href="[ns_quotehtml $component_filter_url&show_all_components_p=1]">[_ bug-tracker.All_1]</a> \]}]
     }
 }
 
@@ -100,13 +100,13 @@ set any_status_label [_ bug-tracker.Bugs]
 if { $show_only_open_p } {
     set open_where_clause "and cfsm.current_state = :initial_state_id"
     set open_filter [subst {$only_open_label |
-	<a href="[ns_quotehtml $open_filter_url&show_only_open_p=0]">$any_status_label</a>
+        <a href="[ns_quotehtml $open_filter_url&show_only_open_p=0]">$any_status_label</a>
     }]
 } else {
     set open_where_clause ""
     set open_filter [subst {
-	<a href="[ns_quotehtml $open_filter_url&show_only_open_p=1]">$only_open_label</a> |
-	$any_status_label
+        <a href="[ns_quotehtml $open_filter_url&show_only_open_p=1]">$only_open_label</a> |
+        $any_status_label
     }]
 }
 
@@ -126,8 +126,14 @@ set sql_where_clause "bt_bugs.project_id = :package_id
 
 # Build the pagination filter
 set bug_count [db_string bug_count_for_mapping {}]
-set pagination_export_var_set [ad_tcl_vars_to_ns_set patch_number component_id return_url show_all_components_p show_only_open_p] 
+set pagination_export_var_set [ad_tcl_vars_to_ns_set patch_number component_id return_url show_all_components_p show_only_open_p]
 
 db_multirow open_bugs select_open_bugs {}
 
 ad_return_template
+
+# Local variables:
+#    mode: tcl
+#    tcl-indent-level: 4
+#    indent-tabs-mode: nil
+# End:

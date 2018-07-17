@@ -33,7 +33,7 @@ ad_form -name keyword -cancel_url categories -form {
         set parent_id [bug_tracker::conn project_root_keyword_id]
     }
 } -select_query {
-    select child.parent_id, 
+    select child.parent_id,
            child.heading
     from   cr_keywords child
     where  child.keyword_id = :keyword_id
@@ -51,3 +51,9 @@ ad_form -name keyword -cancel_url categories -form {
     ad_returnredirect categories
     ad_script_abort
 }
+
+# Local variables:
+#    mode: tcl
+#    tcl-indent-level: 4
+#    indent-tabs-mode: nil
+# End:

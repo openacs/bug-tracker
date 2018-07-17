@@ -1580,7 +1580,6 @@ ad_proc -private bug_tracker::set_access_policy {
             }
         }
     }
-
 }
 
 ad_proc -private bug_tracker::grant_direct_read_permission {
@@ -1623,3 +1622,9 @@ ad_proc -private bug_tracker::user_bugs_only_where_clause {} {
         return [db_map user_bugs_only]
     }
 }
+
+# Local variables:
+#    mode: tcl
+#    tcl-indent-level: 4
+#    indent-tabs-mode: nil
+# End:

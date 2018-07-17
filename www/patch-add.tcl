@@ -13,10 +13,10 @@ ad_page_contract {
     {return_url:notnull,trim ""}
 } -validate {
     valid_return_url -requires return_url {
-	# actually, one should use the page filter localurl from OpenACS 5.9
-	if {[util::external_url_p $return_url]} {
-	    ad_complain "invalid return_url"
-	}
+        # actually, one should use the page filter localurl from OpenACS 5.9
+        if {[util::external_url_p $return_url]} {
+            ad_complain "invalid return_url"
+        }
     }
 }
 
@@ -81,7 +81,7 @@ element create patch version_id \
         -label "[_ bug-tracker.Generated]" \
         -options [bug_tracker::version_get_options -include_unknown] \
         -optional
-    
+
 element create patch patch_file \
         -datatype file \
         -widget file \
@@ -124,7 +124,7 @@ if { [form is_request patch] } {
 
     if { [info exists component_id] } {
         element set_properties patch component_id -value $component_id
-    }    
+    }
 }
 
 if { [form is_valid patch] } {
@@ -138,7 +138,7 @@ if { [form is_valid patch] } {
         set content [bug_tracker::get_uploaded_patch_file_content]
 
         set ip_address [ns_conn peeraddr]
-        
+
         db_exec_plsql new_patch {}
 
         set patch_number [db_string patch_number_for_id {}]
@@ -149,7 +149,7 @@ if { [form is_valid patch] } {
         } else {
             set redirect_url $return_url
         }
-        
+
         # Fetch any provided bug id to map the patch to
         catch {set bug_number [element get_value patch bug_number]}
         if { [info exists bug_number] } {
@@ -161,7 +161,7 @@ if { [form is_valid patch] } {
             # No bug id provided so redirect to page for selecting bugs if the
             # user wishes to go there
             set select_bugs_p [element get_value patch select_bugs_p]
-            
+
             if { $select_bugs_p } {
                 set redirect_url [export_vars -base map-patch-to-bugs { return_url patch_number component_id }]
             }
@@ -173,3 +173,9 @@ if { [form is_valid patch] } {
 }
 
 ad_return_template
+
+# Local variables:
+#    mode: tcl
+#    tcl-indent-level: 4
+#    indent-tabs-mode: nil
+# End:
