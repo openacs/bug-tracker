@@ -1,12 +1,9 @@
-# /packages/bug-tracker/tcl/bug-tracker-scheduled-procs.tcl
-
 ad_library {
     
     
     
     @author Victor Guerra (guerra@galileo.edu)
     @creation-date 2005-02-07
-    @arch-tag: bfe519e0-3005-46c5-835f-fa7c59938ddd
     @cvs-id $Id$
 }
 
