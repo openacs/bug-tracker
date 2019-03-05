@@ -40,10 +40,10 @@ aa_register_case -cats {api smoke} project_new {
 
                 # Create a dummy component
                 bug_tracker::components_flush
-                db_1row new_component_id {}
+                set component_id [db_nextval acs_object_id_seq]
                 db_dml new_component {}
 
-                db_1row new_bug_id {}
+                set bug_id [db_nextval acs_object_id_seq]
                 bug_tracker::bug::new \
                     -bug_id $bug_id \
                     -package_id $package_id \
