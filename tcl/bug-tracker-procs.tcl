@@ -1230,7 +1230,7 @@ ad_proc bug_tracker::get_patch_links {
 
     db_foreach get_patches_for_bug {} {
 
-        set status_indicator [ad_decode $show_patch_status "all" "($status)" ""]
+        set status_indicator [expr {$show_patch_status eq "all" ? "($status)" : ""}]
         lappend patch_list "<a href=\"patch?patch_number=$patch_number\" title=\"patch $patch_number\">[ns_quotehtml $summary]</a> $status_indicator"
     } if_no_rows {
         set patches_name [bug_tracker::conn patches]
