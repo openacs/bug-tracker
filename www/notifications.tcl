@@ -83,7 +83,7 @@ foreach type $notification_types {
             multirow append notifications \
                 $url \
                 [string totitle $pretty_name] \
-                [ad_decode $subscribed_p 1 "[_ bug-tracker.Unsubscribe_1]" "[_ bug-tracker.Subscribe_1]"] \
+                [expr {$subscribed_p ? "[_ bug-tracker.Unsubscribe_1]" : "[_ bug-tracker.Subscribe_1]"}] \
                 $subscribed_p
         }
     }

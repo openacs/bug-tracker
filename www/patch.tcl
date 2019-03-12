@@ -180,7 +180,7 @@ element create patch patch_number_i \
 
 element create patch component_id \
         -datatype text \
-        -widget [ad_decode [info exists field_editable_p(component_id)] 1 select inform] \
+        -widget [expr {[info exists field_editable_p(component_id)] ? "select" : "inform"}] \
         -label "[_ bug-tracker.Component]" \
         -options [bug_tracker::components_get_options]
 
@@ -193,7 +193,7 @@ if {$mode eq "view"} {
 
 element create patch summary  \
         -datatype text \
-        -widget [ad_decode [info exists field_editable_p(summary)] 1 text inform] \
+        -widget [expr {[info exists field_editable_p(summary)] ? "text" : "inform"}] \
         -label "[_ bug-tracker.Summary]" \
         -html { size 50 }
 
@@ -209,21 +209,21 @@ element create patch status \
 
 element create patch generated_from_version \
         -datatype text \
-        -widget [ad_decode [info exists field_editable_p(generated_from_version)] 1 select inform] \
+        -widget [expr {[info exists field_editable_p(generated_from_version)] ? "select" : "inform"}] \
         -label "[_ bug-tracker.Generated]" \
         -options [bug_tracker::version_get_options -include_unknown] \
         -optional
 
 element create patch apply_to_version \
         -datatype text \
-        -widget [ad_decode [info exists field_editable_p(apply_to_version)] 1 select inform] \
+        -widget [expr {[info exists field_editable_p(apply_to_version)] ? "select" : "inform"}] \
         -label "[_ bug-tracker.Apply_2]" \
         -options [bug_tracker::version_get_options -include_undecided] \
         -optional
 
 element create patch applied_to_version \
         -datatype text \
-        -widget [ad_decode [info exists field_editable_p(applied_to_version)] 1 select inform] \
+        -widget [expr {[info exists field_editable_p(applied_to_version)] ? "select" : "inform"}] \
         -label "[_ bug-tracker.Applied]" \
         -options [bug_tracker::version_get_options -include_undecided] \
         -optional
@@ -287,12 +287,12 @@ if { [form is_request patch] } {
     # The form was requested
 
     db_1row patch {} -column_array patch
-    set patch(generated_from_version_name) [ad_decode $patch(generated_from_version) \
-						"" [_ bug-tracker.Unknown] \
-						[bug_tracker::version_get_name -version_id $patch(generated_from_version)]]
-    set patch(apply_to_version_name) [ad_decode $patch(apply_to_version) \
-					  "" [_ bug-tracker.Undecided] \
-					  [bug_tracker::version_get_name -version_id $patch(apply_to_version)]]
+    set patch(generated_from_version_name) [expr {$patch(generated_from_version) eq "" ?
+                                                  [_ bug-tracker.Unknown] :
+                                                  [bug_tracker::version_get_name -version_id $patch(generated_from_version)]}]
+    set patch(apply_to_version_name) [expr {$patch(apply_to_version) eq "" ?
+                                            [_ bug-tracker.Undecided] :
+                                            [bug_tracker::version_get_name -version_id $patch(apply_to_version)]}]
     set patch(applied_to_version_name) [bug_tracker::version_get_name -version_id $patch(applied_to_version)]
 
     if {$user_id != 0} {
@@ -323,29 +323,29 @@ if { [form is_request patch] } {
     element set_properties patch patch_number_i \
             -value $patch(patch_number)
     element set_properties patch component_id \
-            -value [ad_decode [info exists field_editable_p(component_id)] 1 $patch(component_id) $patch(component_name)]
+            -value [expr {[info exists field_editable_p(component_id)] ? $patch(component_id) : $patch(component_name)}]
     if {$mode eq "view"} {
         set bugs_name [bug_tracker::conn bugs]
 	set map_to_bugs [_ bug-tracker.Map] 
-        set map_new_bug_link [ad_decode $write_or_submitter_p "1" "\[ <a href=\"map-patch-to-bugs?patch_number=$patch(patch_number)\">$map_to_bugs</a> \]" ""]
+        set map_new_bug_link [expr {$write_or_submitter_p ? "\[ <a href=\"map-patch-to-bugs?patch_number=$patch(patch_number)\">$map_to_bugs</a> \]" : ""}]
         element set_properties patch fixes_bugs \
             -value "[bug_tracker::get_bug_links -patch_id $patch(patch_id) -patch_number $patch(patch_number) -write_or_submitter_p $write_or_submitter_p] <br>$map_new_bug_link"
     }
     element set_properties patch summary \
-            -value [ad_decode [info exists field_editable_p(summary)] 1 $patch(summary) "<b>$patch(summary)</b>"]
+           -value [expr {[info exists field_editable_p(summary)] ? $patch(summary) : "<b>$patch(summary)</b>"}]
     element set_properties patch submitter \
             -value "
     [acs_community_member_link -user_id $patch(submitter_user_id) \
             -label "$patch(submitter_first_names) $patch(submitter_last_name)"] $submitter_email_display"
 
     element set_properties patch status \
-            -value [ad_decode [info exists field_editable_p(status)] 1 $patch(status) [bug_tracker::patch_status_pretty $patch(status)]]
+            -value [expr {[info exists field_editable_p(status)] ? $patch(status) : [bug_tracker::patch_status_pretty $patch(status)]}]
     element set_properties patch generated_from_version \
-            -value [ad_decode [info exists field_editable_p(generated_from_version)] 1 $patch(generated_from_version) $patch(generated_from_version_name)]
+            -value [expr {[info exists field_editable_p(generated_from_version)] ? $patch(generated_from_version) : $patch(generated_from_version_name)}]
     element set_properties patch apply_to_version \
-            -value [ad_decode [info exists field_editable_p(apply_to_version)] 1 $patch(apply_to_version) $patch(apply_to_version_name)]
+            -value [expr {[info exists field_editable_p(apply_to_version)] ? $patch(apply_to_version) : $patch(apply_to_version_name)}]
     element set_properties patch applied_to_version \
-            -value [ad_decode [info exists field_editable_p(applied_to_version)] 1 $patch(applied_to_version) $patch(applied_to_version_name)]
+            -value [expr {[info exists field_editable_p(applied_to_version)] ? $patch(applied_to_version) : $patch(applied_to_version_name)}]
 
     set deleted_p [string equal $patch(status) "deleted"]
 
