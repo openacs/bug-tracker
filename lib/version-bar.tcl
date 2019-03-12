@@ -16,7 +16,7 @@ set current_version_name [bug_tracker::conn current_version_name]
 
 set user_id [ad_conn user_id]
 
-set return_url "[ad_conn url][ad_decode [ad_conn query] "" "" "?[ad_conn query]"]"
+set return_url [ad_return_url]
 set login_url [export_vars -base /register/ { return_url }]
 
 set user_version_id [bug_tracker::conn user_version_id]
