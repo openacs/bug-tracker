@@ -611,7 +611,9 @@ BEGIN
         p_bug_revision_id,      -- revision_id
         p_creation_date,        -- creation_date
         p_creation_user,        -- creation_user
-        p_creation_ip           -- creation_ip
+        p_creation_ip,          -- creation_ip
+        null,                   -- content_length
+        null                    -- package_id
     );
 
     -- insert into the bug-specific revision table
