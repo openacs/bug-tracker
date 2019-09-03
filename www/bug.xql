@@ -30,7 +30,7 @@
                    (select rpm.case_id,
                            p.party_id,
                            p.email,
-                           acs_object__name(p.party_id) as name
+                           acs_object.name(p.party_id) as name
                       from workflow_case_role_party_map rpm,
                            parties p
                      where rpm.role_id = :action_role
