@@ -20,7 +20,7 @@
 
         <provides url="bug-tracker" version="1.6d6"/>
         <requires url="acs-content-repository" version="5.2.0d2"/>
-        <requires url="acs-kernel" version="5.10.0"/>
+        <requires url="acs-kernel" version="5.10.0d0"/>
 	<requires url="acs-templating" version="5.10.0d7"/>
         <requires url="workflow" version="2.0.0b3"/>
 
