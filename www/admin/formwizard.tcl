@@ -186,7 +186,7 @@ ad_page_contract {
 }
 
 # If the user hit cancel, ignore everything else
-if { \[exists_and_not_null cancel\] } {
+if { \[info exists cancel\] && \$cancel ne \"\" } {
     ad_returnredirect \$return_url
     return
 }

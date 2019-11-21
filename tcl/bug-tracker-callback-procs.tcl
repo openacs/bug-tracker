@@ -52,7 +52,7 @@ ad_proc -public -callback acs_mail_lite::incoming_email -impl bug-tracker {
 
         template::util::list_of_lists_to_array $email(bodies) email_body
 
-        if {[exists_and_not_null email_body(text/html)]} {
+        if {[info exists email_body(text/html)] && $email_body(text/html) ne ""} {
             set body [ad_html_to_text -- $email_body(text/html)]
         } else {
             set body $email_body(text/plain)
