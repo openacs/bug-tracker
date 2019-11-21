@@ -1,9 +1,9 @@
 # packages/bug-tracker/tcl/bug-tracker-callback-procs.tcl
 
 ad_library {
-    
+
     callback implementations for bug-tracker
-    
+
     @author Deds Castillo (deds@i-manila.com.ph)
     @creation-date 2007-07-09
 }
@@ -31,7 +31,7 @@ ad_proc -public -callback acs_mail_lite::incoming_email -impl bug-tracker {
     set package_key bug-tracker
 
     set package_id_list [db_list get_package_ids {}]
-    
+
     if {[llength $package_id_list] > 1} {
         ns_log Error "acs_mail_lite::incoming_email -impl bug-tracker found two bug tracker instances that has EmailPostID ${email_post_id}.  These are ${package_id_list}.  Bug entry creation failed."
         return ""
@@ -40,7 +40,7 @@ ad_proc -public -callback acs_mail_lite::incoming_email -impl bug-tracker {
         return ""
     } else {
         set package_id [lindex $package_id_list 0]
-        
+
         set user_id [party::get_by_email -email $email(from)]
         if {$user_id eq ""} {
             # spam control
@@ -51,7 +51,7 @@ ad_proc -public -callback acs_mail_lite::incoming_email -impl bug-tracker {
         }
 
         template::util::list_of_lists_to_array $email(bodies) email_body
-        
+
         if {[exists_and_not_null email_body(text/html)]} {
             set body [ad_html_to_text -- $email_body(text/html)]
         } else {
@@ -95,7 +95,7 @@ ad_proc -public -callback acs_mail_lite::incoming_email -impl bug-tracker {
             -assign_to $assign_to \
             -user_id $user_id
     }
-    
+
 }
 
 
@@ -108,7 +108,7 @@ ad_proc -callback workflow::case::role::after_assign -impl bug-tracker {
     if {[bug_tracker::user_bugs_only_p]} {
 	workflow::case::get -case_id $case_id -array case
 	set bug_id $case(object_id)
-        bug_tracker::grant_direct_read_permission -bug_id $bug_id -party_id $party_id 
+        bug_tracker::grant_direct_read_permission -bug_id $bug_id -party_id $party_id
     }
 }
 
@@ -122,6 +122,6 @@ ad_proc -callback workflow::case::role::after_unassign -impl bug-tracker {
     if {[bug_tracker::user_bugs_only_p]} {
 	workflow::case::get -case_id $case_id -array case
 	set bug_id $case(object_id)
-        bug_tracker::inherit -bug_id $bug_id -party_id $party_id 
+        bug_tracker::inherit -bug_id $bug_id -party_id $party_id
     }
 }

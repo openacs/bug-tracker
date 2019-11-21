@@ -3,7 +3,7 @@ ad_page_contract {
     @creation-date 2002-03-06
 
     Code generator to give you a head start with using ATS forms.
-    Generates template::form::element commands for each of the 
+    Generates template::form::element commands for each of the
     attributes in a table.  PostgreSQL only.
 
 } {
@@ -23,7 +23,7 @@ set form_name $table_name
 # maps PG datatype to ATS widget
 array set widget_map { bool select date date timestamp date time date}
 
-# maps PG datatype to ATS date format 
+# maps PG datatype to ATS date format
 # (can be more extensively customized; see ATS date-procs.tcl)
 array set date_format_map { date "MONTH DD, YYYY" timestamp "MONTH DD, YYYY HH24:MI" time "HH24:MI" }
 
@@ -87,7 +87,7 @@ db_foreach get_columns {
     if {[info exists widget_map($typname)]} {
 	set widget $widget_map($typname)
     }
-	
+
     # See if the datatype implies another form-validation datatype
     if {[info exists datatype_map($typname)]} {
 	set datatype $datatype_map($typname)
@@ -96,9 +96,9 @@ db_foreach get_columns {
     # If the not null constraint does not exist, make it optional
     if {$attnotnull == "f"} {
 	set optional "-optional"
-    } 
+    }
 
-    # If we're using the ATS date widget, look up the format 
+    # If we're using the ATS date widget, look up the format
     if {$widget eq "date"} {
 	set format "-format \"$date_format_map($typname)\""
     }
@@ -112,7 +112,7 @@ db_foreach get_columns {
 	set widget hidden
     }
 
-    # If the column has a check constraint with a set of 
+    # If the column has a check constraint with a set of
     # allowable values, make a select widget
     if {[info exists options_map($attname)]} {
 	set widget select
@@ -120,7 +120,7 @@ db_foreach get_columns {
     }
 
     # If it's a boolean, add "Yes" and "No" options
-    # Note: this is not necessarily the best UI choice.  
+    # Note: this is not necessarily the best UI choice.
     # Checkbox and radio elements are also available.
     if {$typname eq "bool"} {
 	set options "-options {{Yes t} {No f}}"
@@ -141,7 +141,7 @@ db_foreach get_columns {
     if {$widget eq "date"} {
 	append get_values "    if {\$$element_name\ ne \"\"} {
 	set $element_name \[template::util::date::get_property sql_date \$$element_name\]
-    } else {	
+    } else {
 	set $element_name NULL
     }
 "
@@ -197,7 +197,7 @@ set package_id \[ad_conn package_id\]
 set package_key \[ad_conn package_key\]
 
 # TODO: check that the handling of the primary key is okay.  If there is
-# no primary key and you're only inserting, you can just ignore it.  
+# no primary key and you're only inserting, you can just ignore it.
 # Add handling for any other incoming URL variables that should become part of the form.
 
 template::form create $form_name
@@ -211,7 +211,7 @@ if { \[template::form is_request $form_name\] } {
     if {\$$primary_key\ eq \"\"} {
 	set insert_or_update insert
 	template::element set_properties $form_name insert_or_update -value insert
-	# TODO: If the form contains hidden elements that represent 
+	# TODO: If the form contains hidden elements that represent
 	# primary keys or foreign keys that were passed to this
 	# page as URL parameters, set them here as follows:
 	set $primary_key \[db_string get_seq {select nextval('${table_name}_${primary_key}_seq')}\]
@@ -220,7 +220,7 @@ if { \[template::form is_request $form_name\] } {
 	set insert_or_update update
 	template::element set_properties $form_name insert_or_update -value update
         # Since we're editing a row, get the current values
-	# TODO: make sure none of the columns being selected are 
+	# TODO: make sure none of the columns being selected are
 	# clobbering URL variables you added to ad_page_contract!!
 	db_1row get_current_values \"
 	    select $select_columns
@@ -290,7 +290,7 @@ automatically generates code for ATS forms from PostgreSQL data model
 </form>
 
 <script language=\"javascript\">
-// <!-- 
+// <!--
 function code_copy() {
     field = eval(\"document.code.code\");
     field.focus();
@@ -317,8 +317,3 @@ $code
 </body>
 </html>
 "
-
-
-
-
-
