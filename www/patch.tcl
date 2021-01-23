@@ -188,18 +188,21 @@ if {$mode eq "view"} {
     element create patch fixes_bugs \
         -datatype text \
         -widget inform \
+        -noquote \
         -label "[_ bug-tracker.Fix_2]"
 }
 
 element create patch summary  \
         -datatype text \
         -widget [expr {[info exists field_editable_p(summary)] ? "text" : "inform"}] \
+        -noquote \
         -label "[_ bug-tracker.Summary]" \
         -html { size 50 }
 
 element create patch submitter \
         -datatype text \
         -widget inform \
+        -noquote \
         -label "[_ bug-tracker.Submitted]"
 
 element create patch status \
@@ -249,6 +252,7 @@ switch -- $mode {
         element create patch description \
 	    -datatype text \
 	    -widget inform \
+            -noquote \
 	    -label "[_ bug-tracker.Description]"
     }
 }
