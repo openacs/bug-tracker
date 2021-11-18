@@ -31,7 +31,7 @@
 <partialquery name="bug_tracker::bug::get_query.orderby_category_from_bug_clause">
   <querytext>
          left outer join cr_item_keyword_map km_order on (km_order.item_id = b.bug_id) 
-         join cr_keywords kw_order on (km_order.keyword_id = kw_order.keyword_id and kw_order.parent_id = '[db_quote $orderby_parent_id]')
+         join cr_keywords kw_order on (km_order.keyword_id = kw_order.keyword_id and kw_order.parent_id = [ns_dbquotevalue $orderby_parent_id])
   </querytext>
 </partialquery>
  
