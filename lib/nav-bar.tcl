@@ -50,10 +50,10 @@ array set filter [bug_tracker::conn filter]
 
 set workflow_id [bug_tracker::bug::get_instance_workflow_id]
 set initial_state_id [workflow::fsm::get_initial_state -workflow_id $workflow_id]
-
+set current_version_id [bug_tracker::conn current_version_id]
 multirow append links "[bug_tracker::conn Bugs]" \
     [export_vars -base "${url_prefix}." {
-	{ f_fix_for_version "[bug_tracker::conn current_version_id]" }
+	{ f_fix_for_version "$current_version_id" }
     }]
 
 if { $create_p } {
@@ -74,7 +74,7 @@ if { $patches_p } {
         [export_vars -no_empty \
              -base "[ad_conn package_url]patch-list" {
              { status open }
-             { apply_to_version "[bug_tracker::conn current_version_id]" }
+             { apply_to_version "$current_version_id" }
          }]
 
     if { $create_p } {
