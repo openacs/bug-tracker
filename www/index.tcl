@@ -39,7 +39,9 @@ set project_id [ad_conn package_id]
 if {[catch {
     bug_tracker::bug::get_list -user_id $user_id
 } errorMsg]} {
-    ad_page_contract_handle_datasource_error "invalid input: $errorMsg"
+    if {[ns_conn isconnected]} {
+        ad_page_contract_handle_datasource_error "invalid input: $errorMsg"
+    }
     ad_script_abort
 } else {
     bug_tracker::bug::get_multirow -user_id $user_id
