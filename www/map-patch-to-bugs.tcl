@@ -119,7 +119,13 @@ set sql_where_clause "bt_bugs.project_id = :package_id
 
 # Build the pagination filter
 set bug_count [db_string bug_count_for_mapping {}]
-set pagination_export_var_set [ad_tcl_vars_to_ns_set patch_number component_id return_url show_all_components_p show_only_open_p]
+
+ns_set create pagination_export_var_set \
+    patch_number          $patch_number \
+    component_id          $component_id \
+    return_url            $return_url \
+    show_all_components_p $show_all_components_p \
+    show_only_open_p      $show_only_open_p
 
 db_multirow open_bugs select_open_bugs [subst -nocommands {
     select bt_bugs.bug_number,
