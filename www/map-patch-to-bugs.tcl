@@ -121,7 +121,17 @@ set sql_where_clause "bt_bugs.project_id = :package_id
 set bug_count [db_string bug_count_for_mapping {}]
 set pagination_export_var_set [ad_tcl_vars_to_ns_set patch_number component_id return_url show_all_components_p show_only_open_p]
 
-db_multirow open_bugs select_open_bugs {}
+db_multirow open_bugs select_open_bugs [subst -nocommands {
+    select bt_bugs.bug_number,
+           bt_bugs.summary,
+           to_char(acs_objects.creation_date, 'YYYY-MM-DD HH24:MI:SS') as creation_date_pretty
+      from bt_bugs, acs_objects, workflow_cases cas, workflow_case_fsm cfsm
+     where bt_bugs.bug_id = acs_objects.object_id
+       and $sql_where_clause
+     order by acs_objects.creation_date desc
+    offset :offset rows
+    fetch first :interval_size rows only
+}]
 
 ad_return_template
 
