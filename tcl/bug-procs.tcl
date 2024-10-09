@@ -178,14 +178,10 @@ ad_proc -public bug_tracker::bug::new {
             content::keyword::item_assign -item_id $bug_id -keyword_id $keyword_id
         }
 
+        set assignment [list]
         if {$assign_to ne ""} {
-
-            array set assign_array [list resolver $assign_to]
-
-        } else {
-            array set assign_array ""
+            lappend assignment "resolver" $assign_to
         }
-
 
         set case_id [workflow::case::new \
                 -workflow_id [workflow::get_id -object_id $package_id -short_name [workflow_short_name]] \
@@ -193,7 +189,7 @@ ad_proc -public bug_tracker::bug::new {
                 -comment $description \
                 -comment_mime_type $desc_format \
                 -user_id $user_id \
-                -assignment [array get assign_array] \
+                -assignment $assignment \
                 -package_id $package_id]
 
         if {[lindex [bug_tracker::access_policy] 1] eq "user_bugs"} {
@@ -586,12 +582,10 @@ ad_proc -private bug_tracker::bug::format_log_title::format_log_title {
     object_id
     action_id
     entry_id
-    data_arraylist
+    data
 } {
-    array set data $data_arraylist
-
-    if { [info exists data(resolution)] } {
-        return [bug_tracker::resolution_pretty $data(resolution)]
+    if { [dict exists $data resolution] } {
+        return [bug_tracker::resolution_pretty [dict get $data resolution]]
     } else {
         return {}
     }
@@ -864,7 +858,7 @@ ad_proc bug_tracker::bug::get_list {
     }
 
     foreach action_id [workflow::get_actions -workflow_id $workflow_id] {
-        array unset action
+        unset -nocomplain action
         workflow::action::get -action_id $action_id -array action
 
         set values [bug_tracker::assignee_get_filter_data \
@@ -1055,16 +1049,16 @@ ad_proc bug_tracker::bug::get_multirow {
         lappend extend_list "category_$parent_id" "category_name_$parent_id"
     }
 
-    array set row_category $category_defaults
-    array set row_category_names $category_defaults
+    set row_category $category_defaults
+    set row_category_names $category_defaults
     db_multirow -extend $extend_list bugs select_bugs [get_query -query_name $query_name] {
 
         # parent_id is part of the column name
         set parent_id [bug_tracker::category_parent_element -keyword_id $keyword_id -element id]
 
         # Set the keyword_id and heading for the category with this parent
-        set row_category($parent_id) $keyword_id
-        set row_category_name($parent_id) [bug_tracker::category_heading -keyword_id $keyword_id]
+        dict set row_category $parent_id $keyword_id
+        dict set row_category_name $parent_id [bug_tracker::category_heading -keyword_id $keyword_id]
 
         if { [db_multirow_group_last_row_p -column bug_id] } {
             set component_name [bug_tracker::component_get_name \
@@ -1090,20 +1084,18 @@ ad_proc bug_tracker::bug::get_multirow {
             }
 
             # Move categories from array to normal variables, then clear the array for next row
-            foreach parent_id [array names row_category] {
-                set category_$parent_id $row_category($parent_id)
-                if {[info exists row_category_name($parent_id)]} {
-                    set category_name_$parent_id $row_category_name($parent_id)
+            foreach {parent_id category} $row_category {
+                set category_$parent_id $category
+                if {[dict exists $row_category_name $parent_id]} {
+                    set category_name_$parent_id [dict get $row_category_name $parent_id]
                 } else {
                     set category_name_$parent_id {}
                 }
             }
 
 
-            unset row_category
-            unset row_category_name
-            array set row_category $category_defaults
-            array set row_category_name $category_defaults
+            set row_category $category_defaults
+            set row_category_name $category_defaults
         } else {
             continue
         }
