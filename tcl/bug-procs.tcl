@@ -1073,7 +1073,7 @@ ad_proc bug_tracker::bug::get_multirow {
             set fixed_in_version_name [bug_tracker::version_get_name \
                                           -version_id $fixed_in_version \
                                           -package_id $package_id]
-            set comment_short [string_truncate -len $truncate_len -- $comment_content]
+            set comment_short [ad_string_truncate -len $truncate_len -- $comment_content]
             set submitter_url [acs_community_member_url -user_id $submitter_user_id]
             set assignee_url [acs_community_member_url -user_id $assigned_user_id]
             set resolution_pretty [bug_tracker::resolution_pretty $resolution]
