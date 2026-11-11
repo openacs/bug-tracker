@@ -1050,7 +1050,7 @@ ad_proc bug_tracker::bug::get_multirow {
     }
 
     set row_category $category_defaults
-    set row_category_names $category_defaults
+    set row_category_name $category_defaults
     db_multirow -extend $extend_list bugs select_bugs [get_query -query_name $query_name] {
 
         # parent_id is part of the column name
@@ -1083,7 +1083,7 @@ ad_proc bug_tracker::bug::get_multirow {
                 set $element {}
             }
 
-            # Move categories from array to normal variables, then clear the array for next row
+            # Copy the accumulated categories to the multirow columns.
             foreach {parent_id category} $row_category {
                 set category_$parent_id $category
                 if {[dict exists $row_category_name $parent_id]} {
@@ -1094,6 +1094,7 @@ ad_proc bug_tracker::bug::get_multirow {
             }
 
 
+            # Reset the dictionaries for the next bug.
             set row_category $category_defaults
             set row_category_name $category_defaults
         } else {
