@@ -407,8 +407,18 @@ if { ![form is_valid bug] } {
     element set_properties bug description \
             -before_html [workflow::case::get_activity_html -case_id $case_id -action_id $action_id]
 
-    # Set page title
-    set page_title "[bug_tracker::conn Bug] #$bug_number: $bug(summary)"
+    # The masters localize page titles and context labels. Strip message-key
+    # delimiters from the summary used in this metadata.
+    set title_summary $bug(summary)
+    # Removing one pair can expose another in a run of hashes.
+    while {[llength [set matches [lang::util::get_hash_indices $title_summary]]]} {
+        foreach match [lreverse $matches] {
+            lassign $match first last
+            set title_summary [string replace $title_summary $last $last]
+            set title_summary [string replace $title_summary $first $first]
+        }
+    }
+    set page_title "[bug_tracker::conn Bug] #$bug_number: $title_summary"
 
     # Context bar
     # TODO: Make real
