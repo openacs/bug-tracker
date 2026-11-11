@@ -928,7 +928,7 @@ ad_proc bug_tracker::bug::get_list {
         lappend bulk_actions "[_ bug-tracker.Send_Summary_Email]" "send-summary-email" "[_ bug-tracker.Send_Summary_Email]"
     }
 
-    set bulk_action_export_vars [list [list workflow_id $workflow_id] [list return_url [ad_return_url]]]
+    set bulk_action_export_vars [list [list workflow_id $workflow_id] {return_url {[ad_return_url]}}]
 
     template::list::create \
         -ulevel [expr {$ulevel + 1}] \
